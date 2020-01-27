@@ -32,7 +32,9 @@ Genform.prototype.draw = function () {
 };
 
 function checkCoordinate(coord, coords) {
+    console.log(coord);
     for (toCheck of coords) {
+        console.log(toCheck);
         if (Math.abs(toCheck - coord) < formWidth) {
             return false;
         }
