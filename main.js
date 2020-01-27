@@ -1,4 +1,3 @@
-import genGenForm from "./GameWorld/Platforms/Genform.js";
 var AM = new AssetManager();
 
 class Animation {
@@ -71,6 +70,39 @@ class MushroomDude {
             this.x = -230;
     }
 }
+
+function MushroomDude(game, spritesheet, placeformManager) {
+    this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
+    this.x = 0;
+    this.y = 0;
+    this.speed = 100;
+    this.game = game;
+    this.ctx = game.ctx;
+    this.placeformManager = placeformManager;
+    this.placed = false;//just for scripted placing remove once controls are implemented
+}
+
+MushroomDude.prototype.draw = function () {
+    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    this.placeformManager.placeformsDraw();
+}
+
+MushroomDude.prototype.update = function () {
+
+    if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14) {
+        this.x += this.game.clockTick * this.speed;
+        this.placed = false;
+    } else if (!this.placed){
+        this.placeformPlace();
+        this.placed = true;
+    }
+    if (this.x > 800) this.x = -230;
+}
+
+MushroomDude.prototype.placeformPlace = function () {
+    this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
+}
+
 
 // inheritance 
 class Cheetah extends Entity {
@@ -156,20 +188,19 @@ AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
 AM.queueDownload("./img/runningcat.png");
 AM.queueDownload("./img/background.jpg");
+AM.queueDownload(genformPath);
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
     var ctx = canvas.getContext("2d");
-
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-
-    genGenForm(5, gameEngine, this);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
-    gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
+    gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png"), new PlaceformManager(gameEngine, AM, 6)));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    //gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    genGenforms(5, gameEngine, AM);
 
     console.log("All Done!");
 });
