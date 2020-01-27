@@ -20,20 +20,63 @@ class GameEngine {
         this.ctx = ctx;
         this.surfaceWidth = this.ctx.canvas.width;
         this.surfaceHeight = this.ctx.canvas.height;
+        this.startInput();
         this.timer = new Timer();
         console.log('game initialized');
     }
     start() {
         console.log("starting game");
-        var self = this;
+        var that = this;
         (function gameLoop() {
-            self.loop();
-            requestAnimFrame(gameLoop, self.ctx.canvas);
+            that.loop();
+            requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
+    }
+    startInput() {
+        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
+            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+        console.log('Starting input');
+        var that = this;
+        this.ctx.canvas.addEventListener("keydown", function (e) {
+            if (e.code === keyArr[0] || e.code === keyArr[6])
+                that.up = true;
+            if (e.code === keyArr[1] || e.code === keyArr[7])
+                console.log('left down'), that.left = true;
+            if (e.code === keyArr[2] || e.code === keyArr[8])
+                that.down = true;
+            if (e.code === keyArr[3] || e.code === keyArr[9])
+                console.log('right down'), that.right = true;
+            if (e.code === keyArr[4])
+                that.key1 = true;
+            if (e.which === keyArr[5])
+                that.key2 = true;
+            //console.log(e);
+            e.preventDefault();
+        }, false);
+        this.ctx.canvas.addEventListener("keyup", function (e) {
+            if (e.code === keyArr[0] || e.code === keyArr[6])
+                that.up = false;
+            if (e.code === keyArr[1] || e.code === keyArr[7])
+                console.log('left up'), that.left = false;
+            if (e.code === keyArr[2] || e.code === keyArr[8])
+                that.down = false;
+            if (e.code === keyArr[3] || e.code === keyArr[9])
+                console.log('right up'), that.right = false;
+            if (e.code === keyArr[4])
+                that.key1 = false;
+            if (e.which === keyArr[5])
+                that.key2 = false;
+            //console.log(e);
+            //console.log("Key Up Event - Char " + e.code + " Code " + e.keyCode);
+            e.preventDefault();
+        }, false);
+        console.log('Input started');
     }
     addEntity(entity) {
         console.log('added entity');
         this.entities.push(entity);
+        this.moveRight = null;
+        this.moveLeft = null;
     }
     draw() {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
@@ -47,13 +90,25 @@ class GameEngine {
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
-            entity.update();
+            if (!entity.removeFromWorld) {
+                entity.update();
+            }
+            //entity.update();
+        }
+        for (var i = this.entities.length - 1; i >= 0; --i) {
+            if (this.entities[i].removeFromWorld) {
+                this.entities.splice(i, 1);
+            }
         }
     }
     loop() {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
+        this.left = false;
+        this.right = false;
+        this.up = false;
+        this.down = false;
     }
 }
 
