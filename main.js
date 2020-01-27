@@ -185,6 +185,6 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png"), new PlaceformManager(gameEngine, AM, 6)));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
     gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-
+    genGenforms(5, gameEngine,AM);
     console.log("All Done!");
 });
