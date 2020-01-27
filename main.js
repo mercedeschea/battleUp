@@ -94,90 +94,66 @@ class Cheetah extends Entity {
 
 // Cheetah.prototype = new Entity();
 // Cheetah.prototype.constructor = Cheetah;
-/*
 // inheritance 
-<<<<<<< HEAD
-class Guy {
+class Guy extends Entity {
     self = this;
     constructor(game, spritesheet) {
+        super(self, game, 0, 450);
         this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-        this.speed = 100;
+        //this.animation = new Animation(spritesheet, 154, 215, 1, 0.15, 1, true, 0.5);
+        this.moving = false;
+        this.speed = 600;
         this.ctx = game.ctx;
-        entity(self, game, 0, 450);
+        // Entity.call(this, game, 0, 450);
     }
     update() {
-        self.x += self.game.clockTick * self.speed;
-        if (self.x > 800)
-            self.x = -230;
-        Entity.prototype.update.call(self);
+        if (this.game.right || this.game.left || this.game.up || this.game.down)
+            this.moving = true;
+        if (this.moving && this.game.right === true) {
+            this.x += this.game.clockTick * 200;
+            console.log(this.moving + ' moving state');
+            this.moving = false;
+            console.log(this.moving + ' moving state');
+            //console.log(this.x); 
+        }
+        if (this.moving && this.game.left === true) {
+            this.x -= this.game.clockTick * 200;
+            //console.log(this.x);
+            this.moving = false;
+        }
+        if (this.moving && this.game.up === true) {
+            this.y -= this.game.clockTick * this.speed;
+            //console.log(this.y);
+            //this.moving = false;
+        }
+        if (this.moving && this.game.down === true) {
+            this.y += this.game.clockTick * this.speed;
+        }
+        //console.log(this.y);
+        //this.moving = false;
+        else {
+            this.moving = false;
+        }
+        // Entity.prototype.update.call(this);
     }
-    draw() {
-        self.animation.drawFrame(self.game.clockTick, self.ctx, self.x, self.y);
-        Entity.prototype.draw.call(self);
+    draw(ctx) {
+        super.draw(this);
+        //console.log(this.x + " is x" + this.y + " is y");
+        if (this.moving) {
+            this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        }
+        else {
+            this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        }
+        // Entity.prototype.draw.call(this);
     }
 }
 
 // Guy.prototype = new Entity();
 // Guy.prototype.constructor = Guy;
 
-*/
 
-=======
-function Guy(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-    //this.animation = new Animation(spritesheet, 154, 215, 1, 0.15, 1, true, 0.5);
-    this.moving = false;
-    this.speed = 600;
-    this.ctx = game.ctx;
-    Entity.call(this, game, 0, 450);
-}
 
-Guy.prototype = new Entity();
-Guy.prototype.constructor = Guy;
-
-Guy.prototype.update = function () {
-    
-    if (this.game.right || this.game.left || this.game.up || this.game.down) this.moving = true;
-    if (this.moving && this.game.right === true) {
-        this.x += this.game.clockTick * 200;
-        console.log(this.moving + ' moving state');
-        this.moving = false;
-        console.log(this.moving + ' moving state');
-        //console.log(this.x); 
-    }
-    if (this.moving && this.game.left === true) {
-        this.x -= this.game.clockTick * 200;
-        //console.log(this.x);
-        this.moving = false;
-    }
-    if (this.moving && this.game.up === true) {
-        this.y -= this.game.clockTick * this.speed;
-        //console.log(this.y);
-        //this.moving = false;
-    }
-    if (this.moving && this.game.down === true) {
-        this.y += this.game.clockTick * this.speed;
-    }
-        //console.log(this.y);
-        //this.moving = false;
-    else {
-        this.moving = false;
-    }
-    Entity.prototype.update.call(this);
-}
-
-Guy.prototype.draw = function (ctx) {
-    //console.log(this.x + " is x" + this.y + " is y");
-   
-    if (this.moving) {
-        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    } else {
-        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    }
-    Entity.prototype.draw.call(this);
-}
-
->>>>>>> f196be2b5fe22d83f35d55a323401bb456cba6bf
 AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
@@ -195,7 +171,7 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    //gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
 
     console.log("All Done!");
 });
