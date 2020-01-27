@@ -1,20 +1,21 @@
-var genFormPath = '././platform_prototype_1.png'
 var xCoordinates = [];
 var yCoordinates = [];
 var formWidth;
-var genGenForms = function (numOfGenForms, game, AM) {
+function genGenForms (numOfGenForms, game, AM) {
     formWidth = Math.floor(game.surfaceWidth/10);
     for (var i = 0; i < numOfGenForms; i++) {
-        game.addEntity(Genform(game, AM.getAsset(genFormPath)));
+        console.log("what is happening", xCoordinates, yCoordinates);
+        game.addEntity(new Genform(game, AM.getAsset(genformPath)));
     }
 }
 
 function Genform(game, spritesheet) {
-    this.x = getRandomInt();
-    this.y = getRandomInt();
-    while (!checkCoordinate(this.x, xCoordinates)) this.x = getRandomInt();
+    console.log("game width", game.surfaceWidth, "game height", game.surfaceHeight);
+    this.x = getRandomInt(game.surfaceWidth - formWidth);
+    this.y = getRandomInt(game.surfaceHeight - 10);
+    while (!checkCoordinate(this.x, xCoordinates)) this.x = getRandomInt(game.surfaceWidth - formWidth);
     xCoordinates.push(this.x);
-    while (!checkCoordinate(this.y, yCoordinates)) this.y = getRandomInt();
+    while (!checkCoordinate(this.y, yCoordinates)) this.y = getRandomInt(game.surfaceHeight - 10);
     yCoordinates.push(this.y);
     this.spritesheet = spritesheet;
     this.game = game;
@@ -43,5 +44,3 @@ Genform.prototype.update = function () {
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
-
-export { genGenForms };
