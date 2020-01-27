@@ -1,126 +1,125 @@
 var AM = new AssetManager();
 
-function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
-    this.spriteSheet = spriteSheet;
-    this.frameWidth = frameWidth;
-    this.frameDuration = frameDuration;
-    this.frameHeight = frameHeight;
-    this.sheetWidth = sheetWidth;
-    this.frames = frames;
-    this.totalTime = frameDuration * frames;
-    this.elapsedTime = 0;
-    this.loop = loop;
-    this.scale = scale;
-}
-
-Animation.prototype.drawFrame = function (tick, ctx, x, y) {
-    this.elapsedTime += tick;
-    if (this.isDone()) {
-        if (this.loop) this.elapsedTime = 0;
+class Animation {
+    constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
+        this.spriteSheet = spriteSheet;
+        this.frameWidth = frameWidth;
+        this.frameDuration = frameDuration;
+        this.frameHeight = frameHeight;
+        this.sheetWidth = sheetWidth;
+        this.frames = frames;
+        this.totalTime = frameDuration * frames;
+        this.elapsedTime = 0;
+        this.loop = loop;
+        this.scale = scale;
     }
-    var frame = this.currentFrame();
-    var xindex = 0;
-    var yindex = 0;
-    xindex = frame % this.sheetWidth;
-    yindex = Math.floor(frame / this.sheetWidth);
-
-    ctx.drawImage(this.spriteSheet,
-                 xindex * this.frameWidth, yindex * this.frameHeight,  // source from sheet
-                 this.frameWidth, this.frameHeight,
-                 x, y,
-                 this.frameWidth * this.scale,
-                 this.frameHeight * this.scale);
-}
-
-Animation.prototype.currentFrame = function () {
-    return Math.floor(this.elapsedTime / this.frameDuration);
-}
-
-Animation.prototype.isDone = function () {
-    return (this.elapsedTime >= this.totalTime);
+    drawFrame(tick, ctx, x, y) {
+        this.elapsedTime += tick;
+        if (this.isDone()) {
+            if (this.loop)
+                this.elapsedTime = 0;
+        }
+        var frame = this.currentFrame();
+        var xIndex = 0;
+        var yIndex = 0;
+        xIndex = frame % this.sheetWidth;
+        yIndex = Math.floor(frame / this.sheetWidth);
+        ctx.drawImage(this.spriteSheet, xIndex * this.frameWidth, yIndex * this.frameHeight, // source from sheet
+            this.frameWidth, this.frameHeight, x, y, this.frameWidth * this.scale, this.frameHeight * this.scale);
+    }
+    currentFrame() {
+        return Math.floor(this.elapsedTime / this.frameDuration);
+    }
+    isDone() {
+        return (this.elapsedTime >= this.totalTime);
+    }
 }
 
 // no inheritance
-function Background(game, spritesheet) {
-    this.x = 0;
-    this.y = 0;
-    this.spritesheet = spritesheet;
-    this.game = game;
-    this.ctx = game.ctx;
+class Background {
+    constructor(game, spritesheet) {
+        this.x = 0;
+        this.y = 0;
+        this.spritesheet = spritesheet;
+        this.game = game;
+        this.ctx = game.ctx;
+    }
+    draw() {
+        this.ctx.drawImage(this.spritesheet, this.x, this.y);
+    }
+    update() {
+    }
 };
 
-Background.prototype.draw = function () {
-    this.ctx.drawImage(this.spritesheet,
-                   this.x, this.y);
-};
-
-Background.prototype.update = function () {
-};
-
-function MushroomDude(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
-    this.x = 0;
-    this.y = 0;
-    this.speed = 100;
-    this.game = game;
-    this.ctx = game.ctx;
+class MushroomDude {
+    constructor(game, spritesheet) {
+        this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
+        this.x = 0;
+        this.y = 0;
+        this.speed = 100;
+        this.game = game;
+        this.ctx = game.ctx;
+    }
+    draw() {
+        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    }
+    update() {
+        if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
+            this.x += this.game.clockTick * this.speed;
+        if (this.x > 800)
+            this.x = -230;
+    }
 }
 
-MushroomDude.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-}
-
-MushroomDude.prototype.update = function () {
-    if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
+// inheritance 
+class Cheetah extends Entity {
+    self = this;
+    constructor(game, spritesheet) {
+        super(self, game, 0, 250);
+        this.animation = new Animation(spritesheet, 512, 256, 2, 0.05, 8, true, 0.5);
+        this.speed = 350;
+        this.ctx = game.ctx;
+    }
+    update() {
+        super.update();
         this.x += this.game.clockTick * this.speed;
-    if (this.x > 800) this.x = -230;
+        if (this.x > 800)
+            this.x = -230;
+    }
+    draw() {
+        super.draw(self);
+        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+    }
 }
 
-
+// Cheetah.prototype = new Entity();
+// Cheetah.prototype.constructor = Cheetah;
+/*
 // inheritance 
-function Cheetah(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 512, 256, 2, 0.05, 8, true, 0.5);
-    this.speed = 350;
-    this.ctx = game.ctx;
-    Entity.call(this, game, 0, 250);
+class Guy {
+    self = this;
+    constructor(game, spritesheet) {
+        this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
+        this.speed = 100;
+        this.ctx = game.ctx;
+        entity(self, game, 0, 450);
+    }
+    update() {
+        self.x += self.game.clockTick * self.speed;
+        if (self.x > 800)
+            self.x = -230;
+        Entity.prototype.update.call(self);
+    }
+    draw() {
+        self.animation.drawFrame(self.game.clockTick, self.ctx, self.x, self.y);
+        Entity.prototype.draw.call(self);
+    }
 }
 
-Cheetah.prototype = new Entity();
-Cheetah.prototype.constructor = Cheetah;
+// Guy.prototype = new Entity();
+// Guy.prototype.constructor = Guy;
 
-Cheetah.prototype.update = function () {
-    this.x += this.game.clockTick * this.speed;
-    if (this.x > 800) this.x = -230;
-    Entity.prototype.update.call(this);
-}
-
-Cheetah.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    Entity.prototype.draw.call(this);
-}
-
-// inheritance 
-function Guy(game, spritesheet) {
-    this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-    this.speed = 100;
-    this.ctx = game.ctx;
-    Entity.call(this, game, 0, 450);
-}
-
-Guy.prototype = new Entity();
-Guy.prototype.constructor = Guy;
-
-Guy.prototype.update = function () {
-    this.x += this.game.clockTick * this.speed;
-    if (this.x > 800) this.x = -230;
-    Entity.prototype.update.call(this);
-}
-
-Guy.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    Entity.prototype.draw.call(this);
-}
-
+*/
 
 AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
@@ -139,7 +138,7 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    //gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
 
     console.log("All Done!");
 });
