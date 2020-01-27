@@ -97,33 +97,6 @@ class Cheetah extends Entity {
 // Cheetah.prototype.constructor = Cheetah;
 /*
 // inheritance 
-<<<<<<< HEAD
-class Guy {
-    self = this;
-    constructor(game, spritesheet) {
-        this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-        this.speed = 100;
-        this.ctx = game.ctx;
-        entity(self, game, 0, 450);
-    }
-    update() {
-        self.x += self.game.clockTick * self.speed;
-        if (self.x > 800)
-            self.x = -230;
-        Entity.prototype.update.call(self);
-    }
-    draw() {
-        self.animation.drawFrame(self.game.clockTick, self.ctx, self.x, self.y);
-        Entity.prototype.draw.call(self);
-    }
-}
-
-// Guy.prototype = new Entity();
-// Guy.prototype.constructor = Guy;
-
-*/
-
-=======
 function Guy(game, spritesheet) {
     this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
     //this.animation = new Animation(spritesheet, 154, 215, 1, 0.15, 1, true, 0.5);
@@ -178,7 +151,6 @@ Guy.prototype.draw = function (ctx) {
     Entity.prototype.draw.call(this);
 }
 
->>>>>>> f196be2b5fe22d83f35d55a323401bb456cba6bf
 AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
