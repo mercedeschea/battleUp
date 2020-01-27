@@ -1,5 +1,6 @@
 var AM = new AssetManager();
-
+var genformPath = './img/platform_prototype_1.png';
+var placeformPath = './img/platform_prototype_1.png';
 class Animation {
     constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
         this.spriteSheet = spriteSheet;
@@ -52,55 +53,35 @@ class Background {
 };
 
 class MushroomDude {
-    constructor(game, spritesheet) {
+    constructor(game, spritesheet, placeformManager) {
         this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
         this.x = 0;
         this.y = 0;
         this.speed = 100;
         this.game = game;
         this.ctx = game.ctx;
+        this.placeformManager = placeformManager;
+        this.placed = false;//just for scripted placing remove once controls are implemented
     }
     draw() {
         this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        this.placeformManager.placeformsDraw();
     }
     update() {
-        if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14)
+        if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14) {
             this.x += this.game.clockTick * this.speed;
-        if (this.x > 800)
-            this.x = -230;
+            this.placed = false;
+        } else if (!this.placed){
+            this.placeformPlace();
+            this.placed = true;
+        }
+        if (this.x > 800) this.x = -230;
     }
-}
 
-function MushroomDude(game, spritesheet, placeformManager) {
-    this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
-    this.x = 0;
-    this.y = 0;
-    this.speed = 100;
-    this.game = game;
-    this.ctx = game.ctx;
-    this.placeformManager = placeformManager;
-    this.placed = false;//just for scripted placing remove once controls are implemented
-}
-
-MushroomDude.prototype.draw = function () {
-    this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    this.placeformManager.placeformsDraw();
-}
-
-MushroomDude.prototype.update = function () {
-
-    if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14) {
-        this.x += this.game.clockTick * this.speed;
-        this.placed = false;
-    } else if (!this.placed){
-        this.placeformPlace();
-        this.placed = true;
+    placeformPlace() {
+        this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
     }
-    if (this.x > 800) this.x = -230;
-}
-
-MushroomDude.prototype.placeformPlace = function () {
-    this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
+    
 }
 
 
@@ -127,7 +108,6 @@ class Cheetah extends Entity {
 
 // Cheetah.prototype = new Entity();
 // Cheetah.prototype.constructor = Cheetah;
-/*
 // inheritance 
 function Guy(game, spritesheet) {
     this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
@@ -199,7 +179,7 @@ AM.downloadAll(function () {
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png"), new PlaceformManager(gameEngine, AM, 6)));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
+    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
     genGenforms(5, gameEngine, AM);
 
     console.log("All Done!");
