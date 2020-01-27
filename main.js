@@ -1,3 +1,4 @@
+import genGenForm from "./GameWorld/Platforms/Genform.js";
 var AM = new AssetManager();
 
 function Animation(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
@@ -120,8 +121,6 @@ Guy.prototype.draw = function () {
     this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
     Entity.prototype.draw.call(this);
 }
-
-
 AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
@@ -136,6 +135,7 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     gameEngine.start();
 
+    genGenForm(5, gameEngine, this);
     gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png")));
     gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
