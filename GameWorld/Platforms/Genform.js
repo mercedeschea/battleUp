@@ -1,48 +1,54 @@
-var xCoordinates = [];
-var yCoordinates = [];
-var formWidth;
+const xCoordinatesGenforms = [];
+const yCoordinatesGenforms = [];
 function genGenforms (numOfGenForms, game, AM) {
-    formWidth = Math.floor(game.surfaceWidth/10);//why does this have to be 10
-    console.log(formWidth);
+    // console.log("form width correction", formWidth);
+    const minHorizontalSeperation = Math.floor(game.surfaceWidth/15);//why does this have to be 10
+    const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
     for (var i = 0; i < numOfGenForms; i++) {
-        console.log("what is happening", xCoordinates, yCoordinates);
-        game.addEntity(new Genform(game, AM.getAsset(genformPath)));
+        // console.log("what is happening", xCoordinates, yCoordinates);
+        game.addEntity(new Genform(game, AM.getAsset(genformPath), minHorizontalSeperation, minVerticalSeperation));
     }
 }
 
-function Genform(game, spritesheet) {
-    console.log("game width", game.surfaceWidth, "game height", game.surfaceHeight);
-    this.x = getRandomInt(game.surfaceWidth - formWidth);
-    this.y = getRandomInt(game.surfaceHeight - 10);
-    while (!checkCoordinate(this.x, xCoordinates)) this.x = getRandomInt(game.surfaceWidth - formWidth);
-    xCoordinates.push(this.x);
-    while (!checkCoordinate(this.y, yCoordinates)) this.y = getRandomInt(game.surfaceHeight - 10);
-    yCoordinates.push(this.y);
-    this.spritesheet = spritesheet;
-    this.game = game;
-    this.ctx = game.ctx;
-};
+class Genform {
+    constructor(game, spritesheet, minHorizontalSeperation, minVerticalSeperation) {
+        // console.log("game width", game.surfaceWidth, "game height", game.surfaceHeight);
+        this.x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
+        this.y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
+        while (!checkCoordinate(this.x, xCoordinatesGenforms, minHorizontalSeperation))
+            this.x = getRandomInt(game.surfaceWidth - minHorizontalSeperation), console.log("the x coord", this.x, "the x coords", xCoordinatesGenforms);
+        xCoordinatesGenforms.push(this.x);
+        while (!checkCoordinate(this.y, yCoordinatesGenforms, minVerticalSeperation))
+            this.y = getRandomInt(game.surfaceHeight - minVerticalSeperation), console.log("the y coord", this.y, "the y coords", yCoordinatesGenforms);
+        yCoordinatesGenforms.push(this.y);
+        this.spritesheet = spritesheet;
+        this.game = game;
+        this.ctx = game.ctx;
+        this.widthDraw = 120; 
+        this.heightDraw = 13;
+        this.scale = 1;
+    }
+    draw() {
+        this.ctx.drawImage(this.spritesheet, 90, 0, this.widthDraw, this.heightDraw, this.x, this.y, this.widthDraw * this.scale, this.heightDraw * this.scale);
+    }
+    update() {
+    }
+}
+;
 
 function checkScope() {
     console.log(gameEngine.ctx);
 }
-Genform.prototype.draw = function () {
-    this.ctx.drawImage(this.spritesheet,
-                   this.x, this.y);
-};
 
-function checkCoordinate(coord, coords) {
-    console.log(coord);
+function checkCoordinate(coord, coords, desiredMinSeperation) {
     for (toCheck of coords) {
-        console.log(toCheck);
-        if (Math.abs(toCheck - coord) < formWidth) {
+        console.log("tocheck is", toCheck);
+        if (Math.abs(toCheck - coord) < desiredMinSeperation) {
             return false;
         }
     }
     return true;
 }
-Genform.prototype.update = function () {
-};
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));

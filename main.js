@@ -1,8 +1,12 @@
 var AM = new AssetManager();
-var genformPath = './img/platform_prototype_1.png';
-var placeformPath = './img/platform_prototype_1.png';
+var genformPath = './Sprites/Level_0_genform_spritesheet.png';
+var placeformPath = './Sprites/Level_0_placeform_spritesheet.png';
+var backgroundPath = './Sprites/PossibleBackground.png';
+var greenCharacterPath = './Sprites/GloopGlop_full_turnGreen.png';
+
+
 class Animation {
-    constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
+    constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, offsetY) {
         this.spriteSheet = spriteSheet;
         this.frameWidth = frameWidth;
         this.frameDuration = frameDuration;
@@ -13,6 +17,7 @@ class Animation {
         this.elapsedTime = 0;
         this.loop = loop;
         this.scale = scale;
+        this.offsetY = offsetY;
     }
     drawFrame(tick, ctx, x, y) {
         this.elapsedTime += tick;
@@ -26,7 +31,7 @@ class Animation {
         xIndex = frame % this.sheetWidth;
         yIndex = Math.floor(frame / this.sheetWidth);
         ctx.drawImage(this.spriteSheet, xIndex * this.frameWidth, yIndex * this.frameHeight, // source from sheet
-            this.frameWidth, this.frameHeight, x, y, this.frameWidth * this.scale, this.frameHeight * this.scale);
+            this.frameWidth, this.frameHeight, x, y + this.offsetY, this.frameWidth * this.scale, this.frameHeight * this.scale);
     }
     currentFrame() {
         return Math.floor(this.elapsedTime / this.frameDuration);
@@ -51,6 +56,7 @@ class Background {
     update() {
     }
 };
+
 
 class MushroomDude {
     constructor(game, spritesheet, placeformManager) {
@@ -78,6 +84,7 @@ class MushroomDude {
         if (this.x > 800) this.x = -230;
     }
 
+    
     placeformPlace() {
         this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
     }
@@ -111,8 +118,9 @@ class Cheetah extends Entity {
 // inheritance 
 class Guy extends Entity {
     self = this;
-    constructor(game, spritesheet) {
+    constructor(game, spritesheet, placeformManager) {
         super(self, game, 0, 450);
+        this.placeformManager = placeformManager;
         this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
         //this.animation = new Animation(spritesheet, 154, 215, 1, 0.15, 1, true, 0.5);
         this.moving = false;
@@ -150,9 +158,11 @@ class Guy extends Entity {
         }
         // Entity.prototype.update.call(this);
     }
-    draw(ctx) {
-        super.draw(this);
-        //console.log(this.x + " is x" + this.y + " is y");
+
+
+    draw() {
+        super.draw();
+        console.log(this.x + " is x" + this.y + " is y");
         if (this.moving) {
             this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         }
@@ -161,6 +171,10 @@ class Guy extends Entity {
         }
         // Entity.prototype.draw.call(this);
     }
+
+    placeformPlace() {
+        this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
+    }
 }
 
 // Guy.prototype = new Entity();
@@ -168,12 +182,14 @@ class Guy extends Entity {
 
 
 
-AM.queueDownload("./img/RobotUnicorn.png");
+// AM.queueDownload("./img/RobotUnicorn.png");
 AM.queueDownload("./img/guy.jpg");
 AM.queueDownload("./img/mushroomdude.png");
-AM.queueDownload("./img/runningcat.png");
-AM.queueDownload("./img/background.jpg");
+// AM.queueDownload("./img/runningcat.png");
+AM.queueDownload(backgroundPath);
 AM.queueDownload(genformPath);
+AM.queueDownload(placeformPath);
+AM.queueDownload(greenCharacterPath);
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
@@ -181,10 +197,11 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
+    gameEngine.addEntity(new Background(gameEngine, AM.getAsset(backgroundPath)));
     gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png"), new PlaceformManager(gameEngine, AM, 6)));
-    gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-    genGenforms(5, gameEngine,AM);
+    // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
+    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg"),  new PlaceformManager(gameEngine, AM, 6)));
+    // gameEngine.addEntity(new GloopGlop(gameEngine, AM.getAsset(greenCharacterPath), new PlaceformManager(gameEngine, AM, 5)));
+    genGenforms(5, gameEngine, AM);
     console.log("All Done!");
 });

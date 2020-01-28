@@ -11,6 +11,8 @@ window.requestAnimFrame = (function () {
 
 class GameEngine {
     constructor() {
+        this.right = null;
+        this.left = null;
         this.entities = [];
         this.ctx = null;
         this.surfaceWidth = null;
@@ -82,7 +84,7 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
-            this.entities[i].draw(this.ctx);
+            this.entities[i].draw();
         }
         this.ctx.restore();
     }
@@ -105,8 +107,8 @@ class GameEngine {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
-        this.left = false;
-        this.right = false;
+        // this.left = false;
+        // this.right = false;
         this.up = false;
         this.down = false;
     }
@@ -139,7 +141,7 @@ class Entity {
     }
     update() {
     }
-    draw(ctx) {
+    draw() {
         if (this.game.showOutlines && this.radius) {
             this.game.ctx.beginPath();
             this.game.ctx.strokeStyle = "green";
