@@ -1,33 +1,53 @@
 var AM = new AssetManager();
+
+// Place these in their own classes, more below @ bottom of main
 var genformPath = './img/platform_prototype_1.png';
 var placeformPath = './img/platform_prototype_1.png';
 
 class Animation {
-    constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
+    constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
         this.spriteSheet = spriteSheet;
+        this.startX = startX;
+        this.startY = startY;
         this.frameWidth = frameWidth;
         this.frameDuration = frameDuration;
         this.frameHeight = frameHeight;
-        this.sheetWidth = sheetWidth;
         this.frames = frames;
         this.totalTime = frameDuration * frames;
         this.elapsedTime = 0;
         this.loop = loop;
-        this.scale = scale;
+        this.reverse = reverse;
     }
-    drawFrame(tick, ctx, x, y) {
+    drawFrame(tick, ctx, x, y, scaleBy) {
+        var scaleBy = scaleBy || 1;
         this.elapsedTime += tick;
-        if (this.isDone()) {
-            if (this.loop)
-                this.elapsedTime = 0;
+        if (this.loop) {
+            if (this.isDone()) {
+                this.elapsedTime = this.elapsedTime - this.totalTime;
+            }
+        } else if (this.isDone()) {
+            return;
         }
-        var frame = this.currentFrame();
-        var xIndex = 0;
-        var yIndex = 0;
-        xIndex = frame % this.sheetWidth;
-        yIndex = Math.floor(frame / this.sheetWidth);
-        ctx.drawImage(this.spriteSheet, xIndex * this.frameWidth, yIndex * this.frameHeight, // source from sheet
-            this.frameWidth, this.frameHeight, x, y, this.frameWidth * this.scale, this.frameHeight * this.scale);
+        var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+        var vindex = 0;
+        console.log(this.spriteSheet);
+        if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+            index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+            vindex++;
+        }
+        while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+            index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+            vindex++;
+        }
+        var locX = x;
+        var locY = y;
+        var offset = vindex === 0 ? this.startX : 0;
+        ctx.drawImage(this.spriteSheet,
+                    index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                    this.frameWidth, this.frameHeight,
+                    locX, locY,
+                    this.frameWidth * scaleBy,
+                    this.frameHeight * scaleBy);
     }
     currentFrame() {
         return Math.floor(this.elapsedTime / this.frameDuration);
@@ -37,11 +57,12 @@ class Animation {
     }
 }
 
+const BACKGROUND_PATH = "./img/background.jpg";
 class Background {
-    constructor(game, spritesheet) {
+    constructor(game, AM) {
         this.x = 0;
         this.y = 0;
-        this.spritesheet = spritesheet;
+        this.spritesheet = AM.getAsset(BACKGROUND_PATH);
         this.game = game;
         this.ctx = game.ctx;
     }
@@ -51,125 +72,16 @@ class Background {
     update() {
     }
 };
-/*
-class MushroomDude {
-    constructor(game, spritesheet, placeformManager) {
-        this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
-        this.x = 0;
-        this.y = 0;
-        this.speed = 100;
-        this.game = game;
-        this.ctx = game.ctx;
-        this.placeformManager = placeformManager;
-        this.placed = false;//just for scripted placing remove once controls are implemented
-    }
-    draw() {
-        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        this.placeformManager.placeformsDraw();
-    }
-    update() {
-        if (this.animation.elapsedTime < this.animation.totalTime * 8 / 14) {
-            this.x += this.game.clockTick * this.speed;
-            this.placed = false;
-        } else if (!this.placed){
-            this.placeformPlace();
-            this.placed = true;
-        }
-        if (this.x > 800) this.x = -230;
-    }
 
-    placeformPlace() {
-        this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
-    }
-    
-}
-*
 
-// inheritance 
-class Cheetah extends Entity {
-    self = this;
-    constructor(game, spritesheet) {
-        super(self, game, 0, 250);
-        this.animation = new Animation(spritesheet, 512, 256, 2, 0.05, 8, true, 0.5);
-        this.speed = 350;
-        this.ctx = game.ctx;
-    }
-    update() {
-        super.update();
-        this.x += this.game.clockTick * this.speed;
-        if (this.x > 800)
-            this.x = -230;
-    }
-    draw() {
-        super.draw(self);
-        this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-    }
-}
+// Each class should have a helper that downloads all their necessary assets.
+// For instance Genform class would queueDownload each of the genform assets for each level
+// See PlayerCharacter class top function for example!
+PlayerCharacterAMDownloads(AM);
 
-// Cheetah.prototype = new Entity();
-// Cheetah.prototype.constructor = Cheetah;
-// inheritance 
-class Guy extends Entity {
-    self = this;
-    constructor(game, spritesheet) {
-        super(self, game, 0, 450);
-        this.animation = new Animation(spritesheet, 154, 215, 4, 0.15, 8, true, 0.5);
-        //this.animation = new Animation(spritesheet, 154, 215, 1, 0.15, 1, true, 0.5);
-        this.moving = false;
-        this.speed = 600;
-        this.ctx = game.ctx;
-        // Entity.call(this, game, 0, 450);
-    }
-    update() {
-        if (this.game.right || this.game.left || this.game.up || this.game.down)
-            this.moving = true;
-        if (this.moving && this.game.right === true) {
-            this.x += this.game.clockTick * 200;
-            console.log(this.moving + ' moving state');
-            this.moving = false;
-            console.log(this.moving + ' moving state');
-            //console.log(this.x); 
-        }
-        if (this.moving && this.game.left === true) {
-            this.x -= this.game.clockTick * 200;
-            //console.log(this.x);
-            this.moving = false;
-        }
-        if (this.moving && this.game.up === true) {
-            this.y -= this.game.clockTick * this.speed;
-            //console.log(this.y);
-            //this.moving = false;
-        }
-        if (this.moving && this.game.down === true) {
-            this.y += this.game.clockTick * this.speed;
-        }
-        //console.log(this.y);
-        //this.moving = false;
-        else {
-            this.moving = false;
-        }
-        // Entity.prototype.update.call(this);
-    }
-    draw(ctx) {
-        super.draw(this);
-        //console.log(this.x + " is x" + this.y + " is y");
-        if (this.moving) {
-            this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
-        else {
-            this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
-        // Entity.prototype.draw.call(this);
-    }
-}
-
-AM.queueDownload("./img/RobotUnicorn.png");
-AM.queueDownload("./img/guy.jpg");
-AM.queueDownload("./img/mushroomdude.png");
-AM.queueDownload("./img/runningcat.png");*/
-AM.queueDownload("./img/background.jpg");
-AM.queueDownload("./Sprites/GloopGlop full turn.png");
+// To be refactored:
 AM.queueDownload(genformPath);
+AM.queueDownload(BACKGROUND_PATH);
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
@@ -177,11 +89,11 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new Background(gameEngine, AM.getAsset("./img/background.jpg")));
-    // gameEngine.addEntity(new MushroomDude(gameEngine, AM.getAsset("./img/mushroomdude.png"), new PlaceformManager(gameEngine, AM, 6)));
-    // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM.getAsset(PLAYER_CHARACTER_PATH)));
+
+    // pass AM to each class so they queue their own downloads and track their own asset paths
+    // I have refactored PlayerCharacter and Background, but have not touched the platform entities
+    gameEngine.addEntity(new Background(gameEngine, AM));
+    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
 
     console.log("All Done!");
 });

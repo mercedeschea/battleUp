@@ -15,6 +15,12 @@ class GameEngine {
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
+        
+        this.left = false;
+        this.right = false;
+        this.up = false;
+        this.keyE = false;
+        this.keyF = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -37,41 +43,36 @@ class GameEngine {
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
         console.log('Starting input');
         var that = this;
+
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = true;
             if (e.code === keyArr[1] || e.code === keyArr[7])
-                // console.log('left down');
                 that.left = true;
-            if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = true;
+            /*if (e.code === keyArr[2] || e.code === keyArr[8])
+                that.down = true;*/
             if (e.code === keyArr[3] || e.code === keyArr[9])
-                // console.log('right down');
                 that.right = true;
             if (e.code === keyArr[4])
-                that.key1 = true;
-            if (e.which === keyArr[5])
-                that.key2 = true;
-            //console.log(e);
+                that.keyE = true;
+            if (e.code === keyArr[5])
+                that.keyF = true;
             e.preventDefault();
         }, false);
+
         this.ctx.canvas.addEventListener("keyup", function (e) {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = false;
             if (e.code === keyArr[1] || e.code === keyArr[7])
-                // console.log('left up');
                 that.left = false;
-            if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = false;
+            /*if (e.code === keyArr[2] || e.code === keyArr[8])
+                that.down = false;*/
             if (e.code === keyArr[3] || e.code === keyArr[9])
-                // console.log('right up');
                 that.right = false;
             if (e.code === keyArr[4])
-                that.key1 = false;
+                that.keyE = false;
             if (e.which === keyArr[5])
-                that.key2 = false;
-            //console.log(e);
-            //console.log("Key Up Event - Char " + e.code + " Code " + e.keyCode);
+                that.keyF = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
@@ -97,7 +98,6 @@ class GameEngine {
             if (!entity.removeFromWorld) {
                 entity.update();
             }
-            //entity.update();
         }
         for (var i = this.entities.length - 1; i >= 0; --i) {
             if (this.entities[i].removeFromWorld) {
@@ -109,8 +109,7 @@ class GameEngine {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
-        // this.up = false;
-
+        this.up = false; // jump only happens once
     }
 }
 
@@ -131,9 +130,7 @@ class Timer {
 }
 
 class Entity {
-    constructor(scope, game, x, y) {
-        console.log(game);
-        console.trace();
+    constructor(scope, game, x, y) { // pretty sure "scope" here should be refactored out, will do later
         this.game = game;
         this.x = x;
         this.y = y;

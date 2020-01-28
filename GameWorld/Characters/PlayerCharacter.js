@@ -1,94 +1,82 @@
-const PLAYER_CHARACTER_PATH = "./Sprites/GloopGlop full turn.png";
+const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
+const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
+const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/CuterGloopGlob.png";
 
-/*     constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale) {
- */
+function PlayerCharacterAMDownloads(AM) {
+    AM.queueDownload(GLOOP_HOP_LEFT);
+    AM.queueDownload(GLOOP_HOP_RIGHT);
+    AM.queueDownload(GLOOP_LOOK_FORWARD);
+    AM.queueDownload(GLOOP_TURNING);
+}
 
+ /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
     self = this;
-    constructor(game, spritesheet) {
+    constructor(game, AM) {
         super(self, game, 300, 300);
-        this.moveLeftAnimation = new Animation(spritesheet, 64, 64, 206, 0.02, 4, true, 1);
-        // this.moveRightAnimation = new Animation(spritesheet, 64, 64, )
+
+        this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 64, 1, 1, true, true);
+        this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
+        this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
+        
+        // facingLeft instead of just "this.facing" with true/false or 0/1 which we would have to keep track of
+        this.facingLeft = true;
         this.radius = 32;
         this.speed = 100;
         this.game = game;
         this.ctx = game.ctx;
     }
     update() {
-        if (this.game.right || this.game.left || this.game.up || this.game.down)
-            this.moving = true;
-        if (this.moving && this.game.right === true) {
-            this.x += this.game.clockTick * 200;
-            // console.log(this.moving + ' moving state');
-            this.moving = false;
-            // console.log(this.moving + ' moving state');
+        this.movingLeft = false;
+        this.movingRight = false;
+        if (this.game.left) {
+            this.movingLeft = true;
+            this.facingLeft = true;
         }
-        if (this.moving && this.game.left === true) {
-            this.x -= this.game.clockTick * 200;
-            this.moving = false;
+        else if (this.game.right) {
+            this.movingRight = true;
+            this.facingLeft = false;
         }
-        if (this.moving && this.game.up === true) {
-            this.y -= this.game.clockTick * this.speed;
-            //this.moving = false;
-        }
-        if (this.moving && this.game.down === true) {
-            this.y += this.game.clockTick * this.speed;
-        }
-        //this.moving = false;
-        else {
-            this.moving = false;
-        }
-    }
-    draw(ctx) {
-        super.draw(this);
-        if (this.moving) {
-            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
-        else {
-            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
-    }
-}
 
-/*
-class Unicorn {
-    constructor(game) {
-        this.animation = new Animation(ASSET_MANAGER.getAsset("./img/RobotUnicorn.png"), 0, 0, 206, 110, 0.02, 30, true, true);
-        this.jumpAnimation = new Animation(ASSET_MANAGER.getAsset("./img/RobotUnicorn.png"), 618, 334, 174, 138, 0.02, 40, false, true);
-        this.jumping = false;
-        this.radius = 100;
-        this.ground = 400;
-        Entity.call(this, game, 0, 400);
-    }
-    update() {
-        if (this.game.space)
+        if (this.movingLeft) {
+            this.x -= this.game.clockTick * 200;
+        } else if (this.movingRight) {
+            this.x += this.game.clockTick * 200;
+        }
+
+        if (this.game.up)
             this.jumping = true;
         if (this.jumping) {
-            if (this.jumpAnimation.isDone()) {
-                this.jumpAnimation.elapsedTime = 0;
+            let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
+            if (jumpAnimation.isDone()) {
+                jumpAnimation.elapsedTime = 0;
                 this.jumping = false;
             }
-            var jumpDistance = this.jumpAnimation.elapsedTime / this.jumpAnimation.totalTime;
-            var totalHeight = 200;
+            var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
+            var totalHeight = 100;
             if (jumpDistance > 0.5)
                 jumpDistance = 1 - jumpDistance;
-            //var height = jumpDistance * 2 * totalHeight;
             var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = this.ground - height;
+            this.y = 300 - height;
         }
-        Entity.prototype.update.call(this);
     }
     draw(ctx) {
-        if (this.jumping) {
-            this.jumpAnimation.drawFrame(this.game.clockTick, ctx, this.x + 17, this.y - 34);
+        if (this.jumping && this.facingLeft) {
+            console.log("trying to jump left");
+            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else if (this.jumping && !this.facingLeft) {
+            console.log("trying to jump right");
+            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else if (this.movingLeft) {
+            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else if (this.movingRight) {
+            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        } else {
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         }
-        else {
-            this.animation.drawFrame(this.game.clockTick, ctx, this.x, this.y);
-        }
-        Entity.prototype.draw.call(this);
     }
 }
-
-Unicorn.prototype = new Entity();
-Unicorn.prototype.constructor = Unicorn;
-*/
