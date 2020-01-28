@@ -41,11 +41,13 @@ class GameEngine {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = true;
             if (e.code === keyArr[1] || e.code === keyArr[7])
-                console.log('left down'), that.left = true;
+                // console.log('left down');
+                that.left = true;
             if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;
             if (e.code === keyArr[3] || e.code === keyArr[9])
-                console.log('right down'), that.right = true;
+                // console.log('right down');
+                that.right = true;
             if (e.code === keyArr[4])
                 that.key1 = true;
             if (e.which === keyArr[5])
@@ -57,11 +59,13 @@ class GameEngine {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = false;
             if (e.code === keyArr[1] || e.code === keyArr[7])
-                console.log('left up'), that.left = false;
+                // console.log('left up');
+                that.left = false;
             if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = false;
             if (e.code === keyArr[3] || e.code === keyArr[9])
-                console.log('right up'), that.right = false;
+                // console.log('right up');
+                that.right = false;
             if (e.code === keyArr[4])
                 that.key1 = false;
             if (e.which === keyArr[5])
@@ -105,10 +109,8 @@ class GameEngine {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
-        this.left = false;
-        this.right = false;
-        this.up = false;
-        this.down = false;
+        // this.up = false;
+
     }
 }
 
@@ -165,6 +167,3 @@ class Entity {
         return offscreenCanvas;
     }
 }
-
-
-
