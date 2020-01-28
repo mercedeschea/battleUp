@@ -50,7 +50,7 @@ class GameEngine {
                 console.log('right down'), that.right = true;
             if (e.code === keyArr[4])
                 that.key1 = true;
-            if (e.which === keyArr[5])
+            if (e.code === keyArr[5])
                 that.key2 = true;
             //console.log(e);
             e.preventDefault();
@@ -107,6 +107,8 @@ class GameEngine {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
+        this.key1 = false;
+        this.key2 = false;
         // this.left = false;
         // this.right = false;
         this.up = false;

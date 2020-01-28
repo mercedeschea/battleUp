@@ -1,43 +1,64 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
-function genGenforms (numOfGenForms, game, AM) {
-    // console.log("form width correction", formWidth);
-    const minHorizontalSeperation = Math.floor(game.surfaceWidth/15);//why does this have to be 10
-    const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
-    for (var i = 0; i < numOfGenForms; i++) {
-        // console.log("what is happening", xCoordinates, yCoordinates);
-        game.addEntity(new Genform(game, AM.getAsset(genformPath), minHorizontalSeperation, minVerticalSeperation));
-    }
-}
 
-class Genform {
-    constructor(game, spritesheet, minHorizontalSeperation, minVerticalSeperation) {
-        // console.log("game width", game.surfaceWidth, "game height", game.surfaceHeight);
-        this.x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
-        this.y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
-        while (!checkCoordinate(this.x, xCoordinatesGenforms, minHorizontalSeperation))
-            this.x = getRandomInt(game.surfaceWidth - minHorizontalSeperation), console.log("the x coord", this.x, "the x coords", xCoordinatesGenforms);
-        xCoordinatesGenforms.push(this.x);
-        while (!checkCoordinate(this.y, yCoordinatesGenforms, minVerticalSeperation))
-            this.y = getRandomInt(game.surfaceHeight - minVerticalSeperation), console.log("the y coord", this.y, "the y coords", yCoordinatesGenforms);
-        yCoordinatesGenforms.push(this.y);
-        this.spritesheet = spritesheet;
-        this.game = game;
-        this.ctx = game.ctx;
-        this.widthDraw = 120; 
-        this.heightDraw = 13;
-        this.scale = 1;
+
+ //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
+ class Platform {
+    constructor(spriteSheet, type, destX, destY, scale, ctx) {
+        this.type = type;
+        this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
+        this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
+        this.x = destX;
+        this.y = destY;
+        this.ctx = ctx;
+        this.spriteSheet = spriteSheet;
+        this.scale = scale;
     }
     draw() {
-        this.ctx.drawImage(this.spritesheet, 90, 0, this.widthDraw, this.heightDraw, this.x, this.y, this.widthDraw * this.scale, this.heightDraw * this.scale);
+        let width = this.srcWidthAndHeight[this.type][0];
+        let height = this.srcWidthAndHeight[this.type][1];
+        this.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+            width, height, this.x, this.y, 
+            width * this.scale, height * this.scale);
     }
     update() {
     }
 }
-;
 
-function checkScope() {
-    console.log(gameEngine.ctx);
+function genGenforms (numOfGenForms, game, AM) {
+    // console.log("form width correction", formWidth);
+    const minHorizontalSeperation = Math.floor(game.surfaceWidth/15);//why does this have to be 10
+    const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
+    let x, y;
+    let tryLimit = 20;
+    let xFound = false;
+    let yFound = false;
+    for (var i = 0; i < numOfGenForms; i++) {
+        x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
+        y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
+        for (let i = 0; i < tryLimit; i++) {
+            if (!checkCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation)) {
+                x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
+            } else {
+                xFound = true;
+                break;
+            }
+        }
+        for (let i = 0; i < tryLimit; i++) {
+            if (!checkCoordinate(y, yCoordinatesGenforms, minVerticalSeperation)) {
+                y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
+            } else {
+                yFound = true;
+                break;
+            }    
+        }
+        if(xFound && yFound) {
+            xCoordinatesGenforms.push(x);
+            yCoordinatesGenforms.push(y);
+            game.addEntity(new Platform(AM.getAsset(genformPath), 'center', x, y, 1, game.ctx));
+        }
+        
+    }
 }
 
 function checkCoordinate(coord, coords, desiredMinSeperation) {
