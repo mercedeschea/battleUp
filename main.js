@@ -4,7 +4,6 @@ var placeformPath = './Sprites/Level_0_placeform_spritesheet.png';
 var backgroundPath = './Sprites/PossibleBackground.png';
 var greenCharacterPath = './Sprites/GloopGlop_full_turnGreen.png';
 
-
 class Animation {
     constructor(spriteSheet, frameWidth, frameHeight, sheetWidth, frameDuration, frames, loop, scale, offsetY) {
         this.spriteSheet = spriteSheet;
@@ -17,7 +16,6 @@ class Animation {
         this.elapsedTime = 0;
         this.loop = loop;
         this.scale = scale;
-        this.offsetY = offsetY;
     }
     drawFrame(tick, ctx, x, y) {
         this.elapsedTime += tick;
@@ -57,7 +55,6 @@ class Background {
     }
 };
 
-
 class MushroomDude {
     constructor(game, spritesheet, placeformManager) {
         this.animation = new Animation(spritesheet, 189, 230, 5, 0.10, 14, true, 1);
@@ -84,7 +81,6 @@ class MushroomDude {
         if (this.x > 800) this.x = -230;
     }
 
-    
     placeformPlace() {
         this.placeformManager.placeformPlace(this.x + this.animation.frameWidth, this.y + this.animation.frameHeight);
     }
@@ -188,8 +184,6 @@ AM.queueDownload("./img/mushroomdude.png");
 // AM.queueDownload("./img/runningcat.png");
 AM.queueDownload(backgroundPath);
 AM.queueDownload(genformPath);
-AM.queueDownload(placeformPath);
-AM.queueDownload(greenCharacterPath);
 
 AM.downloadAll(function () {
     var canvas = document.getElementById("gameWorld");
