@@ -11,6 +11,8 @@ window.requestAnimFrame = (function () {
 
 class GameEngine {
     constructor() {
+        this.right = null;
+        this.left = null;
         this.entities = [];
         this.ctx = null;
         this.surfaceWidth = null;
@@ -71,7 +73,7 @@ class GameEngine {
                 that.right = false;
             if (e.code === keyArr[4])
                 that.keyE = false;
-            if (e.which === keyArr[5])
+            if (e.code === keyArr[5])
                 that.keyF = false;
             e.preventDefault();
         }, false);
@@ -87,7 +89,7 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
-            this.entities[i].draw(this.ctx);
+            this.entities[i].draw();
         }
         this.ctx.restore();
     }
@@ -109,7 +111,9 @@ class GameEngine {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
-        this.up = false; // jump only happens once
+        this.up = false; // jump and placements only happen once
+        this.keyE = false;
+        this.keyF = false;
     }
 }
 
@@ -138,7 +142,7 @@ class Entity {
     }
     update() {
     }
-    draw(ctx) {
+    draw() {
         if (this.game.showOutlines && this.radius) {
             this.game.ctx.beginPath();
             this.game.ctx.strokeStyle = "green";

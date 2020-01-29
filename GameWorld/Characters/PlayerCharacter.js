@@ -2,6 +2,7 @@ const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/CuterGloopGlob.png";
+const PLACEFORM_LIMIT = 6;
 
 function PlayerCharacterAMDownloads(AM) {
     AM.queueDownload(GLOOP_HOP_LEFT);
@@ -16,7 +17,11 @@ class PlayerCharacter extends Entity {
     self = this;
     constructor(game, AM) {
         super(self, game, 300, 300);
+<<<<<<< HEAD
         
+=======
+        this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+>>>>>>> 9b638f00daafb392bfe82b28715178722a75630f
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 64, 1, 1, true, true);
@@ -47,7 +52,6 @@ class PlayerCharacter extends Entity {
         } else if (this.movingRight) {
             this.x += this.game.clockTick * 200;
         }
-
         if (this.game.up)
             this.jumping = true;
         if (this.jumping) {
@@ -63,13 +67,25 @@ class PlayerCharacter extends Entity {
             var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
             this.y = 300 - height;
         }
+        //do we want players to be able to double place?
+        // /__ has interesting blocking? or not I have bad spacial awareness
+        //written to favor angled because it seems like those are going to be more likely to be used
+        //also since jumping is going to disable platform placing do we want this before jump?
+        //thinking of when a player jumps and places simultaneously
+        if (this.game.keyE) {
+            this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else  if (this.game.keyF) {
+            this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } 
     }
     draw(ctx) {
         if (this.jumping && this.facingLeft) {
-            console.log("trying to jump left");
+            // console.log("trying to jump left");
             this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         } else if (this.jumping && !this.facingLeft) {
-            console.log("trying to jump right");
+            // console.log("trying to jump right");
             this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         } else if (this.movingLeft) {
             this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
@@ -78,5 +94,6 @@ class PlayerCharacter extends Entity {
         } else {
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         }
+        this.placeformManager.placeformsDraw();
     }
 }
