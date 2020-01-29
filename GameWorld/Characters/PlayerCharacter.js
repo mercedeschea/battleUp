@@ -1,7 +1,7 @@
 const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/CuterGloopGlob.png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/GloopGlob(purple).png";
 const PLACEFORM_LIMIT = 6;
 
 function PlayerCharacterAMDownloads(AM) {
@@ -17,11 +17,7 @@ class PlayerCharacter extends Entity {
     self = this;
     constructor(game, AM) {
         super(self, game, 300, 300);
-<<<<<<< HEAD
-        
-=======
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
->>>>>>> 9b638f00daafb392bfe82b28715178722a75630f
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 64, 1, 1, true, true);
