@@ -1,8 +1,26 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
+const GENFORM_PATH = './Sprites/Usables/Level_0_genform_spritesheet.png';
+const BACKGROUND_PATH = "./Sprites/Usables/PossibleBackground.png";
+const PLACEFORM_PATH = './Sprites/Usables/Level_0_placeform_spritesheet.png';
 
-
+// this file now controls all map assets
+class Background {
+    constructor(game, AM) {
+        this.x = 0;
+        this.y = 0;
+        this.spritesheet = AM.getAsset(BACKGROUND_PATH);
+        this.game = game;
+        this.ctx = game.ctx;
+    }
+    draw() {
+        this.ctx.drawImage(this.spritesheet, this.x, this.y);
+    }
+    update() {
+    }
+};
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
+ //this is now the class for both genforms and placeforms
  class Platform {
     constructor(spriteSheet, type, destX, destY, scale, ctx) {
         this.type = type;
@@ -29,6 +47,7 @@ function genGenforms (numOfGenForms, game, AM) {
     // console.log("form width correction", formWidth);
     const minHorizontalSeperation = Math.floor(game.surfaceWidth/15);//why does this have to be 10
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
     let xFound = false;
@@ -55,15 +74,23 @@ function genGenforms (numOfGenForms, game, AM) {
         if(xFound && yFound) {
             xCoordinatesGenforms.push(x);
             yCoordinatesGenforms.push(y);
-            game.addEntity(new Platform(AM.getAsset(genformPath), 'center', x, y, 1, game.ctx));
+            game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game.ctx));
         }
         
     }
 }
-
+//queues downloads for map assets
+function MapAMDownloads(AM) {
+    AM.queueDownload(PLACEFORM_PATH);
+    AM.queueDownload(GENFORM_PATH);
+    AM.queueDownload(BACKGROUND_PATH);
+}
+//misc platform helper methods below
+//checks a single coordinate against a list of coordinates
+//to determine if it is at least a certain distance away
 function checkCoordinate(coord, coords, desiredMinSeperation) {
     for (toCheck of coords) {
-        console.log("tocheck is", toCheck);
+        // console.log("tocheck is", toCheck);
         if (Math.abs(toCheck - coord) < desiredMinSeperation) {
             return false;
         }

@@ -112,8 +112,8 @@ class GameEngine {
         this.update();
         this.draw();
         this.up = false; // jump and placements only happen once
-        this.key1 = false;
-        this.key2 = false;
+        this.keyE = false;
+        this.keyF = false;
     }
 }
 
