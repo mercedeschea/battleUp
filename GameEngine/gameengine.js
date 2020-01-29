@@ -21,8 +21,8 @@ class GameEngine {
         this.left = false;
         this.right = false;
         this.up = false;
-        this.keyE = false;
-        this.keyF = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -41,7 +41,7 @@ class GameEngine {
         })();
     }
     startInput() {
-        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
+        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyJ', 'KeyK',
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
         console.log('Starting input');
         var that = this;
@@ -56,9 +56,9 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = true;
             if (e.code === keyArr[4])
-                that.keyE = true;
+                that.placeAngled = true;
             if (e.code === keyArr[5])
-                that.keyF = true;
+                that.placeFlat = true;
             e.preventDefault();
         }, false);
 
@@ -72,9 +72,9 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = false;
             if (e.code === keyArr[4])
-                that.keyE = false;
+                that.placeAngled = false;
             if (e.code === keyArr[5])
-                that.keyF = false;
+                that.placeFlat = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
@@ -112,8 +112,8 @@ class GameEngine {
         this.update();
         this.draw();
         this.up = false; // jump and placements only happen once
-        this.keyE = false;
-        this.keyF = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
 }
 

@@ -44,9 +44,16 @@ class PlayerCharacter extends Entity {
         }
 
         if (this.movingLeft) {
-            this.x -= this.game.clockTick * 200;
+            if (this.x > 3) {   // stops character at the left border
+                this.x -= this.game.clockTick * 200;
+            }
+            
         } else if (this.movingRight) {
-            this.x += this.game.clockTick * 200;
+            if (this.x < 1200 - 114) {  // stops char at the right border
+                this.x += this.game.clockTick * 200;
+            }
+                
+            
         }
         if (this.game.up)
             this.jumping = true;
@@ -68,10 +75,10 @@ class PlayerCharacter extends Entity {
         //written to favor angled because it seems like those are going to be more likely to be used
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
-        if (this.game.keyE) {
+        if (this.game.placeAngled) {
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else  if (this.game.keyF) {
+        } else  if (this.game.placeFlat) {
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         } 
