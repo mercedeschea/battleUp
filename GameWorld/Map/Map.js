@@ -3,43 +3,42 @@ const yCoordinatesGenforms = [];
 const GENFORM_PATH = './Sprites/Usables/Level_0_genform_spritesheet.png';
 const BACKGROUND_PATH = "./Sprites/Usables/PossibleBackground.png";
 const PLACEFORM_PATH = './Sprites/Usables/Level_0_placeform_spritesheet.png';
-
 // this file now controls all map assets
+// ended up changing map elements to extend entit to take part in the update loop 
 class Background {
     constructor(game, AM) {
-        this.x = 0;
-        this.y = 0;
         this.spritesheet = AM.getAsset(BACKGROUND_PATH);
         this.game = game;
-        this.ctx = game.ctx;
+        this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
     draw() {
-        this.ctx.drawImage(this.spritesheet, this.x, this.y);
+        this.game.ctx.drawImage(this.spritesheet, 0, this.srcY, this.spritesheet.width, this.game.surfaceHeight,
+            0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
+        this.srcY -= this.game.camera.y;
+        if (this.srcY < 0) this.srcY = this.spritesheet - this.game.surfaceHeight;
     }
 };
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
  //this is now the class for both genforms and placeforms
- class Platform {
-    constructor(spriteSheet, type, destX, destY, scale, ctx) {
+ //changed to extend entity to take part in the update loop
+ class Platform extends Entity {
+     self = this;
+    constructor(spriteSheet, type, destX, destY, scale, game) {
+        super(self, game, destX, destY);
         this.type = type;
         this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
-        this.x = destX;
-        this.y = destY;
-        this.ctx = ctx;
         this.spriteSheet = spriteSheet;
         this.scale = scale;
     }
     draw() {
         let width = this.srcWidthAndHeight[this.type][0];
         let height = this.srcWidthAndHeight[this.type][1];
-        this.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+        this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
             width, height, this.x, this.y, 
             width * this.scale, height * this.scale);
-    }
-    update() {
     }
 }
 
@@ -74,7 +73,7 @@ function genGenforms (numOfGenForms, game, AM) {
         if(xFound && yFound) {
             xCoordinatesGenforms.push(x);
             yCoordinatesGenforms.push(y);
-            game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game.ctx));
+            game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game));
         }
         
     }
@@ -100,4 +99,4 @@ function checkCoordinate(coord, coords, desiredMinSeperation) {
 
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
-  }
+}

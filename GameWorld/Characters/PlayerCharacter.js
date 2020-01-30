@@ -1,7 +1,8 @@
 const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/CuterGloopGlob.png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/GloopGlob(purple).png";
+const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 
 function PlayerCharacterAMDownloads(AM) {
@@ -9,6 +10,7 @@ function PlayerCharacterAMDownloads(AM) {
     AM.queueDownload(GLOOP_HOP_RIGHT);
     AM.queueDownload(GLOOP_LOOK_FORWARD);
     AM.queueDownload(GLOOP_TURNING);
+    AM.queueDownload(DRILL_PROTO);
 }
 
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -23,7 +25,10 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 64, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
-        
+        this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
+        this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
+        this.currentAttackAnimation = null;
+        this.attackDelay = 50;
         // facingLeft instead of just "this.facing" with true/false or 0/1 which we would have to keep track of
         this.facingLeft = true;
         this.radius = 32;
@@ -32,6 +37,7 @@ class PlayerCharacter extends Entity {
         this.ctx = game.ctx;
     }
     update() {
+        super.update();
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -74,7 +80,26 @@ class PlayerCharacter extends Entity {
         } else  if (this.game.keyF) {
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } 
+        }
+        if (this.attackDelay > 0)
+            this.attackDelay--;
+        if (this.game.attack && this.attackDelay <= 0) {
+            this.attackDelay = 50;
+            this.attacking = true;
+            this.currentAttackAnimation = this.attackAnimation;
+        }
+        if (this.attacking) {
+            if (this.currentAttackAnimation === 
+                this.attackAnimation && this.currentAttackAnimation.isDone()) {
+                this.attackAnimation.elapsedTime = 0;
+                this.currentAttackAnimation = this.reverseAttackAnimation;
+            } else if (this.currentAttackAnimation === 
+                this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
+                this.reverseAttackAnimation.elapsedTime = 0;
+                this.attacking = false;
+                console.log("gulpadulp");
+            }
+        }
     }
     draw(ctx) {
         if (this.jumping && this.facingLeft) {
@@ -89,6 +114,17 @@ class PlayerCharacter extends Entity {
             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         } else {
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
+        }
+        if (this.attacking) {
+            if (this.facingLeft) {
+                console.log("attack left");
+                this.ctx.scale(-1, 1);
+                this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, this.y);
+                this.ctx.restore();
+            } else {
+                console.log("attack right");
+                this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), this.y);
+            }
         }
         this.placeformManager.placeformsDraw();
     }

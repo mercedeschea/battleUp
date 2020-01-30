@@ -17,12 +17,13 @@ class GameEngine {
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
-        
         this.left = false;
         this.right = false;
         this.up = false;
         this.keyE = false;
         this.keyF = false;
+        this.attack = false;
+        this.camera = new Camera(this, 0, 0, 10);
     }
     init(ctx) {
         this.ctx = ctx;
@@ -42,7 +43,7 @@ class GameEngine {
     }
     startInput() {
         var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
-            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
 
@@ -59,6 +60,8 @@ class GameEngine {
                 that.keyE = true;
             if (e.code === keyArr[5])
                 that.keyF = true;
+            if (e.code === keyArr[10])
+                that.attack = true;
             e.preventDefault();
         }, false);
 
@@ -75,6 +78,8 @@ class GameEngine {
                 that.keyE = false;
             if (e.code === keyArr[5])
                 that.keyF = false;
+            if (e.code === keyArr[10])
+                that.attack = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
@@ -94,6 +99,7 @@ class GameEngine {
         this.ctx.restore();
     }
     update() {
+        this.camera.update();
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
@@ -114,6 +120,7 @@ class GameEngine {
         this.up = false; // jump and placements only happen once
         this.keyE = false;
         this.keyF = false;
+        this.attack = false;
     }
 }
 
@@ -129,6 +136,7 @@ class Timer {
         this.wallLastTimestamp = wallCurrent;
         var gameDelta = Math.min(wallDelta, this.maxStep);
         this.gameTime += gameDelta;
+        console.log(this.gameTime);
         return gameDelta;
     }
 }
@@ -141,6 +149,8 @@ class Entity {
         this.removeFromWorld = false;
     }
     update() {
+        this.y += this.game.camera.y;
+
     }
     draw() {
         if (this.game.showOutlines && this.radius) {
@@ -166,5 +176,18 @@ class Entity {
         //offscreenCtx.strokeStyle = "red";
         //offscreenCtx.strokeRect(0,0,size,size);
         return offscreenCanvas;
+    }
+}
+
+class Camera extends Entity {
+    self = this;
+    constructor(self, game, x, y, speed) {
+        super(self, game, x, y);
+        this.speed = speed;
+        this.game = game;
+    }
+    update() {
+        if(this.gametime > 10)
+            this.y += this.game.clockTick * this.speed;
     }
 }

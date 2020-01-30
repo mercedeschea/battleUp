@@ -18,6 +18,7 @@ class Animation {
     }
     drawFrame(tick, ctx, x, y, scaleBy) {
         var scaleBy = scaleBy || 1;
+        
         this.elapsedTime += tick;
         if (this.loop) {
             if (this.isDone()) {
@@ -55,6 +56,7 @@ class Animation {
     }
 }
 
+
 // Each class should have a helper that downloads all their necessary assets.
 // For instance Genform class would queueDownload each of the genform assets for each level
 // See PlayerCharacter class top function for example!
@@ -67,16 +69,9 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-    // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-    // gameEngine.addEntity(new PlayerCharacter(gameEngine, AM.getAsset(PLAYER_CHARACTER_PATH)));
-
-    // pass AM to each class so they queue their own downloads and track their own asset paths
-    // I have refactored PlayerCharacter and Background, but have not touched the platform entities
     gameEngine.addEntity(new Background(gameEngine, AM));
     genGenforms(5, gameEngine, AM);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
-
 
     console.log("All Done!");
 });
