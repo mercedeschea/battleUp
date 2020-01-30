@@ -1,0 +1,33 @@
+20200129 16:08 patch notes
+
+created folders in \Usables :
+
+lvl0
+lvl1
+lvl2
+lvl3
+lvl4
+
+
+file name changes:
+
+GloopGlob(green).png -> gloop(green).png
+GloopGlob(purple).png -> gloop(purple).png
+lvl0BackgroundTall.png -> backgroundTall.png
+lvl0Floor.png -> floor.png
+lvl0Floor(inverted).png -> floor(inverted).png
+Level_0_genform_spritesheet.png -> genform.png
+Level_0_placeform_spritesheet.png -> placeform.png
+glopHopLeft.png -> glopHopLeft(green).png
+glopHopRight.png -> glopHopRight(green).png
+glopTurnAnimationgit.png -> glopTurn(green).png
+
+
+assets added:
+
+floor(inverted).png
+floor.png
+floorFlashing.png
+
+
+

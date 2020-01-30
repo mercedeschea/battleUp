@@ -1,7 +1,7 @@
-const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
-const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
-const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/GloopGlob(purple).png";
+const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
+const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
+const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 
