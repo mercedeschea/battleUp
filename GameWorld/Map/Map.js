@@ -1,8 +1,9 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
-const GENFORM_PATH = './Sprites/Usables/Level_0_genform_spritesheet.png';
-const BACKGROUND_PATH = "./Sprites/Usables/PossibleBackground.png";
-const PLACEFORM_PATH = './Sprites/Usables/Level_0_placeform_spritesheet.png';
+const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
+const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
+const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
+const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 
 // this file now controls all map assets
 class Background {
