@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
+=======
+const GLOOP_TURNING = "./Sprites/Usables/glopTurnAnimationgit.png";
+const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft.png";
+const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight.png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/GloopGlob(purple).png";
+>>>>>>> c71f53a6f9873d214e8ae561e5d4ca42d2052436
 const PLACEFORM_LIMIT = 6;
 
 function PlayerCharacterAMDownloads(AM) {
