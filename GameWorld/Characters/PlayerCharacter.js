@@ -39,6 +39,7 @@ class PlayerCharacter extends Entity {
         this.game = game;
         this.ctx = game.ctx;
         this.jumping = false;
+        this.jumpY = this.y;
     }
 
     update() {
@@ -65,10 +66,9 @@ class PlayerCharacter extends Entity {
                 this.x += this.game.clockTick * 200;
             }
         }
-        let startY;
-        if (this.game.up) {
+        if (this.game.up && !this.jumping) {
             this.jumping = true;
-            startY = this.y;
+            this.jumpY = this.y;
         }
 
         if (this.jumping) {
@@ -98,7 +98,7 @@ class PlayerCharacter extends Entity {
             if (jumpDistance > 0.5)
                 jumpDistance = 1 - jumpDistance;
             this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = startY - this.height;
+            this.y = this.jumpY - this.height;
         }
 
         //do we want players to be able to double place?

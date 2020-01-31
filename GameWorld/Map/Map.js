@@ -61,7 +61,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
     let xFound;
     let yFound;
 
-    for (var j = 0; j < numCanvasesInLevel;j++) {
+    for (var j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
         let startIndex = xCoordinatesGenforms.length;
         for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
             xFound = false;
@@ -80,7 +80,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
                 } else {
-                    if (y > lowestGenformCoords[1]) {
+                    if (y > lowestGenformCoords[1] && y < mapHeight) { //this is a correct for hack above
                         lowestGenformCoords = [x, y];
                     }
                     yFound = true;

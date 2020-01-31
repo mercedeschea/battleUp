@@ -101,6 +101,7 @@ class GameEngine {
         this.moveLeft = null;
     }
     draw() {
+        this.camera.update();
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
@@ -109,7 +110,6 @@ class GameEngine {
         this.ctx.restore();
     }
     update() {
-        this.camera.update();
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];

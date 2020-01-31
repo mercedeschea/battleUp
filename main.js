@@ -79,5 +79,3 @@ AM.downloadAll(function () {
 
     console.log("All Done!");
 });
-
-ctx.drawImage("./Sprites/HUD/scoreboard_Text.png", 1000, 300)
