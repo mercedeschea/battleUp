@@ -23,7 +23,6 @@ class GameEngine {
         this.keyE = false;
         this.keyF = false;
         this.attack = false;
-        this.camera = new Camera(this, 0, 0, 10);
     }
     init(ctx) {
         this.ctx = ctx;
@@ -31,6 +30,7 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
+        this.camera = new Camera(this, 500);
         console.log('game initialized');
     }
     start() {
@@ -136,7 +136,6 @@ class Timer {
         this.wallLastTimestamp = wallCurrent;
         var gameDelta = Math.min(wallDelta, this.maxStep);
         this.gameTime += gameDelta;
-        console.log(this.gameTime);
         return gameDelta;
     }
 }
@@ -149,7 +148,7 @@ class Entity {
         this.removeFromWorld = false;
     }
     update() {
-        this.y += this.game.camera.y;
+        this.y += this.game.camera.drawOffset;
 
     }
     draw() {
@@ -179,15 +178,15 @@ class Entity {
     }
 }
 
-class Camera extends Entity {
-    self = this;
-    constructor(self, game, x, y, speed) {
-        super(self, game, x, y);
-        this.speed = speed;
+class Camera {
+    constructor(game, speed) {
         this.game = game;
+        this.speed = speed;
+        this.drawOffset = 0;
     }
+    draw() {}
     update() {
-        if(this.gametime > 10)
-            this.y += this.game.clockTick * this.speed;
+        if(this.game.timer.gameTime > 1)
+            this.drawOffset = this.game.clockTick * this.speed;
     }
 }

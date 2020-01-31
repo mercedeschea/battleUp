@@ -1,6 +1,5 @@
 class PlaceformManager {
     constructor(game, AM, placeformLimit) {
-        this.AM = AM;
         this.placeformsCurrent = [];
         this.placeformLimit = placeformLimit;
         this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATH);
@@ -35,7 +34,7 @@ class PlaceformManager {
                 this.placeformsCurrent.push(placeformPlaced);
             }
         }
-        this.AM.addEntity(placeformPlaced);
+        this.game.addEntity(placeformPlaced);
         // console.log(this.placeformsCurrent);
     }
     placeformsDraw() {

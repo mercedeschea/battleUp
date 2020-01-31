@@ -4,9 +4,9 @@ const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
+const PLATFORM_WIDTH = 125;
 
 // this file now controls all map assets
-// ended up changing map elements to extend entit to take part in the update loop 
 class Background {
     constructor(game, AM) {
         this.spritesheet = AM.getAsset(BACKGROUND_PATH);
@@ -18,8 +18,8 @@ class Background {
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
-        this.srcY -= this.game.camera.y;
-        if (this.srcY < 0) this.srcY = this.spritesheet - this.game.surfaceHeight;
+        this.srcY -= this.game.camera.drawOffset;
+        // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
@@ -44,41 +44,49 @@ class Background {
     }
 }
 
-function genGenforms (numOfGenForms, game, AM) {
+function genGenforms (numOfGenForms, game, AM, mapHeight) {
     // console.log("form width correction", formWidth);
-    const minHorizontalSeperation = Math.floor(game.surfaceWidth/15);//why does this have to be 10
+    const minHorizontalSeperation = PLATFORM_WIDTH;//why does this have to be 10
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
-    let xFound = false;
-    let yFound = false;
-    for (var i = 0; i < numOfGenForms; i++) {
-        x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
-        y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
-        for (let i = 0; i < tryLimit; i++) {
-            if (!checkCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation)) {
-                x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
-            } else {
-                xFound = true;
-                break;
+    numCanvasesInLevel = Math.floor(mapHeight/game.surfaceHeight);
+    console.log(numCanvasesInLevel);
+    let xFound;
+    let yFound;
+    for (var j = 0; j < numCanvasesInLevel;j++) {
+        let startIndex = xCoordinatesGenforms.length;
+        for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
+            xFound = false;
+            yFound = false;
+            x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
+            y = getRandomInt(game.surfaceHeight - minVerticalSeperation) - j * game.surfaceHeight;
+            for (let i = 0; i < tryLimit; i++) {
+                if (rejectCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation, startIndex)) {
+                    x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
+                } else {
+                    xFound = true;
+                    break;
+                }
             }
+            for (let i = 0; i < tryLimit; i++) {
+                if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
+                    y = getRandomInt(game.surfaceHeight - minVerticalSeperation) - j * game.surfaceHeight;
+                } else {
+                    yFound = true;
+                    break;
+                }    
+            }
+            if(xFound && yFound) {
+                xCoordinatesGenforms.push(x);
+                yCoordinatesGenforms.push(y);
+                game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game));
+            }
+            
         }
-        for (let i = 0; i < tryLimit; i++) {
-            if (!checkCoordinate(y, yCoordinatesGenforms, minVerticalSeperation)) {
-                y = getRandomInt(game.surfaceHeight - minVerticalSeperation);
-            } else {
-                yFound = true;
-                break;
-            }    
-        }
-        if(xFound && yFound) {
-            xCoordinatesGenforms.push(x);
-            yCoordinatesGenforms.push(y);
-            game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game));
-        }
-        
     }
+    console.log(xCoordinatesGenforms.length);
 }
 //queues downloads for map assets
 function MapAMDownloads(AM) {
@@ -89,14 +97,10 @@ function MapAMDownloads(AM) {
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
 //to determine if it is at least a certain distance away
-function checkCoordinate(coord, coords, desiredMinSeperation) {
-    for (toCheck of coords) {
-        // console.log("tocheck is", toCheck);
-        if (Math.abs(toCheck - coord) < desiredMinSeperation) {
-            return false;
-        }
-    }
-    return true;
+//checks the values form lowestIndex(inclusive) to highestIndex(exclusive)
+function rejectCoordinate(coord, coords, desiredMinSeperation, startIndex) {
+    
+    return coords.slice(startIndex).some(toCheck => Math.abs(toCheck - coord) < desiredMinSeperation);
 }
 
 function getRandomInt(max) {

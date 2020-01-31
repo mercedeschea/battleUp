@@ -69,8 +69,10 @@ AM.downloadAll(function () {
     var gameEngine = new GameEngine();
     gameEngine.init(ctx);
     gameEngine.start();
-    gameEngine.addEntity(new Background(gameEngine, AM));
-    genGenforms(5, gameEngine, AM);
+    let background = new Background(gameEngine, AM);
+    let mapHeight = background.spritesheet.height;
+    gameEngine.addEntity(background);
+    genGenforms(20, gameEngine, AM, mapHeight);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
 
     console.log("All Done!");
