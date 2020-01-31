@@ -32,12 +32,15 @@ class PlayerCharacter extends Entity {
         this.currentAttackAnimation = null;
         this.attackDelay = 50;
         // facingLeft instead of just "this.facing" with true/false or 0/1 which we would have to keep track of
-        this.facingLeft = true;
+        this.facingLeft = false;
+        this.facingRight = true;
         this.radius = 32;
         this.speed = 100;
         this.game = game;
         this.ctx = game.ctx;
+        this.jumping = false;
     }
+
     update() {
         super.update();
         this.movingLeft = false;
@@ -45,45 +48,68 @@ class PlayerCharacter extends Entity {
         if (this.game.left) {
             this.movingLeft = true;
             this.facingLeft = true;
+            this.facingRight = false;
         }
         else if (this.game.right) {
             this.movingRight = true;
+            this.facingRight = true;
             this.facingLeft = false;
         }
         if (this.movingLeft) {
-            this.x -= this.game.clockTick * 200;
+            if (this.x > 2) {   // stops character at the left border
+                this.x -= this.game.clockTick * 200;
+            }
+            
         } else if (this.movingRight) {
-            this.x += this.game.clockTick * 200;
+            if (this.x < 1200 - 115) {  // stops character at the right border
+                this.x += this.game.clockTick * 200;
+            }
         }
         let startY;
         if (this.game.up) {
-            console.log(this);
             this.jumping = true;
-            startY = this.y
+            startY = this.y;
         }
 
         if (this.jumping) {
             let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
-            if (jumpAnimation.isDone()) {
-                jumpAnimation.elapsedTime = 0;
+            if (this.jumpLeftAnimation.isDone()) {
+                this.jumpLeftAnimation.elapsedTime = 0;
+                this.jumpRightAnimation.elapsedTime = 0;
                 this.jumping = false;
             }
+
+            if (this.jumpRightAnimation.isDone()) {
+                this.jumpLeftAnimation.elapsedTime = 0;
+                this.jumpRightAnimation.elapsedTime = 0;
+                this.jumping = false;
+            }
+
+            if (this.jumpLeftAnimation.elapsedTime > this.jumpRightAnimation.elapsedTime) {
+                this.jumpRightAnimation.elapsedTime = this.jumpLeftAnimation.elapsedTime;
+            }
+
+            if (this.jumpRightAnimation.elapsedTime > this.jumpLeftAnimation.elapsedTime) {
+                this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
+            }
+            
             var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
             var totalHeight = 100;
             if (jumpDistance > 0.5)
                 jumpDistance = 1 - jumpDistance;
-            var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = startY - height;
+            this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+            this.y = startY - this.height;
         }
+
         //do we want players to be able to double place?
         // /__ has interesting blocking? or not I have bad spacial awareness
         //written to favor angled because it seems like those are going to be more likely to be used
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
-        if (this.game.keyE) {
+        if (this.game.placeAngled) {
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else  if (this.game.keyF) {
+        } else  if (this.game.placeFlat) {
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         }

@@ -60,6 +60,7 @@ class Animation {
 // Each class should have a helper that downloads all their necessary assets.
 // For instance Genform class would queueDownload each of the genform assets for each level
 // See PlayerCharacter class top function for example!
+
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
@@ -78,3 +79,5 @@ AM.downloadAll(function () {
 
     console.log("All Done!");
 });
+
+ctx.drawImage("./Sprites/HUD/scoreboard_Text.png", 1000, 300)

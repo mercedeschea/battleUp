@@ -24,9 +24,9 @@ class GameEngine {
         this.left = false;
         this.right = false;
         this.up = false;
-        this.keyE = false;
-        this.keyF = false;
         this.attack = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -34,6 +34,7 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
+        //console.log(this.timer.gameTime);
         console.log('game initialized');
     }
     initCamera(mapHeight) {
@@ -50,7 +51,7 @@ class GameEngine {
         })();
     }
     startInput() {
-        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
+        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyJ', 'KeyK',
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
@@ -65,11 +66,12 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = true;
             if (e.code === keyArr[4])
-                that.keyE = true;
+                that.placeAngled = true;
             if (e.code === keyArr[5])
-                that.keyF = true;
+                that.placeFlat = true;
             if (e.code === keyArr[10])
                 that.attack = true;
+
             e.preventDefault();
         }, false);
 
@@ -83,9 +85,9 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = false;
             if (e.code === keyArr[4])
-                that.keyE = false;
+                that.placeAngled = false;
             if (e.code === keyArr[5])
-                that.keyF = false;
+                that.placeFlat = false;
             if (e.code === keyArr[10])
                 that.attack = false;
             e.preventDefault();
@@ -120,15 +122,16 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
+        //.log(this.timer.gameTime);
     }
     loop() {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
         this.up = false; // jump and placements only happen once
-        this.keyE = false;
-        this.keyF = false;
         this.attack = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
 }
 
