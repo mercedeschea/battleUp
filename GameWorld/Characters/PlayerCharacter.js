@@ -66,6 +66,7 @@ class PlayerCharacter extends Entity {
                 this.x += this.game.clockTick * 200;
             }
         }
+        // if (this.game.up) { //glitch jumpppsss
         if (this.game.up && !this.jumping) {
             this.jumping = true;
             this.jumpY = this.y;
