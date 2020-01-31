@@ -33,6 +33,7 @@ class PlayerCharacter extends Entity {
         this.ctx = game.ctx;
         this.jumping = false;
     }
+
     update() {
         this.movingLeft = false;
         this.movingRight = false;
@@ -40,13 +41,11 @@ class PlayerCharacter extends Entity {
             this.movingLeft = true;
             this.facingLeft = true;
             this.facingRight = false;
-            //console.log('switched to left key')
         }
         else if (this.game.right) {
             this.movingRight = true;
             this.facingRight = true;
             this.facingLeft = false;
-            //console.log('switched to right key')
         }
 
         if (this.movingLeft) {
@@ -60,7 +59,6 @@ class PlayerCharacter extends Entity {
             }
         }
 
-
         if (this.game.up)
             this.jumping = true;
         if (this.jumping) {
@@ -69,25 +67,20 @@ class PlayerCharacter extends Entity {
                 this.jumpLeftAnimation.elapsedTime = 0;
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumping = false;
-                //console.log('jump left animation done');
             }
 
             if (this.jumpRightAnimation.isDone()) {
                 this.jumpLeftAnimation.elapsedTime = 0;
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumping = false;
-               //console.log('jump right animation done')
             }
-            console.log("left time " + this.jumpLeftAnimation.elapsedTime);
-            console.log("right time " + this.jumpLeftAnimation.elapsedTime);
 
             if (this.jumpLeftAnimation.elapsedTime > this.jumpRightAnimation.elapsedTime) {
                 this.jumpRightAnimation.elapsedTime = this.jumpLeftAnimation.elapsedTime;
-                //console.log('switched to left animation');
             }
+
             if (this.jumpRightAnimation.elapsedTime > this.jumpLeftAnimation.elapsedTime) {
                 this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
-                //console.log('switched to right animation');
             }
             
             var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
@@ -96,11 +89,8 @@ class PlayerCharacter extends Entity {
                 jumpDistance = 1 - jumpDistance;
             this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
             this.y = 250 - this.height;
-            console.log(this.facingLeft);
         }
 
-
-        //this.jumping = false;
         //do we want players to be able to double place?
         // /__ has interesting blocking? or not I have bad spacial awareness
         //written to favor angled because it seems like those are going to be more likely to be used
@@ -117,43 +107,16 @@ class PlayerCharacter extends Entity {
     }
     draw(ctx) {
         if (this.jumping && this.facingLeft) {
-            console.log("trying to jump left");
             this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.jumping && !this.facingLeft) {
-            console.log("trying to jump right");
+        } else if (this.jumping && this.facingRight) {
             this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.movingLeft && !this.jumping) {
+        } else if (!this.jumping && this.movingLeft) {
             this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.movingRight && !this.jumping) {
+        } else if (!this.jumping && this.movingRight) {
             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         } else {
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
         }
-
-        // if (this.jumping) {
-        //     if (this.facingLeft) {
-        //         this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //         //console.log('facing left: ' );
-        //     }
-        //     else if (this.facingRight) {
-        //         //console.log('hello i am facing right whilst jumping');
-        //         this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //     }
-        //     else {
-        //         this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //     }
-        // }
-        // else {  // not jumping
-        //     if (this.movingLeft) {
-        //         this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //     }
-        //     else if (this.movingRight) {
-        //         this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //     }
-        //     else {
-        //         this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        //     }
-        // }
 
         this.placeformManager.placeformsDraw();
         Entity.prototype.draw.call(this);
