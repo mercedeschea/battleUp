@@ -4,6 +4,8 @@ const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
+// const GOD_MODE = true;
+const GOD_MODE = false;
 
 function PlayerCharacterAMDownloads(AM) {
     AM.queueDownload(GLOOP_HOP_LEFT);
@@ -18,7 +20,7 @@ NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
     self = this;
     constructor(game, AM) {
-        super(self, game, 300, 300);
+        super(self, game, lowestGenformCoords[0], lowestGenformCoords[1] - 64);
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
@@ -48,14 +50,18 @@ class PlayerCharacter extends Entity {
             this.movingRight = true;
             this.facingLeft = false;
         }
-
         if (this.movingLeft) {
             this.x -= this.game.clockTick * 200;
         } else if (this.movingRight) {
             this.x += this.game.clockTick * 200;
         }
-        if (this.game.up)
+        let startY;
+        if (this.game.up) {
+            console.log(this);
             this.jumping = true;
+            startY = this.y
+        }
+
         if (this.jumping) {
             let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
             if (jumpAnimation.isDone()) {
@@ -67,7 +73,7 @@ class PlayerCharacter extends Entity {
             if (jumpDistance > 0.5)
                 jumpDistance = 1 - jumpDistance;
             var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = 300 - height;
+            this.y = startY - height;
         }
         //do we want players to be able to double place?
         // /__ has interesting blocking? or not I have bad spacial awareness
@@ -102,30 +108,33 @@ class PlayerCharacter extends Entity {
         }
     }
     draw(ctx) {
-        if (this.jumping && this.facingLeft) {
-            // console.log("trying to jump left");
-            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.jumping && !this.facingLeft) {
-            // console.log("trying to jump right");
-            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.movingLeft) {
-            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else if (this.movingRight) {
-            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        } else {
-            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
-        }
-        if (this.attacking) {
-            if (this.facingLeft) {
-                console.log("attack left");
-                this.ctx.scale(-1, 1);
-                this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, this.y);
-                this.ctx.restore();
+        let drawY = this.cameraTransform();
+        if (drawY) {
+            if (this.jumping && this.facingLeft) {
+                // console.log("trying to jump left");
+                this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.jumping && !this.facingLeft) {
+                // console.log("trying to jump right");
+                this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.movingLeft) {
+                this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.movingRight) {
+                this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             } else {
-                console.log("attack right");
-                this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), this.y);
+                this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             }
+            if (this.attacking) {
+                if (this.facingLeft) {
+                    console.log("attack left");
+                    this.ctx.scale(-1, 1);
+                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, drawY);
+                    this.ctx.restore();
+                } else {
+                    console.log("attack right");
+                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
+                }
+            }
+            this.placeformManager.placeformsDraw();
         }
-        this.placeformManager.placeformsDraw();
     }
 }

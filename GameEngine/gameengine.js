@@ -8,7 +8,10 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
-
+//change this to change scroll speed
+const SCROLL_SPEED = 200;
+//change this to change time before map starts scrolling.
+const SCROLL_DELAY = 5;
 class GameEngine {
     constructor() {
         this.right = null;
@@ -17,6 +20,7 @@ class GameEngine {
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
+        this.mapHeight = null;
         this.left = false;
         this.right = false;
         this.up = false;
@@ -30,8 +34,12 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
-        this.camera = new Camera(this, 500);
         console.log('game initialized');
+    }
+    initCamera(mapHeight) {
+        this.mapHeight = mapHeight;
+        console.log(mapHeight);
+        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight);
     }
     start() {
         console.log("starting game");
@@ -148,8 +156,6 @@ class Entity {
         this.removeFromWorld = false;
     }
     update() {
-        this.y += this.game.camera.drawOffset;
-
     }
     draw() {
         if (this.game.showOutlines && this.radius) {
@@ -160,6 +166,18 @@ class Entity {
             this.game.ctx.closePath();
         }
     }
+    //calculates where to draw entity relative to the current camera and returns the offset y coordinate
+    //if the entity is more than 50 pixels off the screen, the entity is deleted;
+    cameraTransform() {
+        let drawY = this.y - this.game.camera.totalDrawOffset;
+        // if(drawY > this.game.surfaceHeight + 50) {
+        //     this.removeFromWorld = true;
+        //     console.log("here");
+        //     return null;
+        // }
+        return drawY;
+    }
+    
     rotateAndCache(image, angle) {
         var offscreenCanvas = document.createElement('canvas');
         var size = Math.max(image.width, image.height);
@@ -178,15 +196,21 @@ class Entity {
     }
 }
 
+//Records the total offset which we use to calculate the 
 class Camera {
-    constructor(game, speed) {
+    constructor(game, speed, surfaceHeight, mapHeight) {
         this.game = game;
         this.speed = speed;
-        this.drawOffset = 0;
+        this.totalDrawOffset = mapHeight - surfaceHeight;
+        this.currentDrawOffset = 0;
     }
     draw() {}
     update() {
-        if(this.game.timer.gameTime > 1)
-            this.drawOffset = this.game.clockTick * this.speed;
+        if(this.game.timer.gameTime > SCROLL_DELAY){
+            this.currentDrawOffset = this.game.clockTick * this.speed;
+            this.totalDrawOffset -= this.currentDrawOffset;
+            
+        }
+            
     }
 }

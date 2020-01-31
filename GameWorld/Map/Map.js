@@ -5,6 +5,8 @@ const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const PLATFORM_WIDTH = 125;
+const PLATFORM_HEIGHT = 11;
+let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
 class Background {
@@ -18,7 +20,7 @@ class Background {
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
-        this.srcY -= this.game.camera.drawOffset;
+        this.srcY -= this.game.camera.currentDrawOffset;
         // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
@@ -36,32 +38,36 @@ class Background {
         this.scale = scale;
     }
     draw() {
-        let width = this.srcWidthAndHeight[this.type][0];
-        let height = this.srcWidthAndHeight[this.type][1];
-        this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
-            width, height, this.x, this.y, 
-            width * this.scale, height * this.scale);
+        let drawY = this.cameraTransform();
+        // console.log(drawY);
+        if(drawY) {
+            let width = this.srcWidthAndHeight[this.type][0];
+            let height = this.srcWidthAndHeight[this.type][1];
+            this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+                width, height, this.x, drawY, 
+                width * this.scale, height * this.scale);
+        }
     }
 }
-
+//this function randomly generates genforms in groups per canvas width of the map
 function genGenforms (numOfGenForms, game, AM, mapHeight) {
     // console.log("form width correction", formWidth);
-    const minHorizontalSeperation = PLATFORM_WIDTH;//why does this have to be 10
+    const minHorizontalSeperation = PLATFORM_WIDTH;
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
     numCanvasesInLevel = Math.floor(mapHeight/game.surfaceHeight);
-    console.log(numCanvasesInLevel);
     let xFound;
     let yFound;
+
     for (var j = 0; j < numCanvasesInLevel;j++) {
         let startIndex = xCoordinatesGenforms.length;
         for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
             xFound = false;
             yFound = false;
             x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
-            y = getRandomInt(game.surfaceHeight - minVerticalSeperation) - j * game.surfaceHeight;
+            y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
             for (let i = 0; i < tryLimit; i++) {
                 if (rejectCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation, startIndex)) {
                     x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
@@ -72,8 +78,11 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
             }
             for (let i = 0; i < tryLimit; i++) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
-                    y = getRandomInt(game.surfaceHeight - minVerticalSeperation) - j * game.surfaceHeight;
+                    y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
                 } else {
+                    if (y > lowestGenformCoords[1]) {
+                        lowestGenformCoords = [x, y];
+                    }
                     yFound = true;
                     break;
                 }    
@@ -86,7 +95,6 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
             
         }
     }
-    console.log(xCoordinatesGenforms.length);
 }
 //queues downloads for map assets
 function MapAMDownloads(AM) {

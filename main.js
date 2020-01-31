@@ -64,13 +64,14 @@ PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
 AM.downloadAll(function () {
-    var canvas = document.getElementById("gameWorld");
-    var ctx = canvas.getContext("2d");
-    var gameEngine = new GameEngine();
+    let canvas = document.getElementById("gameWorld");
+    let ctx = canvas.getContext("2d");
+    let gameEngine = new GameEngine();
     gameEngine.init(ctx);
-    gameEngine.start();
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
+    gameEngine.initCamera(mapHeight);
+    gameEngine.start();
     gameEngine.addEntity(background);
     genGenforms(20, gameEngine, AM, mapHeight);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
