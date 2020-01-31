@@ -24,6 +24,17 @@ class Background {
         // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
+class Floor {
+    constructor(game, AM) {
+        this.spriteSheet = AM.getAsset(FLOOR_PATH);
+        this.game = game;
+    }
+    draw() {
+        this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - this.spriteSheet.height/2,
+            this.spriteSheet.width, this.spriteSheet.height * .5);
+    }
+    update() {}
+}
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
  //this is now the class for both genforms and placeforms
  //changed to extend entity to take part in the update loop
@@ -38,7 +49,7 @@ class Background {
         this.scale = scale;
     }
     draw() {
-        let drawY = this.cameraTransform();
+        let drawY = this.cameraTransform(-40);
         // console.log(drawY);
         if(drawY) {
             let width = this.srcWidthAndHeight[this.type][0];
@@ -111,6 +122,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(PLACEFORM_PATH);
     AM.queueDownload(GENFORM_PATH);
     AM.queueDownload(BACKGROUND_PATH);
+    AM.queueDownload(FLOOR_PATH);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

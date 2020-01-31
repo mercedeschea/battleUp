@@ -69,8 +69,8 @@ AM.downloadAll(function () {
     gameEngine.initCamera(mapHeight);//we don't have game.mapHeight until here
     gameEngine.start();
     gameEngine.addEntity(background);
+    gameEngine.addEntity(new Floor(gameEngine, AM));
     genGenforms(20, gameEngine, AM, mapHeight);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
-
     console.log("All Done!");
 });

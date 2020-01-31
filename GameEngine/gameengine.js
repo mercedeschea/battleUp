@@ -170,10 +170,10 @@ class Entity {
         }
     }
     //calculates where to draw entity relative to the current camera and returns the offset y coordinate
-    //if the entity is more than 50 pixels off the screen, the entity is deleted;
-    cameraTransform() {
+    //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
+    cameraTransform(removalTolerance) {
         let drawY = this.y - this.game.camera.totalDrawOffset;
-        if(drawY > this.game.surfaceHeight + 50) {
+        if(drawY > this.game.surfaceHeight + removalTolerance) {
             this.removeFromWorld = true;
             console.log("here");
             return null;
