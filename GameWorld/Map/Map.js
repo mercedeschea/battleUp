@@ -79,6 +79,16 @@ function genGenforms (numOfGenForms, game, AM) {
         
     }
 }
+
+// testing collision
+function testGenforms(game) {
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    game.addEntity(new Platform(genformSpriteSheet, 'center', 250, 314, 1, game.ctx));
+}
+
+
+
+
 //queues downloads for map assets
 function MapAMDownloads(AM) {
     AM.queueDownload(PLACEFORM_PATH);

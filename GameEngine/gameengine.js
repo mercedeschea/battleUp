@@ -30,6 +30,7 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
+        //console.log(this.timer.gameTime);
         console.log('game initialized');
     }
     start() {
@@ -106,6 +107,7 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
+        //.log(this.timer.gameTime);
     }
     loop() {
         this.clockTick = this.timer.tick();

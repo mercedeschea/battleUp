@@ -58,6 +58,7 @@ class Animation {
 // Each class should have a helper that downloads all their necessary assets.
 // For instance Genform class would queueDownload each of the genform assets for each level
 // See PlayerCharacter class top function for example!
+
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
@@ -75,8 +76,11 @@ AM.downloadAll(function () {
     // I have refactored PlayerCharacter and Background, but have not touched the platform entities
     gameEngine.addEntity(new Background(gameEngine, AM));
     genGenforms(5, gameEngine, AM);
-    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
-
-
+    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM));
+    
+    // testing 
+    testGenforms(gameEngine, AM);
     console.log("All Done!");
 });
+
+ctx.drawImage("./Sprites/HUD/scoreboard_Text.png", 1000, 300)
