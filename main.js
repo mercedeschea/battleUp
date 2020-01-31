@@ -56,11 +56,6 @@ class Animation {
     }
 }
 
-
-// Each class should have a helper that downloads all their necessary assets.
-// For instance Genform class would queueDownload each of the genform assets for each level
-// See PlayerCharacter class top function for example!
-
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
@@ -71,7 +66,7 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
-    gameEngine.initCamera(mapHeight);
+    gameEngine.initCamera(mapHeight);//we don't have game.mapHeight until here
     gameEngine.start();
     gameEngine.addEntity(background);
     genGenforms(20, gameEngine, AM, mapHeight);

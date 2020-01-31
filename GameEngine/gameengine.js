@@ -37,9 +37,9 @@ class GameEngine {
         //console.log(this.timer.gameTime);
         console.log('game initialized');
     }
+    //initializes camera, in its own method because the background must be loaded first to determine map height
     initCamera(mapHeight) {
         this.mapHeight = mapHeight;
-        console.log(mapHeight);
         this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight);
     }
     start() {
@@ -51,7 +51,7 @@ class GameEngine {
         })();
     }
     startInput() {
-        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyJ', 'KeyK',
+        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
@@ -173,11 +173,11 @@ class Entity {
     //if the entity is more than 50 pixels off the screen, the entity is deleted;
     cameraTransform() {
         let drawY = this.y - this.game.camera.totalDrawOffset;
-        // if(drawY > this.game.surfaceHeight + 50) {
-        //     this.removeFromWorld = true;
-        //     console.log("here");
-        //     return null;
-        // }
+        if(drawY > this.game.surfaceHeight + 50) {
+            this.removeFromWorld = true;
+            console.log("here");
+            return null;
+        }
         return drawY;
     }
     
@@ -199,7 +199,8 @@ class Entity {
     }
 }
 
-//Records the total offset which we use to calculate the 
+//Records the total offset which we use to calculate drawing platforms and gloop
+//Also records the the offset for the current tick which we use to scroll the background
 class Camera {
     constructor(game, speed, surfaceHeight, mapHeight) {
         this.game = game;
@@ -212,7 +213,6 @@ class Camera {
         if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;
             this.totalDrawOffset -= this.currentDrawOffset;
-            
         }
             
     }

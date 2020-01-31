@@ -49,7 +49,7 @@ class Background {
         }
     }
 }
-//this function randomly generates genforms in groups per canvas width of the map
+//this function randomly generates genforms in groups per canvas height of the map
 function genGenforms (numOfGenForms, game, AM, mapHeight) {
     // console.log("form width correction", formWidth);
     const minHorizontalSeperation = PLATFORM_WIDTH;
@@ -80,7 +80,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
                 } else {
-                    if (y > lowestGenformCoords[1] && y < mapHeight) { //this is a correct for hack above
+                    if (y > lowestGenformCoords[1] && y < mapHeight) { //this finds our spawn point for gloop
                         lowestGenformCoords = [x, y];
                     }
                     yFound = true;

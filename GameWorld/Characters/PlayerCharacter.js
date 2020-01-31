@@ -4,7 +4,7 @@ const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
-// const GOD_MODE = true;
+// const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
 function PlayerCharacterAMDownloads(AM) {
@@ -135,7 +135,7 @@ class PlayerCharacter extends Entity {
         }
     }
     draw(ctx) {
-        let drawY = this.cameraTransform();
+        let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (drawY) {
             if (this.jumping && this.facingLeft) {
                 // console.log("trying to jump left");
