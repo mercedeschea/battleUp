@@ -8,7 +8,10 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
-
+//change this to change scroll speed
+const SCROLL_SPEED = 200;
+//change this to change time before map starts scrolling.
+const SCROLL_DELAY = 5;
 class GameEngine {
     constructor() {
         this.right = null;
@@ -17,12 +20,13 @@ class GameEngine {
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
-        
+        this.mapHeight = null;
         this.left = false;
         this.right = false;
         this.up = false;
-        this.keyE = false;
-        this.keyF = false;
+        this.attack = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -30,7 +34,13 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
+        //console.log(this.timer.gameTime);
         console.log('game initialized');
+    }
+    //initializes camera, in its own method because the background must be loaded first to determine map height
+    initCamera(mapHeight) {
+        this.mapHeight = mapHeight;
+        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight);
     }
     start() {
         console.log("starting game");
@@ -42,7 +52,7 @@ class GameEngine {
     }
     startInput() {
         var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
-            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight'];
+            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
 
@@ -56,9 +66,12 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = true;
             if (e.code === keyArr[4])
-                that.keyE = true;
+                that.placeAngled = true;
             if (e.code === keyArr[5])
-                that.keyF = true;
+                that.placeFlat = true;
+            if (e.code === keyArr[10])
+                that.attack = true;
+
             e.preventDefault();
         }, false);
 
@@ -72,9 +85,11 @@ class GameEngine {
             if (e.code === keyArr[3] || e.code === keyArr[9])
                 that.right = false;
             if (e.code === keyArr[4])
-                that.keyE = false;
+                that.placeAngled = false;
             if (e.code === keyArr[5])
-                that.keyF = false;
+                that.placeFlat = false;
+            if (e.code === keyArr[10])
+                that.attack = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
@@ -86,6 +101,7 @@ class GameEngine {
         this.moveLeft = null;
     }
     draw() {
+        this.camera.update();
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
@@ -106,14 +122,16 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
+        //.log(this.timer.gameTime);
     }
     loop() {
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
         this.up = false; // jump and placements only happen once
-        this.keyE = false;
-        this.keyF = false;
+        this.attack = false;
+        this.placeAngled = false;
+        this.placeFlat = false;
     }
 }
 
@@ -151,6 +169,18 @@ class Entity {
             this.game.ctx.closePath();
         }
     }
+    //calculates where to draw entity relative to the current camera and returns the offset y coordinate
+    //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
+    cameraTransform(removalTolerance) {
+        let drawY = this.y - this.game.camera.totalDrawOffset;
+        if(drawY > this.game.surfaceHeight + removalTolerance) {
+            this.removeFromWorld = true;
+            console.log("here");
+            return null;
+        }
+        return drawY;
+    }
+    
     rotateAndCache(image, angle) {
         var offscreenCanvas = document.createElement('canvas');
         var size = Math.max(image.width, image.height);
@@ -166,5 +196,24 @@ class Entity {
         //offscreenCtx.strokeStyle = "red";
         //offscreenCtx.strokeRect(0,0,size,size);
         return offscreenCanvas;
+    }
+}
+
+//Records the total offset which we use to calculate drawing platforms and gloop
+//Also records the the offset for the current tick which we use to scroll the background
+class Camera {
+    constructor(game, speed, surfaceHeight, mapHeight) {
+        this.game = game;
+        this.speed = speed;
+        this.totalDrawOffset = mapHeight - surfaceHeight;
+        this.currentDrawOffset = 0;
+    }
+    draw() {}
+    update() {
+        if(this.game.timer.gameTime > SCROLL_DELAY){
+            this.currentDrawOffset = this.game.clockTick * this.speed;
+            this.totalDrawOffset -= this.currentDrawOffset;
+        }
+            
     }
 }
