@@ -8,7 +8,6 @@ lvl2
 lvl3
 lvl4
 
-
 file name changes:
 
 GloopGlob(green).png -> gloop(green).png
@@ -22,12 +21,17 @@ glopHopLeft.png -> glopHopLeft(green).png
 glopHopRight.png -> glopHopRight(green).png
 glopTurnAnimationgit.png -> glopTurn(green).png
 
-
 assets added:
 
 floor(inverted).png
 floor.png
 floorFlashing.png
+
+assests altered:
+
+gloop(green).png added 4 empty pixels at the top
+gloop(purple).png added 4 empty pixels at the top
+
 
 
 
