@@ -1,7 +1,18 @@
+const GLOOP_SHEET_PATHS_GREEN = {'turning':"./Sprites/Usables/glopTurn(green).png",
+'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
+'hopRight':"./Sprites/Usables/glopHopRight(green).png",
+'lookForward':"./Sprites/Usables/gloop(green).png",
+'turning':"./Sprites/Usables/glopTurn(green).png"};
+const GLOOP_SHEET_PATHS_PURPLE = {'turning':"./Sprites/Usables/glopTurn(purple).png",
+'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
+'hopRight':"./Sprites/Usables/glopHopRight(green).png",
+'lookForward':"./Sprites/Usables/gloop(green).png",
+'turning':"./Sprites/Usables/glopTurn(green).png"};
+const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE};
 const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
@@ -160,7 +171,6 @@ class PlayerCharacter extends Entity {
                 this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
                 this.reverseAttackAnimation.elapsedTime = 0;
                 this.attacking = false;
-                console.log("gulpadulp");
             }
         }
 
@@ -190,7 +200,7 @@ class PlayerCharacter extends Entity {
                     this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
                 }
             }
-            this.placeformManager.placeformsDraw();
+            // this.placeformManager.placeformsDraw();
         }
     }
     checkCollisions( ) {

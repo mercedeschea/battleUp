@@ -1,0 +1,9 @@
+html, body {
+	font-family: 'Press Start 2P', cursive;
+}
+
+#score {
+    color: #EADF24;
+    font-family: "Press Start 2P";
+    width: 100px;
+}

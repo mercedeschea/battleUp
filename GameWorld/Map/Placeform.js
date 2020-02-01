@@ -10,7 +10,11 @@ class PlaceformManager {
        const scale = 1;
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
+<<<<<<< HEAD
             console.log("lmao");
+=======
+            this.placeformsCurrent[0].removeFromWorld = true;
+>>>>>>> 6b071dddaeaa5cda18ff0629a5c23af04b1634cd
             this.placeformsCurrent.shift();
         }
         if (facingLeft) {
@@ -38,11 +42,11 @@ class PlaceformManager {
         this.game.addEntity(placeformPlaced);
         // console.log(this.placeformsCurrent);
     }
-    placeformsDraw() {
-        for (var i = 0; i < this.placeformsCurrent.length; i++) {
-            this.placeformsCurrent[i].draw();
-        }
-    }
+    // placeformsDraw() {
+    //     for (var i = 0; i < this.placeformsCurrent.length; i++) {
+    //         this.placeformsCurrent[i].draw();
+    //     }
+    // }
 }
 
 
