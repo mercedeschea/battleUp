@@ -28,6 +28,7 @@ class GameEngine {
         this.placeAngled = false;
         this.placeFlat = false;
         this.started = false;
+        this.clockTick = 0;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -246,6 +247,7 @@ class Score {
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
         this.maxY = 0;
+        this.startY = this.game.mapHeight - this.playerCharacter.y;
     }
     draw() {
         this.game.ctx.drawImage(this.spriteSheet, 0, 0,
@@ -260,7 +262,7 @@ class Score {
     update() {
         this.displayScore = this.scoreTimer.tick();
         let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
+        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y - this.startY)* 100)/100);
         if (this.currentY > this.maxY) {
             this.maxY = this.currentY;
         }

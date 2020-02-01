@@ -80,7 +80,7 @@ AM.downloadAll(function () {
     gameEngine.addEntity(score);
     gameEngine.draw();
     ctx.font = '40px Times New Roman';
-    ctx.fillStyle = 'orange';
+    ctx.fillStyle = 'gold';
     ctx.textAlign = 'center';
     console.log(canvas.width/2, canvas.height/2);
     ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 

@@ -32,7 +32,6 @@ class PlayerCharacter extends Entity {
     self = this;
     constructor(game, AM) {
         super(self, game, lowestGenformCoords[0], lowestGenformCoords[1] - 64);
-        console.log(lowestGenformCoords[0], lowestGenformCoords[1] - 64);
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
@@ -142,13 +141,11 @@ class PlayerCharacter extends Entity {
                 this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
                 this.reverseAttackAnimation.elapsedTime = 0;
                 this.attacking = false;
-                console.log("gulpadulp");
             }
         }
     }
     draw(ctx) {
         let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
-        console.log(drawY);
         if (drawY) {
             if (this.jumping && this.facingLeft) {
                 // console.log("trying to jump left");
