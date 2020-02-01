@@ -1,5 +1,6 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
+const genForms = [];
 const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
@@ -116,7 +117,9 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
             if(xFound && yFound) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
-                game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game));
+                let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
+                genForms.push(curGenform);
+                game.addEntity(curGenform);
             }
             
         }
