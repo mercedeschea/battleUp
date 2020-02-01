@@ -18,6 +18,7 @@ class Animation {
     }
     drawFrame(tick, ctx, x, y, scaleBy) {
         var scaleBy = scaleBy || 1;
+        
         this.elapsedTime += tick;
         if (this.loop) {
             if (this.isDone()) {
@@ -55,28 +56,21 @@ class Animation {
     }
 }
 
-// Each class should have a helper that downloads all their necessary assets.
-// For instance Genform class would queueDownload each of the genform assets for each level
-// See PlayerCharacter class top function for example!
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
 AM.downloadAll(function () {
-    var canvas = document.getElementById("gameWorld");
-    var ctx = canvas.getContext("2d");
-    var gameEngine = new GameEngine();
+    let canvas = document.getElementById("gameWorld");
+    let ctx = canvas.getContext("2d");
+    let gameEngine = new GameEngine();
     gameEngine.init(ctx);
+    let background = new Background(gameEngine, AM);
+    let mapHeight = background.spritesheet.height;
+    gameEngine.initCamera(mapHeight);//we don't have game.mapHeight until here
     gameEngine.start();
-    // gameEngine.addEntity(new Cheetah(gameEngine, AM.getAsset("./img/runningcat.png")));
-    // gameEngine.addEntity(new Guy(gameEngine, AM.getAsset("./img/guy.jpg")));
-    // gameEngine.addEntity(new PlayerCharacter(gameEngine, AM.getAsset(PLAYER_CHARACTER_PATH)));
-
-    // pass AM to each class so they queue their own downloads and track their own asset paths
-    // I have refactored PlayerCharacter and Background, but have not touched the platform entities
-    gameEngine.addEntity(new Background(gameEngine, AM));
-    genGenforms(5, gameEngine, AM);
+    gameEngine.addEntity(background);
+    gameEngine.addEntity(new Floor(gameEngine, AM));
+    genGenforms(20, gameEngine, AM, mapHeight);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
-
-
     console.log("All Done!");
 });
