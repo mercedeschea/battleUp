@@ -66,11 +66,19 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
-    gameEngine.initCamera(mapHeight);//we don't have game.mapHeight until here
-    gameEngine.start();
+    let music = document.getElementById("soundTrack");
+    let musicManager = new MusicManager(music);
+    gameEngine.initCamera(mapHeight, musicManager);//we don't have game.mapHeight until here
+
+    // gameEngine.start();
     gameEngine.addEntity(background);
     gameEngine.addEntity(new Floor(gameEngine, AM));
     genGenforms(20, gameEngine, AM, mapHeight);
-    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
+    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM));
+    gameEngine.draw();
+    // ctx.font = '48px serif';
+    ctx.fillStyle = 'orange';
+    ctx.fillText("Click to Start!", ctx.width/2 - 100, ctx.height/2); 
+
     console.log("All Done!");
 });

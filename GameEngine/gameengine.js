@@ -9,7 +9,7 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 200;
+const SCROLL_SPEED = 0;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 5;
 class GameEngine {
@@ -38,9 +38,9 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight) {
+    initCamera(mapHeight, musicManager) {
         this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight);
+        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager);
     }
     start() {
         console.log("starting game");
@@ -199,18 +199,32 @@ class Entity {
     }
 }
 
+class MusicManager {
+    constructor (music) {
+        this.currentMusic = music;
+        this.playing = false;
+    }
+    play() {
+        this.currentMusic.play();
+    }
+}
+
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight) {
+    constructor(game, speed, surfaceHeight, mapHeight, musicManager) {
         this.game = game;
         this.speed = speed;
         this.totalDrawOffset = mapHeight - surfaceHeight;
         this.currentDrawOffset = 0;
+        this.musicManager = musicManager;
     }
     draw() {}
     update() {
         if(this.game.timer.gameTime > SCROLL_DELAY){
+            if (!this.musicManager.playing) {
+                this.musicManager.play();
+            }
             this.currentDrawOffset = this.game.clockTick * this.speed;
             this.totalDrawOffset -= this.currentDrawOffset;
         }
