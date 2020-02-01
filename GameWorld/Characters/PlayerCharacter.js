@@ -88,7 +88,7 @@ class PlayerCharacter extends Entity {
             }
         }
 
-
+        this.colliding = false;
         if (this.placed)
             this.checkCollisions();
         

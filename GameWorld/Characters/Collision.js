@@ -20,23 +20,26 @@ function isCharacterColliding(PlayerCharacter) {
     for (const platform of pc.placeformManager.placeformsCurrent) {
         if (platform.type === 'center') {
             let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
-            isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation);
+            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
+                pc.colliding = true;
         } else if (platform.type === 'left') {
             let equation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
-            isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation);
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) 
+                pc.colliding = true;
         } else {
             let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
-            isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation);
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation))
+                pc.colliding = true;
         }
     }
 
 
 
-    let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
-    // Convert the horizontal platform
-    let PlatformCartCords = convertHorizontalPlatformToEquation(collidePlaceform.x, collidePlaceform.y, pc.game.mapHeight);
+    // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
+    // // Convert the horizontal platform
+    // let PlatformCartCords = convertHorizontalPlatformToEquation(collidePlaceform.x, collidePlaceform.y, pc.game.mapHeight);
 
-    pc.colliding = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformCartCords);
+    // pc.colliding = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformCartCords);
 }
 
 
@@ -133,8 +136,6 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
         return true;
     }
 }
-
-
 
 
 function convertCharacterToGameWorldCoords(thisX, thisY) {
