@@ -231,7 +231,8 @@ class Score {
         this.game.ctx.drawImage(this.spriteSheet, 0, 0,
             this.spriteSheet.width/5, this.spriteSheet.height/5);
         //this.game.ctx.font("Press Start 2P");
-        this.game.ctx.font = ("20px Times New Roman");
+        ("#score").text(this.maxY);
+        // this.game.ctx.font = ("20px Press Start 2P");
         this.game.ctx.fillStyle = "gold";
         //console.log(this.playerY);
         this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
