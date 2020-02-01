@@ -96,7 +96,6 @@ class PlayerCharacter extends Entity {
                 this.jumping = false;
         }
         if (!this.jumping && !this.colliding) {
-            // console.log('movin down');
             this.y += 1;
         }
 
