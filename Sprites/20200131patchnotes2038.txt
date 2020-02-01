@@ -1,0 +1,16 @@
+20200131 20:38 patch notes
+
+Added HUD sprites and level 0 pillar sprite
+
+
+assets added:
+
+Usables/lvl0/pillar.png
+HUD/pixelNumbers.png
+HUD/ERF.png
+HUD/WASD.png
+HUD/startButtonPress.png
+
+
+
+
