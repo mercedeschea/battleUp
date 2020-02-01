@@ -1,6 +1,5 @@
 var AM = new AssetManager();
-
-
+const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -59,6 +58,8 @@ class Animation {
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
+AM.queueDownload(SCORE_TEXT);
+
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
     let ctx = canvas.getContext("2d");
@@ -70,7 +71,14 @@ AM.downloadAll(function () {
     gameEngine.start();
     gameEngine.addEntity(background);
     gameEngine.addEntity(new Floor(gameEngine, AM));
+    
     genGenforms(20, gameEngine, AM, mapHeight);
-    gameEngine.addEntity(new PlayerCharacter(gameEngine, AM)); 
+
+    let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    let score = new Score(gameEngine, AM, playerCharacter);
+
+    gameEngine.addEntity(playerCharacter); 
+    gameEngine.addEntity(score);
+    //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
     console.log("All Done!");
 });
