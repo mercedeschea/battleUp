@@ -9,9 +9,9 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 0;
+const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 5;
+const SCROLL_DELAY = 9.85;
 class GameEngine {
     constructor() {
         this.right = null;
@@ -27,6 +27,7 @@ class GameEngine {
         this.attack = false;
         this.placeAngled = false;
         this.placeFlat = false;
+        this.started = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -45,6 +46,7 @@ class GameEngine {
     start() {
         console.log("starting game");
         var that = this;
+        this.started = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
@@ -55,7 +57,11 @@ class GameEngine {
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
-
+        this.ctx.canvas.addEventListener("click", function (e) {
+            if (!that.started) {
+                that.start();
+            }
+        }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = true;
@@ -221,10 +227,10 @@ class Camera {
     }
     draw() {}
     update() {
+        if (!this.musicManager.playing) {
+            this.musicManager.play();
+        }
         if(this.game.timer.gameTime > SCROLL_DELAY){
-            if (!this.musicManager.playing) {
-                this.musicManager.play();
-            }
             this.currentDrawOffset = this.game.clockTick * this.speed;
             this.totalDrawOffset -= this.currentDrawOffset;
         }

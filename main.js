@@ -66,9 +66,7 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
-    let music = document.getElementById("soundTrack");
-    let musicManager = new MusicManager(music);
-    gameEngine.initCamera(mapHeight, musicManager);//we don't have game.mapHeight until here
+    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")));//we don't have game.mapHeight until here
 
     // gameEngine.start();
     gameEngine.addEntity(background);
@@ -76,9 +74,11 @@ AM.downloadAll(function () {
     genGenforms(20, gameEngine, AM, mapHeight);
     gameEngine.addEntity(new PlayerCharacter(gameEngine, AM));
     gameEngine.draw();
-    // ctx.font = '48px serif';
+    ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'orange';
-    ctx.fillText("Click to Start!", ctx.width/2 - 100, ctx.height/2); 
+    ctx.textAlign = 'center';
+    console.log(canvas.width/2, canvas.height/2);
+    ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
 
     console.log("All Done!");
 });

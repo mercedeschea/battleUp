@@ -10,6 +10,7 @@ class PlaceformManager {
        const scale = 1;
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
+            this.placeformsCurrent[0].removeFromWorld = true;
             this.placeformsCurrent.shift();
         }
         if (facingLeft) {
@@ -37,11 +38,11 @@ class PlaceformManager {
         this.game.addEntity(placeformPlaced);
         // console.log(this.placeformsCurrent);
     }
-    placeformsDraw() {
-        for (var i = 0; i < this.placeformsCurrent.length; i++) {
-            this.placeformsCurrent[i].draw();
-        }
-    }
+    // placeformsDraw() {
+    //     for (var i = 0; i < this.placeformsCurrent.length; i++) {
+    //         this.placeformsCurrent[i].draw();
+    //     }
+    // }
 }
 
 
