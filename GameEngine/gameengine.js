@@ -9,9 +9,9 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 200;
+const SCROLL_SPEED = 30;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 5;
+const SCROLL_DELAY = 50000;
 class GameEngine {
     constructor() {
         this.right = null;
@@ -175,7 +175,7 @@ class Entity {
         let drawY = this.y - this.game.camera.totalDrawOffset;
         if(drawY > this.game.surfaceHeight + removalTolerance) {
             this.removeFromWorld = true;
-            console.log("here");
+            // console.log("here");
             return null;
         }
         return drawY;

@@ -10,6 +10,7 @@ class PlaceformManager {
        const scale = 1;
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
+            console.log("lmao");
             this.placeformsCurrent.shift();
         }
         if (facingLeft) {
