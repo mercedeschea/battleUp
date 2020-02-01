@@ -90,7 +90,7 @@ class PlayerCharacter extends Entity {
 
 
         if (this.placed)
-            this.checkCollisions(this.placeformManager);
+            this.checkCollisions();
         
         if (this.colliding) {
             if (this.jumping)
@@ -203,7 +203,7 @@ class PlayerCharacter extends Entity {
             // this.placeformManager.placeformsDraw();
         }
     }
-    checkCollisions( ) {
+    checkCollisions() {
         isCharacterColliding(this);
     }
 
