@@ -34,7 +34,7 @@ function isCharacterColliding(PlayerCharacter) {
     }
 
     for (const gen in genForms) {
-        let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
+        let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
         if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
             pc.colliding = true;
     }
@@ -71,7 +71,8 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) {
         mSlope: slope,
         bOffset: (gameWorldHeight - platform.y) + (platform.x + 7),
         xLeft: platform.x,
-        xRight: platform.x + 83
+        xRight: platform.x + 83,
+        yValue: gameWorldHeight - platform.y - 30
     }
 }
 

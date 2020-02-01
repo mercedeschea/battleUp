@@ -89,16 +89,15 @@ class PlayerCharacter extends Entity {
         }
 
         this.colliding = false;
-        if (this.placed)
-            this.checkCollisions();
-        
+        this.checkCollisions();
+
         if (this.colliding) {
             if (this.jumping)
                 this.jumping = false;
         }
         if (!this.jumping && !this.colliding) {
             // console.log('movin down');
-            this.y += .1;
+            this.y += 1;
         }
 
 
