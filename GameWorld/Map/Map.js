@@ -30,7 +30,7 @@ class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
         this.game = game;
-        this.flashing = true;
+        this.flashing = false;
         let flashSheet = AM.getAsset(FLOOR_FLASH_PATH);
         this.animationFlash = new Animation(flashSheet, 0, 
             0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
