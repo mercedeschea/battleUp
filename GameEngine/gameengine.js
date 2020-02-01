@@ -128,7 +128,7 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
-        //.log(this.timer.gameTime);
+        //console.log(this.timer.gameTime);
     }
     loop() {
         this.clockTick = this.timer.tick();
@@ -181,7 +181,6 @@ class Entity {
         let drawY = this.y - this.game.camera.totalDrawOffset;
         if(drawY > this.game.surfaceHeight + removalTolerance) {
             this.removeFromWorld = true;
-            console.log("here");
             return null;
         }
         return drawY;
@@ -235,5 +234,41 @@ class Camera {
             this.totalDrawOffset -= this.currentDrawOffset;
         }
             
+    }
+}
+
+class Score {
+    constructor(game, AM, PlayerCharacter) {
+        this.spriteSheet = AM.getAsset(SCORE_TEXT);
+        this.game = game;
+        this.scoreTimer = new Timer();
+        this.displayScore = 0;
+        this.playerCharacter = PlayerCharacter;
+        this.currentY = 0;
+        this.maxY = 0;
+    }
+    draw() {
+        this.game.ctx.drawImage(this.spriteSheet, 0, 0,
+            this.spriteSheet.width/5, this.spriteSheet.height/5);
+        //this.game.ctx.font("Press Start 2P");
+        this.game.ctx.font = ("20px Times New Roman");
+        this.game.ctx.fillStyle = "gold";
+        //console.log(this.playerY);
+        this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+        
+    }
+    update() {
+        this.displayScore = this.scoreTimer.tick();
+        let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
+        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
+        if (this.currentY > this.maxY) {
+            this.maxY = this.currentY;
+        }
+        
+        // console.log(formatTime);
+        //console.log(this.playerCharacter);
+    }
+
+    loop() { 
     }
 }
