@@ -14,7 +14,6 @@ function PlayerCharacterAMDownloads(AM) {
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
 NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
-    self = this;
     constructor(game, AM) {
         super(self, game, 300, 300);
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
@@ -26,12 +25,19 @@ class PlayerCharacter extends Entity {
         
         // facingLeft instead of just "this.facing" with true/false or 0/1 which we would have to keep track of
         this.facingLeft = true;
-        this.radius = 32;
+        this.radius = 32.5;
         this.speed = 100;
         this.game = game;
         this.ctx = game.ctx;
+
+        this.colliding = false;
     }
     update() {
+        if (this.placed)
+            this.isColliding();
+        if (this.colliding) {
+            this.jumping = false;
+        }
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -48,8 +54,9 @@ class PlayerCharacter extends Entity {
         } else if (this.movingRight) {
             this.x += this.game.clockTick * 200;
         }
-        if (this.game.up)
+        if (this.game.up) {
             this.jumping = true;
+        }
         if (this.jumping) {
             let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
             if (jumpAnimation.isDone()) {
@@ -69,9 +76,11 @@ class PlayerCharacter extends Entity {
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
         if (this.game.keyE) {
+            this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         } else  if (this.game.keyF) {
+            this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         } 
@@ -92,4 +101,86 @@ class PlayerCharacter extends Entity {
         }
         this.placeformManager.placeformsDraw();
     }
+    isColliding() {
+        // for each existing platform
+        // am i colliding
+        // for each placeform in this.placeformmanager.placeformscurrent
+        let collidePlaceform = this.placeformManager.placeformsCurrent[0];
+        //console.log(collidePlaceform);
+
+        // Convert the player character
+        let PlayerGWCords = convertCharacterToGameWorldCoords(this.x, this.y);
+        // console.log("Player gw coords", PlayerGWCords);
+
+        let PlayerCartCords = convertToCartesianCoords(PlayerGWCords.gameWorldX, PlayerGWCords.gameWorldY, this.game.surfaceHeight);
+        // console.log("Player cart coords", PlayerCartCords);
+
+        let PlayerCircleInfo = {
+            radius: this.radius,
+            cartesianX: PlayerCartCords.cartesianX,
+            cartesianY: PlayerCartCords.cartesianY
+        }
+
+        // Convert the horizontal platform
+        let PlatformGWCords = convertHorizontalLineToCartesianCoords(collidePlaceform.x, collidePlaceform.y, this.game.surfaceHeight);
+        // console.log("Platform Cart cords", PlatformGWCords);
+
+        // console.log(isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformGWCords));  
+        this.colliding = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformGWCords);
+
+
+    }
+
+}
+
+function convertCharacterToGameWorldCoords(thisX, thisY) {
+    //Assumes the circle character is 64x68 with 4 dead pixels on top
+    // Returns the center of the character circle
+    return { gameWorldX: thisX + 32.5, gameWorldY: thisY + 36.5 };
+}
+
+function convertHorizontalLineToCartesianCoords(thisX, thisY, gameHeight) {
+    return {yValue: gameHeight - thisY, xLeft: thisX, xRight: thisX + 119};
+}
+
+function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
+    return { cartesianX: gameWorldX, cartesianY: gameHeight - gameWorldY };
+}
+
+
+//Circle has radius, cartX, cartY
+//Line has y = mx + b
+//Horizontal line has y = [number]
+//These flat platforms are very simple
+function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is circle, Platform is a line
+    // ax^2 + bx + c = 0
+    const a = 1;
+    const b = -2 * CircleInfo.cartesianX;
+
+    // console.log("1", CircleInfo.cartesianX * CircleInfo.cartesianX + LineInfo.yValue * LineInfo.yValue);
+    // console.log("2", 2 * CircleInfo.cartesianY * LineInfo.yValue + CircleInfo.cartesianY * CircleInfo.cartesianY)
+    // console.log("3", CircleInfo.radius * CircleInfo.radius)
+
+
+    const c = CircleInfo.cartesianX * CircleInfo.cartesianX + LineInfo.yValue * LineInfo.yValue 
+        - 2 * CircleInfo.cartesianY * LineInfo.yValue + CircleInfo.cartesianY * CircleInfo.cartesianY 
+        - CircleInfo.radius * CircleInfo.radius;
+    // console.log("a b c ", a, b, c);
+    // console.log(quadraticFormula(a, b, c));
+
+    let answer = quadraticFormula(a,b,c);
+
+    if (isNaN(answer.result1) && isNaN(answer.result2)) {
+        return false;//console.log("No collide");
+    } else {
+        if (CircleInfo.cartesianX >= LineInfo.xLeft && CircleInfo.cartesianX <= LineInfo.xRight)
+        return true;//console.log("Collide");
+    }
+}
+
+
+function quadraticFormula(a, b, c) {
+    var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
+    var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
+    return {result1: result1, result2: result2};
 }
