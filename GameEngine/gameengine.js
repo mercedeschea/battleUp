@@ -9,9 +9,9 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 50;
+const SCROLL_SPEED = 0;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 9.85;
+const SCROLL_DELAY = 999.85;
 class GameEngine {
     constructor() {
         this.right = null;

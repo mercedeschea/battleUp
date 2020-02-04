@@ -28,16 +28,18 @@ function isCharacterColliding(PlayerCharacter) {
                 pc.colliding = true;
         } else {
             let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
+            console.log("right equation", equation);
+            console.log("pc coords", PlayerCircleInfo);
             if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation))
                 pc.colliding = true;
         }
     }
 
-    for (const gen of genForms) {
-        let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
-        if (isCircleCollidingWithHorizontalLine(gen, equation))
-            pc.colliding = true;
-    }
+    // for (const gen of genForms) {
+    //     let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
+    //     if (isCircleCollidingWithHorizontalLine(gen, equation))
+    //         pc.colliding = true;
+    // }
 
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform
@@ -49,20 +51,39 @@ function isCharacterColliding(PlayerCharacter) {
 
 
 
-function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) {
+function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " / " */
     let slope = 1;
-    // y = mx + b
-    // top right point of this platform is (this.x + 80, this.y) 
-    // gameHeight - this.y = (1) * (this.x + 80) + b 
+    /*
+    Bottom Left : (this.x, Max - (this.y + 80))
+    Top Right : (this.x + 80, Max - this.y)
+    Slope : 1
+    */
+    /*
+    Line equation using bottom left point: 
+    y = m x + b
+    max - (this.y + 80) = (slope)(this.x) + b
+    b = max - (this.y + 80) - (slope)(this.x)
+    */
+    /* 
+    Line equation using top right:
+    y = mx + b 
+    max - this.y = (slope)(this.x + 80) + b
+    b = max - this.y - (slope)(this.x + 80)
+    SAME LINE
+    */
+    console.log("platform.y", platform.y);
+    console.log("platform.x", platform.x);
+    console.log("gameWorldHeight", gameWorldHeight);
+    console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
-        bOffset: (gameWorldHeight - platform.y) - (platform.x + 80),
+        bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
         xLeft: platform.x,
-        xRight: platform.x + 83
+        xRight: (platform.x + 80)
     }
 }
 
-function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) {
+function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \ " */
     let slope = -1;
     // y = mx + b
     // top left point of this platform is (this.x + 7, this.y) 
@@ -97,7 +118,7 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
         console.log('c', c);*/
 
     const a = 2;
-    const b = -2 * CircleInfo.cartesianX + LineInfo.mSlope * (LineInfo.bOffset - CircleInfo.cartesianY);
+    const b = 2 * LineInfo.mSlope * (LineInfo.bOffset - CircleInfo.cartesianY) - 2 * CircleInfo.cartesianX;
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + (LineInfo.bOffset - CircleInfo.cartesianY) * (LineInfo.bOffset - CircleInfo.cartesianY) 
         - CircleInfo.radius * CircleInfo.radius;
         
@@ -107,14 +128,14 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
 
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
-        console.log(answer.result1, answer.result2);
+        // console.log(answer.result1, answer.result2);
         console.log("no");
         return false;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
         console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
-        console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
-        console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
-        console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+        // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
+        // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
+        // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
         return true;
     }
 }
@@ -164,5 +185,6 @@ function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
 function quadraticFormula(a, b, c) {
     var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
     var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
+    console.log(result1);
     return {result1: result1, result2: result2};
 }
