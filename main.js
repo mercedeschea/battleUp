@@ -1,4 +1,4 @@
-var AM = new AssetManager();
+const AM = new AssetManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 
 class Animation {
@@ -67,14 +67,16 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
-    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")));//we don't have game.mapHeight until here
+    let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
 
     // gameEngine.start();
     gameEngine.addEntity(background);
+    genWalls(gameEngine, AM);
     gameEngine.addEntity(new Floor(gameEngine, AM));
-    
     genGenforms(20, gameEngine, AM, mapHeight);
-    let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    playerCharacter.x = lowestGenformCoords[0];
+    playerCharacter.y = lowestGenformCoords[1] - 64;
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(playerCharacter); 
     gameEngine.addEntity(score);
@@ -82,7 +84,7 @@ AM.downloadAll(function () {
     ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'gold';
     ctx.textAlign = 'center';
-    console.log(canvas.width/2, canvas.height/2);
+    // console.log(canvas.width/2, canvas.height/2);
     ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
     //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
     console.log("All Done!");

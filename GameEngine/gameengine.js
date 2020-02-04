@@ -12,6 +12,8 @@ window.requestAnimFrame = (function () {
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 9.85;
+const SCROLL_PERCENTAGE = .6;
+
 class GameEngine {
     constructor() {
         this.right = null;
@@ -40,14 +42,15 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, musicManager) {
+    initCamera(mapHeight, musicManager, playerCharacter) {
         this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager);
+        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager, playerCharacter);
     }
     start() {
         console.log("starting game");
         var that = this;
         this.started = true;
+        this.camera.musicManager.authorized = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
@@ -178,8 +181,9 @@ class Entity {
     }
     //calculates where to draw entity relative to the current camera and returns the offset y coordinate
     //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
-    cameraTransform(removalTolerance) {
+    cameraTransform(removalTolerance, parallaxFactor) {
         let drawY = this.y - this.game.camera.totalDrawOffset;
+        if (parallaxFactor) drawY *= parallaxFactor;
         if(drawY > this.game.surfaceHeight + removalTolerance) {
             this.removeFromWorld = true;
             return null;
@@ -208,7 +212,7 @@ class Entity {
 class MusicManager {
     constructor (music) {
         this.currentMusic = music;
-        this.playing = false;
+        this.authorized = false;
     }
     play() {
         this.currentMusic.play();
@@ -218,23 +222,38 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight, musicManager) {
+    constructor(game, speed, surfaceHeight, mapHeight, musicManager, playerCharacter) {
         this.game = game;
         this.speed = speed;
         this.totalDrawOffset = mapHeight - surfaceHeight;
         this.currentDrawOffset = 0;
         this.musicManager = musicManager;
+        this.playerCharacter = playerCharacter;
+        this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
+        this.advanceFactor = 15;
     }
     draw() {}
     update() {
-        if (!this.musicManager.playing) {
-            this.musicManager.play();
+        //if the player has interacted with the dom, play the music
+        if(this.musicManager.authorized)
+            this.musicManager.currentMusic.play();
+        //if the player is at the top of the canvas
+        if (this.playerCharacter.y - this.totalDrawOffset < 0) {
+            this.advanceTime = .5;
         }
-        if(this.game.timer.gameTime > SCROLL_DELAY){
+        if(this.advanceTime > 0) {
+            this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
+            console.log(this.game.clockTick, 'a tick with this value');
+            console.log(this.advanceTime);
+            this.advanceTime -= this.game.clockTick;
+            console.log(this.advanceTime);
+        }
+        else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;
-            this.totalDrawOffset -= this.currentDrawOffset;
+        } else {
+            this.currentDrawOffset = 0;
         }
-            
+        this.totalDrawOffset -= this.currentDrawOffset;
     }
 }
 

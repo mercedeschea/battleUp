@@ -7,7 +7,7 @@ const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
-const PILLAR_PATH = "./Sprites/Usables/lvl0/pillar.png";
+const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const PLATFORM_WIDTH = 125;
 const PLATFORM_HEIGHT = 11;
 const FLOOR_HEIGHT = 30;
@@ -25,10 +25,28 @@ class Background {
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
-        this.srcY -= this.game.camera.currentDrawOffset;
+        this.srcY -= this.game.camera.currentDrawOffset * .9;
         // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
+
+class Wall extends Entity{
+    self = this;
+    constructor(spriteSheet, game, destX, destY) {
+        super(self, game, destX, destY);
+        this.spriteSheet = spriteSheet;
+        this.height = spriteSheet.height;
+        this.animation = new Animation(spriteSheet, 0, 0, 66, 599, .1, 3, true, false);
+    }
+    draw() {
+        let drawY = this.cameraTransform(-40);
+        if (drawY) {
+            // this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
+            this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY);
+        }
+    }
+
+}
 class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
@@ -125,6 +143,24 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
         }
     }
 }
+//builds the walls
+function genWalls (game, AM) {
+    const wallSheet = AM.getAsset(PILLAR_PATH)
+    let firstWallSection = new Wall(wallSheet, game, 0, 0);
+    let destY = game.mapHeight - firstWallSection.height - 28;
+    let xLeft = 0;
+    let xRight = game.surfaceWidth - firstWallSection.animation.frameWidth + 2;
+    firstWallSection.x = xLeft;
+    firstWallSection.y = destY;
+    game.addEntity(firstWallSection);
+    game.addEntity(new Wall(wallSheet, game, xRight, destY));
+
+    for (;destY > -firstWallSection.height; destY -= (firstWallSection.height)) {
+        game.addEntity(new Wall(wallSheet, game, xLeft, destY));
+        game.addEntity(new Wall(wallSheet, game, xRight, destY));
+    }
+}
+
 
 // testing collision
 function testGenforms(game) {

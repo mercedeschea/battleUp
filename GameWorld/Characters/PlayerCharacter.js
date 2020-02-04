@@ -30,7 +30,7 @@ function PlayerCharacterAMDownloads(AM) {
 NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
     constructor(game, AM) {
-        super(self, game, lowestGenformCoords[0], lowestGenformCoords[1] - 64);
+        super(self, game, 0, 0);
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);

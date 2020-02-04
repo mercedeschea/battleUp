@@ -122,9 +122,9 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + (LineInfo.bOffset - CircleInfo.cartesianY) * (LineInfo.bOffset - CircleInfo.cartesianY) 
         - CircleInfo.radius * CircleInfo.radius;
         
-    console.log('a', a);
-    console.log('b', b);
-    console.log('c', c);
+    // console.log('a', a);
+    // console.log('b', b);
+    // console.log('c', c);
 
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
