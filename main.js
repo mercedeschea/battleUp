@@ -1,4 +1,4 @@
-var AM = new AssetManager();
+const AM = new AssetManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 
 class Animation {
@@ -72,7 +72,7 @@ AM.downloadAll(function () {
     // gameEngine.start();
     gameEngine.addEntity(background);
     gameEngine.addEntity(new Floor(gameEngine, AM));
-    
+    genWalls(gameEngine, AM);
     genGenforms(20, gameEngine, AM, mapHeight);
     let playerCharacter = new PlayerCharacter(gameEngine, AM);
     let score = new Score(gameEngine, AM, playerCharacter);

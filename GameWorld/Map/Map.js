@@ -25,10 +25,26 @@ class Background {
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
-        this.srcY -= this.game.camera.currentDrawOffset;
+        this.srcY -= this.game.camera.currentDrawOffset * .9;
         // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
+
+class Wall extends Entity{
+    self = this;
+    constructor(spriteSheet, game, destX, destY) {
+        super(self, game, destX, destY);
+        this.spriteSheet = spriteSheet;
+        this.height = spriteSheet.height;
+    }
+    draw() {
+        let drawY = this.cameraTransform(-40, .9);
+        if (drawY) {
+            this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
+        }
+    }
+
+}
 class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
@@ -125,6 +141,25 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
         }
     }
 }
+//builds the walls
+function genWalls (game, AM) {
+    const wallSheet = AM.getAsset(PILLAR_PATH)
+    let firstWallSection = new Wall(wallSheet, game, 0, 0);
+    let destY = game.mapHeight - firstWallSection.height - 28;
+    let xLeft = -firstWallSection.spriteSheet.width/4;
+    let xRight = game.surfaceWidth - 3*firstWallSection.spriteSheet.width/4;
+    firstWallSection.x = xLeft;
+    firstWallSection.y = destY;
+    console.log(firstWallSection.x, firstWallSection.y);
+    game.addEntity(firstWallSection);
+    game.addEntity(new Wall(wallSheet, game, xRight, destY));
+
+    for (;destY > 0; destY -= firstWallSection.height) {
+        game.addEntity(new Wall(wallSheet, game, xLeft, destY));
+        game.addEntity(new Wall(wallSheet, game, xRight, destY));
+    }
+}
+
 
 // testing collision
 function testGenforms(game) {

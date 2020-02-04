@@ -11,7 +11,7 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 9.85;
+const SCROLL_DELAY = 0;
 class GameEngine {
     constructor() {
         this.right = null;
@@ -178,8 +178,9 @@ class Entity {
     }
     //calculates where to draw entity relative to the current camera and returns the offset y coordinate
     //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
-    cameraTransform(removalTolerance) {
+    cameraTransform(removalTolerance, parallaxFactor) {
         let drawY = this.y - this.game.camera.totalDrawOffset;
+        if (parallaxFactor) drawY *= parallaxFactor;
         if(drawY > this.game.surfaceHeight + removalTolerance) {
             this.removeFromWorld = true;
             return null;
