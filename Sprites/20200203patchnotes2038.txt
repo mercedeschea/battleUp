@@ -1,0 +1,12 @@
+20200203 22:57 patch notes
+
+Added animated torch to level 0 pillar sprite
+
+
+assets added:
+
+Usables/lvl0/pillarWithTorchSheet.png
+
+
+
+
