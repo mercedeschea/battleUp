@@ -7,7 +7,7 @@ const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
-const PILLAR_PATH = "./Sprites/Usables/lvl0/pillar.png";
+const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const PLATFORM_WIDTH = 125;
 const PLATFORM_HEIGHT = 11;
 const FLOOR_HEIGHT = 30;
@@ -36,11 +36,13 @@ class Wall extends Entity{
         super(self, game, destX, destY);
         this.spriteSheet = spriteSheet;
         this.height = spriteSheet.height;
+        this.animation = new Animation(spriteSheet, 0, 0, 66, 599, .1, 3, true, false);
     }
     draw() {
-        let drawY = this.cameraTransform(-40, .9);
+        let drawY = this.cameraTransform(-40);
         if (drawY) {
-            this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
+            // this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
+            this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY);
         }
     }
 
@@ -84,33 +86,11 @@ class Floor {
         let drawY = this.cameraTransform(-40);
         // console.log(drawY);
         if(drawY) {
-            if (this.type === 'left') {
-                let equation = convertLeftSlopedPlatformToEquation(this, this.game.mapHeight);
-                console.log("line start coordinates", equation.xLeft, equation.xLeft + equation.bOffset + this.game.camera.totalDrawOffset);
-                console.log("line end coordinates", equation.xRight, equation.xRight + equation.bOffset + this.game.camera.totalDrawOffset);
-                this.game.ctx.beginPath();
-                this.game.ctx.fillStyle = 'gold';
-                this.game.ctx.moveTo(equation.xLeft, equation.xLeft + equation.bOffset + this.game.camera.totalDrawOffset);
-                this.game.ctx.lineTo(equation.xRight, equation.xRight + equation.bOffset + this.game.camera.totalDrawOffset);
-                this.game.ctx.stroke();
-            } else if (this.type === 'right') {
-                let equation = convertRightSlopedPlatformToEquation(this, this.game.mapHeight);
-                console.log("line start coordinates", equation.xLeft, equation.xLeft + equation.bOffset);
-                console.log("line end coordinates", equation.xRight, equation.xRight + equation.bOffset);
-                this.game.ctx.beginPath();
-                this.game.ctx.strokeStyle = 'gold';
-                this.game.ctx.moveTo(0, 0);
-                this.game.ctx.lineTo(this.game.surfaceWidth, this.game.surfaceHeight);
-                // this.game.ctx.moveTo(equation.xLeft + 5, equation.xLeft + equation.bOffset + this.game.camera.totalDrawOffset);
-                // this.game.ctx.lineTo(equation.xRight + 5, equation.xRight + equation.bOffset + this.game.camera.totalDrawOffset);
-                
-                this.game.ctx.stroke();
-            }
             let width = this.srcWidthAndHeight[this.type][0];
             let height = this.srcWidthAndHeight[this.type][1];
-            // this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
-            //     width, height, this.x, drawY, 
-            //     width * this.scale, height * this.scale);
+            this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+                width, height, this.x, drawY, 
+                width * this.scale, height * this.scale);
         }
     }
 }
@@ -168,15 +148,14 @@ function genWalls (game, AM) {
     const wallSheet = AM.getAsset(PILLAR_PATH)
     let firstWallSection = new Wall(wallSheet, game, 0, 0);
     let destY = game.mapHeight - firstWallSection.height - 28;
-    let xLeft = -firstWallSection.spriteSheet.width/4;
-    let xRight = game.surfaceWidth - 3*firstWallSection.spriteSheet.width/4;
+    let xLeft = 0;
+    let xRight = game.surfaceWidth - firstWallSection.animation.frameWidth + 2;
     firstWallSection.x = xLeft;
     firstWallSection.y = destY;
-    console.log(firstWallSection.x, firstWallSection.y);
     game.addEntity(firstWallSection);
     game.addEntity(new Wall(wallSheet, game, xRight, destY));
 
-    for (;destY > 0; destY -= firstWallSection.height) {
+    for (;destY > 0; destY -= (firstWallSection.height)) {
         game.addEntity(new Wall(wallSheet, game, xLeft, destY));
         game.addEntity(new Wall(wallSheet, game, xRight, destY));
     }
