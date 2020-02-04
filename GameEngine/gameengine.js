@@ -262,11 +262,7 @@ class Score {
     update() {
         this.displayScore = this.scoreTimer.tick();
         let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
-<<<<<<< HEAD
-        //this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
-=======
         this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y - this.startY)* 100)/100);
->>>>>>> c1989cdab2d0ab904288998125d1296cdbf6c732
         if (this.currentY > this.maxY) {
             this.maxY = this.currentY;
         }
