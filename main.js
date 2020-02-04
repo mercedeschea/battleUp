@@ -82,7 +82,7 @@ AM.downloadAll(function () {
     ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'gold';
     ctx.textAlign = 'center';
-    console.log(canvas.width/2, canvas.height/2);
+    // console.log(canvas.width/2, canvas.height/2);
     ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
     //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
     console.log("All Done!");

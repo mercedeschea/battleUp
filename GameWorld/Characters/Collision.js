@@ -54,6 +54,7 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) {
     // y = mx + b
     // top right point of this platform is (this.x + 80, this.y) 
     // gameHeight - this.y = (1) * (this.x + 80) + b 
+
     return {
         mSlope: slope,
         bOffset: (gameWorldHeight - platform.y) - (platform.x + 80),
@@ -61,6 +62,7 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) {
         xRight: platform.x + 83
     }
 }
+
 
 function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) {
     let slope = -1;
@@ -101,20 +103,20 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + (LineInfo.bOffset - CircleInfo.cartesianY) * (LineInfo.bOffset - CircleInfo.cartesianY) 
         - CircleInfo.radius * CircleInfo.radius;
         
-    console.log('a', a);
-    console.log('b', b);
-    console.log('c', c);
+    // console.log('a', a);
+    // console.log('b', b);
+    // console.log('c', c);
 
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
-        console.log(answer.result1, answer.result2);
-        console.log("no");
+        // console.log(answer.result1, answer.result2);
+        // console.log("no");
         return false;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
-        console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
-        console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
-        console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
+        // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
+        // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
+        // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
         return true;
     }
 }
