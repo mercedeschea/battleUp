@@ -240,10 +240,11 @@ class Score {
     update() {
         this.displayScore = this.scoreTimer.tick();
         let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
+        //this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
         if (this.currentY > this.maxY) {
             this.maxY = this.currentY;
         }
+        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
         
         // console.log(formatTime);
         //console.log(this.playerCharacter);
