@@ -155,7 +155,7 @@ function genWalls (game, AM) {
     game.addEntity(firstWallSection);
     game.addEntity(new Wall(wallSheet, game, xRight, destY));
 
-    for (;destY > 0; destY -= (firstWallSection.height)) {
+    for (;destY > -firstWallSection.height; destY -= (firstWallSection.height)) {
         game.addEntity(new Wall(wallSheet, game, xLeft, destY));
         game.addEntity(new Wall(wallSheet, game, xRight, destY));
     }

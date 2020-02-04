@@ -42,14 +42,15 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, musicManager) {
+    initCamera(mapHeight, musicManager, playerCharacter) {
         this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager);
+        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager, playerCharacter);
     }
     start() {
         console.log("starting game");
         var that = this;
         this.started = true;
+        this.camera.musicManager.authorized = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
@@ -211,7 +212,7 @@ class Entity {
 class MusicManager {
     constructor (music) {
         this.currentMusic = music;
-        this.playing = false;
+        this.authorized = false;
     }
     play() {
         this.currentMusic.play();
@@ -227,18 +228,32 @@ class Camera {
         this.totalDrawOffset = mapHeight - surfaceHeight;
         this.currentDrawOffset = 0;
         this.musicManager = musicManager;
-        this.playerCharacter = null;
+        this.playerCharacter = playerCharacter;
+        this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
+        this.advanceFactor = 15;
     }
     draw() {}
     update() {
-        if (!this.musicManager.playing) {
-            this.musicManager.play();
+        //if the player has interacted with the dom, play the music
+        if(this.musicManager.authorized)
+            this.musicManager.currentMusic.play();
+        //if the player is at the top of the canvas
+        if (this.playerCharacter.y - this.totalDrawOffset < 0) {
+            this.advanceTime = .5;
         }
-        if(this.game.timer.gameTime > SCROLL_DELAY){
+        if(this.advanceTime > 0) {
+            this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
+            console.log(this.game.clockTick, 'a tick with this value');
+            console.log(this.advanceTime);
+            this.advanceTime -= this.game.clockTick;
+            console.log(this.advanceTime);
+        }
+        else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;
-            this.totalDrawOffset -= this.currentDrawOffset;
+        } else {
+            this.currentDrawOffset = 0;
         }
-            
+        this.totalDrawOffset -= this.currentDrawOffset;
     }
 }
 

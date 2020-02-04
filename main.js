@@ -67,14 +67,16 @@ AM.downloadAll(function () {
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
-    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")));//we don't have game.mapHeight until here
+    let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
 
     // gameEngine.start();
     gameEngine.addEntity(background);
-    gameEngine.addEntity(new Floor(gameEngine, AM));
     genWalls(gameEngine, AM);
+    gameEngine.addEntity(new Floor(gameEngine, AM));
     genGenforms(20, gameEngine, AM, mapHeight);
-    let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    playerCharacter.x = lowestGenformCoords[0];
+    playerCharacter.y = lowestGenformCoords[1] - 64;
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(playerCharacter); 
     gameEngine.addEntity(score);
