@@ -1,7 +1,18 @@
+const GLOOP_SHEET_PATHS_GREEN = {'turning':"./Sprites/Usables/glopTurn(green).png",
+'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
+'hopRight':"./Sprites/Usables/glopHopRight(green).png",
+'lookForward':"./Sprites/Usables/gloop(green).png",
+'turning':"./Sprites/Usables/glopTurn(green).png"};
+const GLOOP_SHEET_PATHS_PURPLE = {'turning':"./Sprites/Usables/glopTurn(purple).png",
+'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
+'hopRight':"./Sprites/Usables/glopHopRight(green).png",
+'lookForward':"./Sprites/Usables/gloop(green).png",
+'turning':"./Sprites/Usables/glopTurn(green).png"};
+const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE};
 const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(purple).png";
+const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
@@ -18,10 +29,29 @@ function PlayerCharacterAMDownloads(AM) {
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
 NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
-    self = this;
     constructor(game, AM) {
         super(self, game, lowestGenformCoords[0], lowestGenformCoords[1] - 64);
+        this.game = game;
+        this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+        this.setupAnimations();
+
+        // Movement
+        this.facingLeft = false;
+        this.facingRight = true;
+        this.speed = 100;
+        this.jumping = false;
+        this.jumpY = this.y;
+
+        //Collision 
+        this.colliding = false;
+        this.radius = 32;
+
+        // Extras
+        this.attackDelay = 50;
+    }
+
+    setupAnimations() {
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
@@ -30,20 +60,11 @@ class PlayerCharacter extends Entity {
         this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.currentAttackAnimation = null;
-        this.attackDelay = 50;
-        // facingLeft instead of just "this.facing" with true/false or 0/1 which we would have to keep track of
-        this.facingLeft = false;
-        this.facingRight = true;
-        this.radius = 32;
-        this.speed = 100;
-        this.game = game;
-        this.ctx = game.ctx;
-        this.jumping = false;
-        this.jumpY = this.y;
     }
 
     update() {
         super.update();
+
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -66,10 +87,26 @@ class PlayerCharacter extends Entity {
                 this.x += this.game.clockTick * 200;
             }
         }
+
+        this.colliding = false;
+        this.checkCollisions();
+
+        if (this.colliding) {
+            if (this.jumping)
+                this.jumping = false;
+        }
+        if (!this.jumping && !this.colliding) {
+            this.y += 1;
+        }
+
+
+
         // if (this.game.up) { //glitch jumpppsss
         if (this.game.up && !this.jumping) {
             this.jumping = true;
             this.jumpY = this.y;
+            // console.log('jumping', this.y);
+            // console.log('colliding', this.colliding)
         }
 
         if (this.jumping) {
@@ -108,9 +145,11 @@ class PlayerCharacter extends Entity {
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
         if (this.game.placeAngled) {
+            this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         } else  if (this.game.placeFlat) {
+            this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
         }
@@ -130,18 +169,16 @@ class PlayerCharacter extends Entity {
                 this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
                 this.reverseAttackAnimation.elapsedTime = 0;
                 this.attacking = false;
-                console.log("gulpadulp");
             }
         }
+
     }
     draw(ctx) {
         let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (drawY) {
             if (this.jumping && this.facingLeft) {
-                // console.log("trying to jump left");
                 this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             } else if (this.jumping && !this.facingLeft) {
-                // console.log("trying to jump right");
                 this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             } else if (this.movingLeft) {
                 this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
@@ -161,7 +198,14 @@ class PlayerCharacter extends Entity {
                     this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
                 }
             }
-            this.placeformManager.placeformsDraw();
+            // this.placeformManager.placeformsDraw();
         }
     }
+    checkCollisions() {
+        isCharacterColliding(this);
+    }
+
 }
+
+
+

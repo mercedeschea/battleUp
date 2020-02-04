@@ -8,7 +8,9 @@
     <script type="text/javascript" src="./GameEngine/assetmanager.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Map.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Placeform.js"></script>
+    <script type="text/javascript" src="./GameWorld/Characters/Collision.js"></script>    
     <script type="text/javascript" src="./GameWorld/Characters/PlayerCharacter.js"></script>
+    <audio id="soundTrack" <source src="./Music/Alien_One.wav" type="audio/wav"></audio>
     <script type="text/javascript" src="./main.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -16,10 +18,14 @@
     <canvas id="gameWorld" tabindex="1" width="1152" height="648" style="border: 1px solid brown; background: lightskyblue"></canvas>
     <p>W: up</p>
     <p>A: left</p>
-    <p>D: down</p>
+    <p>D: right</p>
     <p>E: place diagonally</p>
     <p>F: place horizontally</p>
     <p>R: destroy</p>
+    <p>Horizontal placeforms are the only elements that collide with the character currently.
+        In order to make the game playable, placing while jumping is currently enabled.
+        Once angled collision is implemented, placing will only be enabled while colliding with a platform.
+    </p>
 </body>
 
 </html>

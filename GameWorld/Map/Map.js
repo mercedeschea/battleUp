@@ -1,11 +1,16 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
+const genForms = [];
 const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
+const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
+const MUSIC_PATH = "./Music/Alien_One.wav";
+const PILLAR_PATH = "./Sprites/Usables/lvl0/pillar.png";
 const PLATFORM_WIDTH = 125;
 const PLATFORM_HEIGHT = 11;
+const FLOOR_HEIGHT = 30;
 let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
@@ -16,7 +21,7 @@ class Background {
         this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
     draw() {
-        this.game.ctx.drawImage(this.spritesheet, 0, this.srcY, this.spritesheet.width, this.game.surfaceHeight,
+        this.game.ctx.drawImage(this.spritesheet, 0, this.srcY, this.game.surfaceWidth, this.game.surfaceHeight,
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
@@ -28,13 +33,24 @@ class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
         this.game = game;
+        this.flashing = true;
+        let flashSheet = AM.getAsset(FLOOR_FLASH_PATH);
+        this.animationFlash = new Animation(flashSheet, 0, 
+            0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
     }
     draw() {
-        this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - this.spriteSheet.height/2,
-            this.spriteSheet.width, this.spriteSheet.height * .5);
+        if (this.flashing) {
+            this.animationFlash.drawFrame(this.game.clockTick, this.game.ctx, 0, 
+                this.game.surfaceHeight - FLOOR_HEIGHT);
+        } else {
+            this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - FLOOR_HEIGHT, //draws only half the floor
+                this.spriteSheet.width, this.spriteSheet.height);
+        }
     }
     update() {}
 }
+
+
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
  //this is now the class for both genforms and placeforms
  //changed to extend entity to take part in the update loop
@@ -91,7 +107,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
                 } else {
-                    if (y > lowestGenformCoords[1] && y < mapHeight) { //this finds our spawn point for gloop
+                    if (y > lowestGenformCoords[1] && y < mapHeight - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
                         lowestGenformCoords = [x, y];
                     }
                     yFound = true;
@@ -101,7 +117,9 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
             if(xFound && yFound) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
-                game.addEntity(new Platform(genformSpriteSheet, 'center', x, y, 1, game));
+                let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
+                genForms.push(curGenform);
+                game.addEntity(curGenform);
             }
             
         }
@@ -123,6 +141,9 @@ function MapAMDownloads(AM) {
     AM.queueDownload(GENFORM_PATH);
     AM.queueDownload(BACKGROUND_PATH);
     AM.queueDownload(FLOOR_PATH);
+    AM.queueDownload(FLOOR_FLASH_PATH);
+    // AM.queueDownload(MUSIC_PATH);
+    AM.queueDownload(PILLAR_PATH);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
