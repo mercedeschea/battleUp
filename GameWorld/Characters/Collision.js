@@ -35,11 +35,11 @@ function isCharacterColliding(PlayerCharacter) {
         }
     }
 
-    // for (const gen of genForms) {
-    //     let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
-    //     if (isCircleCollidingWithHorizontalLine(gen, equation))
-    //         pc.colliding = true;
-    // }
+    for (const gen of genForms) {
+        let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
+        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
+            pc.colliding = true;
+    }
 
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform
