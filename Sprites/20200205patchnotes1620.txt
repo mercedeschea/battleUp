@@ -1,0 +1,14 @@
+20200205 16:20 (blaze) patch notes
+
+Added thicker placeforms (with animation)
+
+
+assets added:
+
+Usables/lvl0/placeform2.png
+Usables/lvl0/placeform2Left.png
+Usables/lvl0/placeform2Right.png
+
+
+
+
