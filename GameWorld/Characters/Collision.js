@@ -71,10 +71,10 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     b = max - this.y - (slope)(this.x + 80)
     SAME LINE
     */
-    console.log("platform.y", platform.y);
-    console.log("platform.x", platform.x);
-    console.log("gameWorldHeight", gameWorldHeight);
-    console.log("platform real y", gameWorldHeight - (platform.y + 80));
+    //console.log("platform.y", platform.y);
+    //console.log("platform.x", platform.x);
+    //console.log("gameWorldHeight", gameWorldHeight);
+    //console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
         bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),

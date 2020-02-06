@@ -1,6 +1,7 @@
 const AM = new AssetManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 
+
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
         this.spriteSheet = spriteSheet;
@@ -59,6 +60,7 @@ PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
 AM.queueDownload(SCORE_TEXT);
+AM.queueDownload(START_BUTTON);
 
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
@@ -70,6 +72,11 @@ AM.downloadAll(function () {
     let playerCharacter = new PlayerCharacter(gameEngine, AM);
     gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
 
+    //let startScreen = new StartScreen(gameEngine, background);
+    //gameEngine.addEntity(startScreen, AM);
+    //ctx.drawImage(this.START_BUTTON, 500, 300);
+    let startButton = new StartButton(gameEngine, AM);
+    gameEngine.addEntity(startButton);
     // gameEngine.start();
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
@@ -84,7 +91,6 @@ AM.downloadAll(function () {
     ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'gold';
     ctx.textAlign = 'center';
-    // console.log(canvas.width/2, canvas.height/2);
     ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
     //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
     console.log("All Done!");

@@ -13,6 +13,7 @@ const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 9.85;
 const SCROLL_PERCENTAGE = .6;
+const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor() {
@@ -243,10 +244,10 @@ class Camera {
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
-            console.log(this.game.clockTick, 'a tick with this value');
-            console.log(this.advanceTime);
+            //console.log(this.game.clockTick, 'a tick with this value');
+            //console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
-            console.log(this.advanceTime);
+            //console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;
@@ -293,4 +294,45 @@ class Score {
 
     loop() { 
     }
+}
+
+// class StartScreen {
+//     constructor(game, background) {
+//         this.game = game;
+//         this.background = background;
+//         this.startButton = AM.getAsset(START_BUTTON);
+//     }
+//     setupAnimations() {
+//         this.startDefault = new Animation(AM.getAsset(this.startButton), 500, 300, 34, 14, 1, 2, true, false);
+//     }
+//     draw(){
+//         this.game.addEntity(this.background);
+//         //console.log(this.startButton);
+//         //console.log(this.startButton.width)
+//         //console.log(this.startButton.height);
+//     }
+//     update(){}
+// }
+
+class StartButton {
+    constructor(game, AM) {
+        this.game = game;
+        this.spriteSheet = AM.getAsset(START_BUTTON);
+        this.clicked = false;
+    }
+    setupAnimation() {
+        this.defaultStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 1, 2, true, false);
+    }
+    draw(){
+        if (!this.clicked) {
+            this.game.ctx.drawImage(this.spriteSheet, 600, 300, this.spriteSheet.width * 2, this.spriteSheet * 2);
+        } 
+        else {
+            this.game.ctx.drawImage(this.spriteSheet, 600, 300, this.spriteSheet.width * 2, this.spriteSheet * 2);
+            console.log('start button appeared')
+            // this.removeFromWorld = 
+        }
+        
+    }
+    update(){}
 }
