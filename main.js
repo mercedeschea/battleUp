@@ -72,26 +72,29 @@ AM.downloadAll(function () {
     let playerCharacter = new PlayerCharacter(gameEngine, AM);
     gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
 
+    
+    //ctx.drawImage(this.START_BUTTON, 500, 300);
+    
     //let startScreen = new StartScreen(gameEngine, background);
     //gameEngine.addEntity(startScreen, AM);
-    //ctx.drawImage(this.START_BUTTON, 500, 300);
-    let startButton = new StartButton(gameEngine, AM);
-    gameEngine.addEntity(startButton);
-    // gameEngine.start();
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
     gameEngine.addEntity(new Floor(gameEngine, AM));
     genGenforms(20, gameEngine, AM, mapHeight);
     playerCharacter.x = lowestGenformCoords[0];
     playerCharacter.y = lowestGenformCoords[1] - 64;
-    let score = new Score(gameEngine, AM, playerCharacter);
+    
     gameEngine.addEntity(playerCharacter); 
-    gameEngine.addEntity(score);
-    gameEngine.draw();
+    
     ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'gold';
     ctx.textAlign = 'center';
-    ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
-    //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
+    //ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2);
+    let startButton = new StartButton(gameEngine, AM);
+    gameEngine.addEntity(startButton); 
+    gameEngine.draw();
+    let score = new Score(gameEngine, AM, playerCharacter);
+    gameEngine.addEntity(score);
+    
     console.log("All Done!");
 });

@@ -129,10 +129,10 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
-        console.log("no");
+        //console.log("no");
         return false;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
+        //console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
@@ -185,6 +185,6 @@ function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
 function quadraticFormula(a, b, c) {
     var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
     var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
-    console.log(result1);
+    //console.log(result1);
     return {result1: result1, result2: result2};
 }
