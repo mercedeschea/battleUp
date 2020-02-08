@@ -45,6 +45,9 @@ class PlayerCharacter extends Entity {
 
         //Collision 
         this.colliding = false;
+        this.collidingWithHoriz = false;
+        this.colldingWithLeftSlope = false;
+        this.colldingWithRightSlope = false;
         this.radius = 32;
 
         // Extras
@@ -65,6 +68,24 @@ class PlayerCharacter extends Entity {
     update() {
         super.update();
 
+        // Determine if character is colliding and how
+        // Then check movement commands and how they should be moving based on these collisions
+        // Then enact special actions like attacking and placing platforms
+
+        // Determine collisions 
+        this.colliding = false;
+        this.checkCollisions();
+
+        if (this.colliding) {
+            if (this.jumping)
+                this.jumping = false;
+        }
+        if (!this.jumping && !this.colliding) {
+            this.y += 1;
+        }
+
+
+        // Check movement commands and move character
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -88,16 +109,7 @@ class PlayerCharacter extends Entity {
             }
         }
 
-        this.colliding = false;
-        this.checkCollisions();
 
-        if (this.colliding) {
-            if (this.jumping)
-                this.jumping = false;
-        }
-        if (!this.jumping && !this.colliding) {
-            this.y += 1;
-        }
 
 
 
@@ -138,6 +150,9 @@ class PlayerCharacter extends Entity {
             this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
             this.y = this.jumpY - this.height;
         }
+
+
+        // Special actions
 
         //do we want players to be able to double place?
         // /__ has interesting blocking? or not I have bad spacial awareness

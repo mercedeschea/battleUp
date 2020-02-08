@@ -1,45 +1,53 @@
 
 
-
+/* TODO
+handling needs to care about being above/below a platform for which side to put you on 
+*/
 function isCharacterColliding(PlayerCharacter) {
     // Convert the player character to useful coordinates
     let pc = PlayerCharacter;
     let PlayerGWCords = convertCharacterToGameWorldCoords(pc.x, pc.y);
     let PlayerCartCords = convertToCartesianCoords(PlayerGWCords.gameWorldX, PlayerGWCords.gameWorldY, pc.game.mapHeight);
-    let PlayerCircleInfo = {
+    let PlayerCircleInfo = { // rebuild this simple circle each time we update()
         radius: pc.radius,
         cartesianX: PlayerCartCords.cartesianX,
         cartesianY: PlayerCartCords.cartesianY
     }
     let mapHeight = pc.game.mapHeight;
-    // The player character cirlce now has its cartesian x and y locations stored in PlayerCircleInfo.
-
-    // Determine if the player character is colliding!
-    // for each placeform, call the method which handles that type of placeform
 
     for (const platform of pc.placeformManager.placeformsCurrent) {
         if (platform.type === 'center') {
             let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
-            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
+            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation)) {
                 pc.colliding = true;
+                pc.collidingWithHoriz = true;
+                console.log("pc + y 1", pc.y)
+                pc.y -= 10;
+                console.log("pc + y 2", pc.y)
+
+            }
         } else if (platform.type === 'left') {
             let equation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) 
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) {
                 pc.colliding = true;
+                pc.collidingWithLeftSlope = true;
+            }
         } else {
             let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
-            console.log("right equation", equation);
-            console.log("pc coords", PlayerCircleInfo);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation))
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) {
                 pc.colliding = true;
+                pc.collidingWithRightSlope = true;
+            }
         }
     }
 
-    // for (const gen of genForms) {
-    //     let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
-    //     if (isCircleCollidingWithHorizontalLine(gen, equation))
-    //         pc.colliding = true;
-    // }
+    for (const gen of genForms) {
+        let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
+        if (isCircleCollidingWithHorizontalLine(gen, equation)) {
+            pc.colliding = true;
+            pc.collidingWithHoriz = true;
+        }    
+    }
 
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform
@@ -71,10 +79,6 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     b = max - this.y - (slope)(this.x + 80)
     SAME LINE
     */
-    console.log("platform.y", platform.y);
-    console.log("platform.x", platform.x);
-    console.log("gameWorldHeight", gameWorldHeight);
-    console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
         bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
@@ -98,44 +102,15 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
 }
 
 function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
-    // CircleInfo gives me the x0, y0, r
-    // LineInfo gives me the slope, bOffset
-    // a = 2
-    // b = 2 (bOffset) (slope) - 2 (slope) (y0)
-    // c = bOffset^2 + x0^2 + y0^2 - r^2 - 2*x0 - 2*bOffset*x0
-    // https://www.wolframalpha.com/input/?i=%28%28s+*+x+%2B+b%29+-+y%29+%5E+2 lol
-    // console.log('li', LineInfo);
-    // console.log('ci', CircleInfo);
-/*
-    const a = 2;
-    const b = 2 * LineInfo.bOffset * LineInfo.mSlope - 2 * LineInfo.mSlope * CircleInfo.cartesianY;
-    const c = LineInfo.bOffset * LineInfo.bOffset + CircleInfo.cartesianX * CircleInfo.cartesianX 
-        - CircleInfo.radius * CircleInfo.radius + CircleInfo.cartesianY * CircleInfo.cartesianY
-        - 2 * CircleInfo.cartesianX - 2 * LineInfo.bOffset * CircleInfo.cartesianY;
-
-        console.log('a', a);
-        console.log('b', b);
-        console.log('c', c);*/
-
     const a = 2;
     const b = 2 * LineInfo.mSlope * (LineInfo.bOffset - CircleInfo.cartesianY) - 2 * CircleInfo.cartesianX;
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + (LineInfo.bOffset - CircleInfo.cartesianY) * (LineInfo.bOffset - CircleInfo.cartesianY) 
         - CircleInfo.radius * CircleInfo.radius;
-        
-    // console.log('a', a);
-    // console.log('b', b);
-    // console.log('c', c);
 
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
-        // console.log(answer.result1, answer.result2);
-        console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
-        // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
-        // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
-        // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {
         return true;
     }
 }
@@ -185,6 +160,6 @@ function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
 function quadraticFormula(a, b, c) {
     var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
     var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
-    console.log(result1);
+    // console.log(result1);
     return {result1: result1, result2: result2};
 }
