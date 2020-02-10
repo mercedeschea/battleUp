@@ -48,7 +48,7 @@ class PlayerCharacter extends Entity {
         this.radius = 32;
 
         // Extras
-        this.attackDelay = 50;
+        this.attackDelay = 0;
     }
 
     setupAnimations() {
@@ -60,6 +60,38 @@ class PlayerCharacter extends Entity {
         this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.currentAttackAnimation = null;
+        this.attackCache = this.buildAttackCache();
+    }
+
+    buildAttackCache(){
+        const cache = {};
+        const directions = ['right', 'upRight', 'up', 'upLeft', 'left', 'downLeft', 'down', 'downRight'];
+        for (let j = 0; j < directions.length; j++) {
+            let rotatedImages = [];
+            for (let i = 0; i < 3; i++) {
+                rotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), j * -45, 63 * i, 0, 63, 47, 1));
+            }
+            cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
+                0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
+                
+        }
+        cache['right'].xOffset = this.lookForwardAnimation.frameWidth;
+        cache['right'].yOffset =  -this.lookForwardAnimation.frameHeight;
+        cache['upRight'].xOffset = 0;
+        cache['upRight'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
+        cache['upLeft'].xOffset = this.lookForwardAnimation.frameWidth;
+        cache['upLeft'].yOffset =  -this.lookForwardAnimation.frameHeight;
+        cache['up'].xOffset = 0;
+        cache['up'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
+        cache['down'].xOffset = this.lookForwardAnimation.frameWidth;
+        cache['down'].yOffset = this.lookForwardAnimation.frameHeight;
+        cache['downRight'].xOffset = 0;
+        cache['downRight'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
+        cache['left'].xOffset = this.lookForwardAnimation.frameWidth;
+        cache['left'].yOffset =  -this.lookForwardAnimation.frameHeight;
+        cache['downLeft'].xOffset = 0;
+        cache['downLeft'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
+        return cache;
     }
 
     update() {
@@ -101,8 +133,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        // if (this.game.up) { //glitch jumpppsss
-        if (this.game.up && !this.jumping) {
+        // if (this.game.jump) { //glitch jumpppsss
+        if (this.game.jump && !this.jumping) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);
@@ -155,22 +187,51 @@ class PlayerCharacter extends Entity {
         }
         if (this.attackDelay > 0)
             this.attackDelay--;
+        // if (this.game.attack && this.attackDelay <= 0) {
+        //     this.attackDelay = 50;
+        //     this.attacking = true;
+        //     this.currentAttackAnimation = this.attackAnimation;
+        // }
         if (this.game.attack && this.attackDelay <= 0) {
+            console.log("hello me");
             this.attackDelay = 50;
             this.attacking = true;
-            this.currentAttackAnimation = this.attackAnimation;
+            if (this.game.up && this.game.right) {
+                this.currentAttackAnimation = this.attackCache.upRight;
+            } else if (this.game.up && this.game.left) {
+                this.currentAttackAnimation = this.attackCache.upLeft;
+            } else if (this.game.up) {
+                this.currentAttackAnimation = this.attackCache.up;
+            } else if (this.game.down && this.game.left) {
+                this.currentAttackAnimation = this.attackCache.downLeft;
+            } else if (this.game.down && this.game.right) {
+                this.currentAttackAnimation = this.attackCache.downRight;
+            }  else if (this.game.down) {
+                this.currentAttackAnimation = this.attackCache.down;
+            } else if (this.game.left) {
+                this.currentAttackAnimation = this.attackCache.left;
+            } else if (this.game.right) {
+                this.currentAttackAnimation = this.attackCache.right;
+            }
+                
+            
         }
         if (this.attacking) {
-            if (this.currentAttackAnimation === 
-                this.attackAnimation && this.currentAttackAnimation.isDone()) {
-                this.attackAnimation.elapsedTime = 0;
-                this.currentAttackAnimation = this.reverseAttackAnimation;
-            } else if (this.currentAttackAnimation === 
-                this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
-                this.reverseAttackAnimation.elapsedTime = 0;
+            if (this.currentAttackAnimation.animation.isDone()) {
+                this.currentAttackAnimation.animation.elapsedTime = 0;
                 this.attacking = false;
             }
+            // if (this.currentAttackAnimation === 
+            //     this.attackAnimation && this.currentAttackAnimation.isDone()) {
+            //     this.attackAnimation.elapsedTime = 0;
+            //     this.currentAttackAnimation = this.reverseAttackAnimation;
+            // } else if (this.currentAttackAnimation === 
+            //     this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
+            //     this.reverseAttackAnimation.elapsedTime = 0;
+            //     this.attacking = false;
+            // }
         }
+        
 
     }
     draw(ctx) {
@@ -188,18 +249,16 @@ class PlayerCharacter extends Entity {
                 this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             }
             if (this.attacking) {
-                if (this.facingLeft) {
-                    console.log("attack left");
-                    this.ctx.scale(-1, 1);
-                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, drawY);
-                    this.ctx.restore();
-                } else {
-                    console.log("attack right");
-                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
-                }
+                    this.currentAttackAnimation['animation'].drawFrame
+                    (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
+                        drawY + this.currentAttackAnimation.yOffset);
             }
-            // this.placeformManager.placeformsDraw();
         }
+            // if (this.attackingTemp) {
+            //     this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x), drawY - this.lookForwardAnimation.frameHeight);
+            // }
+
+            // this.placeformManager.placeformsDraw();
     }
     checkCollisions() {
         isCharacterColliding(this);

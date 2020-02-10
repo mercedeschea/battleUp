@@ -3,7 +3,7 @@ const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
 
 class Animation {
-    constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+    constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
         this.spriteSheet = spriteSheet;
         this.startX = startX;
         this.startY = startY;
@@ -15,8 +15,9 @@ class Animation {
         this.elapsedTime = 0;
         this.loop = loop;
         this.reverse = reverse;
+        this.rotatedCache = rotatedCache;
     }
-    drawFrame(tick, ctx, x, y, scaleBy) {
+    drawFrame(tick, ctx, x, y, scaleBy, rotation) {
         var scaleBy = scaleBy || 1;
         
         this.elapsedTime += tick;
@@ -41,12 +42,16 @@ class Animation {
         var locX = x;
         var locY = y;
         var offset = vindex === 0 ? this.startX : 0;
-        ctx.drawImage(this.spriteSheet,
-                    index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
-                    this.frameWidth, this.frameHeight,
-                    locX, locY,
-                    this.frameWidth * scaleBy,
-                    this.frameHeight * scaleBy);
+        if (this.rotatedCache) {
+            ctx.drawImage(this.rotatedCache[index], locX, locY);
+        } else {
+            ctx.drawImage(this.spriteSheet,
+                index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                this.frameWidth, this.frameHeight,
+                locX, locY,
+                this.frameWidth * scaleBy,
+                this.frameHeight * scaleBy);
+        }
     }
     currentFrame() {
         return Math.floor(this.elapsedTime / this.frameDuration);

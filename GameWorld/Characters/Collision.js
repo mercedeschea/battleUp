@@ -28,13 +28,12 @@ function isCharacterColliding(PlayerCharacter) {
                 pc.colliding = true;
         } else {
             let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
-            console.log("right equation", equation);
-            console.log("pc coords", PlayerCircleInfo);
+            // console.log("right equation", equation);
+            // console.log("pc coords", PlayerCircleInfo);
             if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation))
                 pc.colliding = true;
         }
     }
-    console.log(genForms);
     for (const gen of genForms) {
         let equation = convertHorizontalPlatformToEquation(gen, mapHeight);
         if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
@@ -71,10 +70,10 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     b = max - this.y - (slope)(this.x + 80)
     SAME LINE
     */
-    console.log("platform.y", platform.y);
-    console.log("platform.x", platform.x);
-    console.log("gameWorldHeight", gameWorldHeight);
-    console.log("platform real y", gameWorldHeight - (platform.y + 80));
+    // console.log("platform.y", platform.y);
+    // console.log("platform.x", platform.x);
+    // console.log("gameWorldHeight", gameWorldHeight);
+    // console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
         bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
@@ -185,6 +184,6 @@ function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
 function quadraticFormula(a, b, c) {
     var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
     var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
-    console.log(result1);
+    // console.log(result1);
     return {result1: result1, result2: result2};
 }
