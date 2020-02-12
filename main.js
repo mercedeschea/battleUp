@@ -75,8 +75,8 @@ AM.downloadAll(function () {
     
     //ctx.drawImage(this.START_BUTTON, 500, 300);
     
-    //let startScreen = new StartScreen(gameEngine, background);
-    //gameEngine.addEntity(startScreen, AM);
+    // let startScreen = new StartScreen(gameEngine, background);
+    // gameEngine.addEntity(startScreen, AM);
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
     gameEngine.addEntity(new Floor(gameEngine, AM));
@@ -95,6 +95,6 @@ AM.downloadAll(function () {
     gameEngine.draw();
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(score);
-    
+
     console.log("All Done!");
 });

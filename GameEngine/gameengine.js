@@ -66,7 +66,11 @@ class GameEngine {
             if (!that.started) {
                 that.start();
                 this.showStartButton = true;
+                this.pushStart = true;
             }
+        }, false);
+        this.ctx.canvas.addEventListener("", function (e) {
+            that.mouse = {x: e.clientX, y: e.clientY}
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr[0] || e.code === keyArr[6])
@@ -86,7 +90,6 @@ class GameEngine {
 
             e.preventDefault();
         }, false);
-
         this.ctx.canvas.addEventListener("keyup", function (e) {
             if (e.code === keyArr[0] || e.code === keyArr[6])
                 that.up = false;
@@ -300,11 +303,7 @@ class Score {
 class StartScreen {
     constructor(game, background) {
         this.game = game;
-        this.background = background;
-        this.startButton = AM.getAsset(START_BUTTON);
-    }
-    setupAnimations() {
-        this.startDefault = new Animation(AM.getAsset(this.startButton), 500, 300, 34, 14, 1, 2, true, false);
+        this.background = background;    
     }
     draw(){
         this.game.addEntity(this.background);
@@ -319,24 +318,23 @@ class StartButton {
     constructor(game, AM) {
         this.game = game;
         this.spriteSheet = AM.getAsset(START_BUTTON);
-        this.clicked = true;
-        this.defaultStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, this.spriteSheet.width/2, this.spriteSheet.height/2, 0, 1, true, false);
+        //this.clicked = true;
+        this.animationStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 0.2, 2, true, false);
     }
     draw() {
-        // if (!this.clicked) {
-        //     // this.defaultStart.drawFrame(this.game.clockTick, this.game.ctx, 600, this.game.surfaceHeight);
-        //     this.game.ctx.drawImage(this.spriteSheet, 600, 500, this.spriteSheet.width, this.spriteSheet.height);
-        //     console.log('button clicked');
-        // } 
-        // else {
-            if (!this.game.start.showStartButton) {
-                this.game.ctx.drawImage(this.spriteSheet, 525, 500, this.spriteSheet.width*3, this.spriteSheet.height*3);
-                console.log('start button appeared');
+        if (!this.game.start.showStartButton & !this.game.start.pushStart) {
+            this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
+                this.game.surfaceHeight - this.spriteSheet.height);
+            console.log('start button appeared');
+            console.log(this.animationStart);
+        } else {
+            this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
+                this.game.surfaceHeight - this.spriteSheet.height);
+                console.log('button pressed')
                 this.removeFromWorld = true;
-            }
-            
-            // this.removeFromWorld = 
-        // }
+        }
+
+
         
     }
     update(){
