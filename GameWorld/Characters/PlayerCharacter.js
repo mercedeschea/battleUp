@@ -15,6 +15,9 @@ const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
 const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
+const PLAYER_RADIUS = 32;
+const X_CENTER = 32.5;
+const Y_CENTER = 36.5;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -60,10 +63,11 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
-        this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
-        this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
-        this.currentAttackAnimation = null;
+        // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
+        // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
+        this.currentAttackAnimation = this.attackCache['right'];
+
     }
 
     buildAttackCache(){
@@ -79,13 +83,14 @@ class PlayerCharacter extends Entity {
             }
             cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
                 0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
-
-            console.log(this, "hello what is this");
+            cache[directions[j]].angle = angle;
             cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
             cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
-            cache[directions[j]].xPointOffset = xO + .3 * (cache[directions[j]].animation.frameWidth * Math.cos(angle));
-            cache[directions[j]].yPointOffset = yO + .3 * (.5 * cache[directions[j]].animation.frameHeight * Math.sin(angle));
-                
+            cache[directions[j]].xCalcAttack = (framesUntilDone) => {
+                return cache[directions[j]].xOffset - 5 + this.radius * (3 - framesUntilDone * Math.cos(angle))};
+            cache[directions[j]].yCalcAttack = (framesUntilDone) => {
+                return cache[directions[j]].yOffset - 5 + this.radius * (3 - framesUntilDone * Math.sin(angle))};
+                    
         }
         
         console.log(cache);
@@ -257,25 +262,29 @@ class PlayerCharacter extends Entity {
                     drawY + this.currentAttackAnimation.yOffset, 10, 10);
                 this.ctx.restore();
             }
-            Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
-                let xO = this.attackCache[direction].xOffset;
-                let yO = this.attackCache[direction].yOffset;
-                console.log(xO, yO);
-                // let xO = -2 * this.radius;
-                // let yO = -2 * this.radius;
-                this.attackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
-                this.ctx.save();
-                this.ctx.fillStyle = 'red';
-                this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
-                    drawY + this.currentAttackAnimation.yOffset, 10, 10);
-                this.ctx.restore();
-            });
+            // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
+            // let ndx = 0;
+            // Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
+            //     let xO = this.attackCache[direction].xOffset;
+            //     let yO = this.attackCache[direction].yOffset;
+            //     // let xO = -2 * this.radius;
+            //     // let yO = -2 * this.radius;
+            //     this.attackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
+            //     this.ctx.save();
+            //     this.ctx.fillStyle = colors[ndx++];
+            //     this.ctx.beginPath();
+            //     this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.attackCache[direction].angle), drawY + 36.5 + 32 * Math.sin(this.attackCache[direction].angle));
+            //     let frame = this.attackCache[direction].animation.frames - this.attackCache[direction].animation.currentFrame();
+            //     this.ctx.lineTo(this.x + this.attackCache[direction].xCalcAttack(frame), drawY + this.attackCache[direction].yCalcAttack(frame));
+            //     this.ctx.stroke();
+            //     console.log(this.attackCache[direction].xCalcAttack(frame), this.attackCache[direction].yCalcAttack(frame));
+            //     this.ctx.fillRect(this.x + this.attackCache[direction].xCalcAttack(frame),
+            //         drawY + this.attackCache[direction].yCalcAttack(frame), 10, 10);
+            //     this.ctx.restore();
+            // });
         }
-            // if (this.attackingTemp) {
-            //     this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x), drawY - this.lookForwardAnimation.frameHeight);
-            // }
-
-            // this.placeformManager.placeformsDraw();
+        //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
+        //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
     }
     checkCollisions() {
         isCharacterColliding(this);

@@ -158,8 +158,6 @@ class GameEngine {
         this.attack = false;
         this.placeAngled = false;
         this.placeFlat = false;
-        this.up = false;
-        this.down = false;
     }
 }
 
