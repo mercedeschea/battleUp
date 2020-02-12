@@ -22,6 +22,9 @@ function isCharacterColliding(PlayerCharacter) {
             let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
             if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
                 pc.colliding = true;
+            if(pc.attacking) {
+                
+            }
         } else if (platform.type === 'left') {
             let equation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
             if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) 
@@ -39,6 +42,7 @@ function isCharacterColliding(PlayerCharacter) {
         if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
             pc.colliding = true;
     }
+
 
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform

@@ -11,7 +11,7 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 9.85;
+const SCROLL_DELAY = 100000000000;
 const SCROLL_PERCENTAGE = .6;
 
 class GameEngine {
@@ -59,8 +59,8 @@ class GameEngine {
     //'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 
     startInput() {
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
-            'placeFlat:':'KeyR', 'placeAngled':'KeyF', 'jump':'Space',
-            'attackLeft':'KeyE', 'attackRight':'KeyQ'};
+            'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
+            'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         this.ctx.canvas.addEventListener("click", function (e) {
@@ -79,14 +79,18 @@ class GameEngine {
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
+            if (e.code === keyArr['down'])
+                that.down = true;
             if (e.code === keyArr['right'])
                 that.right = true;
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
             if (e.code === keyArr['placeFlat'])
-                that.placeFlat = true;
+                that.placeFlat = true;   
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
+            if (e.code === keyArr['pause'])
+                that.started ? that.started = false : that.started = true;    
             e.preventDefault();
         }, false);
 
@@ -144,6 +148,9 @@ class GameEngine {
         //console.log(this.timer.gameTime);
     }
     loop() {
+        if (!this.started) {
+            return;
+        }
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
@@ -151,6 +158,8 @@ class GameEngine {
         this.attack = false;
         this.placeAngled = false;
         this.placeFlat = false;
+        this.up = false;
+        this.down = false;
     }
 }
 

@@ -31,9 +31,14 @@ NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
     constructor(game, AM) {
         super(self, game, 0, 0);
+
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+
+        //Collision 
+        this.colliding = false;
+        this.radius = 32;
         this.setupAnimations();
 
         // Movement
@@ -43,12 +48,10 @@ class PlayerCharacter extends Entity {
         this.jumping = false;
         this.jumpY = this.y;
 
-        //Collision 
-        this.colliding = false;
-        this.radius = 32;
-
         // Extras
         this.attackDelay = 0;
+        this.attacking = false;
+        this.attackpoint = null;
     }
 
     setupAnimations() {
@@ -65,34 +68,30 @@ class PlayerCharacter extends Entity {
 
     buildAttackCache(){
         const cache = {};
+        let xO = -2 * this.radius;//offsets to center character
+        let yO = -2 * this.radius + 5;//manual adjustment for dead pixels(i think)
         const directions = ['right', 'upRight', 'up', 'upLeft', 'left', 'downLeft', 'down', 'downRight'];
         for (let j = 0; j < directions.length; j++) {
             let rotatedImages = [];
+            let angle = -j * Math.PI/4;
             for (let i = 0; i < 3; i++) {
-                rotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), j * -45, 63 * i, 0, 63, 47, 1));
+                rotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), angle, 63 * i, 0, 63, 47, 1));
             }
             cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
                 0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
+
+            console.log(this, "hello what is this");
+            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
+            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
+            cache[directions[j]].xPointOffset = xO + .3 * (cache[directions[j]].animation.frameWidth * Math.cos(angle));
+            cache[directions[j]].yPointOffset = yO + .3 * (.5 * cache[directions[j]].animation.frameHeight * Math.sin(angle));
                 
         }
-        cache['right'].xOffset = this.lookForwardAnimation.frameWidth;
-        cache['right'].yOffset =  -this.lookForwardAnimation.frameHeight;
-        cache['upRight'].xOffset = 0;
-        cache['upRight'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
-        cache['upLeft'].xOffset = this.lookForwardAnimation.frameWidth;
-        cache['upLeft'].yOffset =  -this.lookForwardAnimation.frameHeight;
-        cache['up'].xOffset = 0;
-        cache['up'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
-        cache['down'].xOffset = this.lookForwardAnimation.frameWidth;
-        cache['down'].yOffset = this.lookForwardAnimation.frameHeight;
-        cache['downRight'].xOffset = 0;
-        cache['downRight'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
-        cache['left'].xOffset = this.lookForwardAnimation.frameWidth;
-        cache['left'].yOffset =  -this.lookForwardAnimation.frameHeight;
-        cache['downLeft'].xOffset = 0;
-        cache['downLeft'].yOffset = -2.5 * this.lookForwardAnimation.frameHeight;
+        
+        console.log(cache);
         return cache;
     }
+
 
     update() {
         super.update();
@@ -180,7 +179,7 @@ class PlayerCharacter extends Entity {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else  if (this.game.placeFlat) {
+        } else if (this.game.placeFlat) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
@@ -200,13 +199,13 @@ class PlayerCharacter extends Entity {
                 this.currentAttackAnimation = this.attackCache.upRight;
             } else if (this.game.up && this.game.left) {
                 this.currentAttackAnimation = this.attackCache.upLeft;
-            } else if (this.game.up) {
-                this.currentAttackAnimation = this.attackCache.up;
             } else if (this.game.down && this.game.left) {
                 this.currentAttackAnimation = this.attackCache.downLeft;
             } else if (this.game.down && this.game.right) {
                 this.currentAttackAnimation = this.attackCache.downRight;
-            }  else if (this.game.down) {
+            } else if (this.game.up) {
+                this.currentAttackAnimation = this.attackCache.up;
+            } else if (this.game.down) {
                 this.currentAttackAnimation = this.attackCache.down;
             } else if (this.game.left) {
                 this.currentAttackAnimation = this.attackCache.left;
@@ -249,10 +248,28 @@ class PlayerCharacter extends Entity {
                 this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             }
             if (this.attacking) {
-                    this.currentAttackAnimation['animation'].drawFrame
+                this.currentAttackAnimation['animation'].drawFrame
                     (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
                         drawY + this.currentAttackAnimation.yOffset);
+                this.ctx.save();
+                this.ctx.fillStyle = 'red';
+                this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
+                    drawY + this.currentAttackAnimation.yOffset, 10, 10);
+                this.ctx.restore();
             }
+            Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
+                let xO = this.attackCache[direction].xOffset;
+                let yO = this.attackCache[direction].yOffset;
+                console.log(xO, yO);
+                // let xO = -2 * this.radius;
+                // let yO = -2 * this.radius;
+                this.attackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
+                this.ctx.save();
+                this.ctx.fillStyle = 'red';
+                this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
+                    drawY + this.currentAttackAnimation.yOffset, 10, 10);
+                this.ctx.restore();
+            });
         }
             // if (this.attackingTemp) {
             //     this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x), drawY - this.lookForwardAnimation.frameHeight);
