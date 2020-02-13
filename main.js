@@ -86,9 +86,9 @@ AM.downloadAll(function () {
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(playerCharacter); 
     gameEngine.addEntity(score);
-    let flashform = new Platform(AM.getAsset(FLASHFORM), 'center', lowestGenformCoords[0], lowestGenformCoords[1], 1, gameEngine);
-    flashform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118, 16, .2, 4, true, false);
-    gameEngine.addEntity(flashform);
+    // let flashform = new Platform(AM.getAsset(FLASHFORM), 'center', lowestGenformCoords[0], lowestGenformCoords[1], 1, gameEngine);
+    // flashform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118, 16, .2, 4, true, false);
+    // gameEngine.addEntity(flashform);
     gameEngine.draw();
     ctx.font = '40px Times New Roman';
     ctx.fillStyle = 'gold';

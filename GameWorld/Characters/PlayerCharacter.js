@@ -84,16 +84,16 @@ class PlayerCharacter extends Entity {
             cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
                 0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
             cache[directions[j]].angle = angle;
+            //calculates gloops edge
             cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
             cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
+            //calculates the point of the end of the current attack animation frame
             cache[directions[j]].xCalcAttack = (framesUntilDone) => {
                 return cache[directions[j]].xOffset - 5 + this.radius * (3 - framesUntilDone * Math.cos(angle))};
             cache[directions[j]].yCalcAttack = (framesUntilDone) => {
                 return cache[directions[j]].yOffset - 5 + this.radius * (3 - framesUntilDone * Math.sin(angle))};
                     
         }
-        
-        console.log(cache);
         return cache;
     }
 
@@ -197,7 +197,6 @@ class PlayerCharacter extends Entity {
         //     this.currentAttackAnimation = this.attackAnimation;
         // }
         if (this.game.attack && this.attackDelay <= 0) {
-            console.log("hello me");
             this.attackDelay = 50;
             this.attacking = true;
             if (this.game.up && this.game.right) {
@@ -235,6 +234,11 @@ class PlayerCharacter extends Entity {
             //     this.attacking = false;
             // }
         }
+        for (let i = 0; i < this.placeformManager.placeformsCurrent.length; i++) {
+            if (this.placeformManager.placeformsCurrent[i].removeFromWorld) {
+                this.placeformManager.placeformsCurrent.splice(i, 1);
+            }
+        }
         
 
     }
@@ -256,11 +260,17 @@ class PlayerCharacter extends Entity {
                 this.currentAttackAnimation['animation'].drawFrame
                     (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
                         drawY + this.currentAttackAnimation.yOffset);
-                this.ctx.save();
-                this.ctx.fillStyle = 'red';
-                this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
-                    drawY + this.currentAttackAnimation.yOffset, 10, 10);
-                this.ctx.restore();
+                //This code is used to debug attacks
+                // this.ctx.save();
+                // this.ctx.fillStyle = 'red';
+                // this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
+                //     drawY + this.currentAttackAnimation.yOffset, 10, 10);
+                // this.ctx.beginPath();
+                // this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.currentAttackAnimation.angle), drawY + 36.5 + 32 * Math.sin(this.currentAttackAnimation.angle));
+                // let frame = this.currentAttackAnimation.animation.frames - this.currentAttackAnimation.animation.currentFrame();
+                // this.ctx.lineTo(this.x + this.currentAttackAnimation.xCalcAttack(frame), drawY + this.currentAttackAnimation.yCalcAttack(frame));
+                // this.ctx.stroke();
+                // this.ctx.restore();
             }
             // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
             // let ndx = 0;

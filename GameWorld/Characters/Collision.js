@@ -1,5 +1,4 @@
 
-const PRECISION = .00001;
 
 function isCharacterColliding(PlayerCharacter) {
     // Convert the player character to useful coordinates
@@ -37,7 +36,8 @@ function isCharacterColliding(PlayerCharacter) {
                 pc.colliding = true;
         }
         if (attackEquation) {
-            console.log("attack: ", attackEquation, "platform: ", platformEquation);
+            console.log("attack: ", attackEquation, "platform: ",
+            platformEquation, "player:", PlayerCartCords.cartesianY);
             if(isLineIntersectingWithLine(attackEquation, platformEquation))
                 platform.removeFromWorld = true;
         }
@@ -56,29 +56,27 @@ function isCharacterColliding(PlayerCharacter) {
     // pc.colliding = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformCartCords);
 }
 
+//Calculates the coordinates of the line segment coming from the edge of the player at the angle of the attack.
 function calculateAttackLine(pc, PlayerCircleInfo, gameWorldHeight) {
+    //Calculates how many frames from the end of the animation. This is used to determine the length of the attack line segment.
     let framesUntilDone = pc.currentAttackAnimation.animation.frames - pc.currentAttackAnimation.animation.currentFrame();
+    //Calculates the coordinates of edge of player at the angle of attack.
     let playerEdgeX = PlayerCircleInfo.cartesianX + 32 * Math.cos(pc.currentAttackAnimation.angle);
-    let playerEdgeY = gameWorldHeight - PlayerCircleInfo.cartesianY + 32 * Math.sin(pc.currentAttackAnimation.angle);
-    let attackPointX = pc.currentAttackAnimation.xCalcAttack(framesUntilDone);
-    let attackPointY = gameWorldHeight - pc.currentAttackAnimation.yCalcAttack(framesUntilDone);
+    let playerEdgeY = PlayerCircleInfo.cartesianY - 32 * Math.sin(pc.currentAttackAnimation.angle);
+    //These are the cartesian coordinates of the end point of the current attack frame
+    let attackPointX = pc.x + pc.currentAttackAnimation.xCalcAttack(framesUntilDone);
+    let attackPointY = gameWorldHeight - (pc.y + pc.currentAttackAnimation.yCalcAttack(framesUntilDone));
+    //slope and y intercept of the attack line
     let m = (playerEdgeY - attackPointY)/(playerEdgeX - attackPointX);
     let b = playerEdgeY - m * (playerEdgeX);
-    let xR, xL;
-    if (playerEdgeX >= attackPointX) {
-        xR = playerEdgeX;
-        xL = attackPointX;
-    } else {
-        xL = playerEdgeX;
-        xR = attackPointX;
-    }
+    let xR = Math.max(playerEdgeX, attackPointX);
+    let xL = Math.min(playerEdgeX, attackPointX);
     return {
         mSlope:m,
         bOffset:b,
         xLeft:xL,
         xRight:xR
     }
-
 }
 
 
@@ -205,6 +203,7 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
     }
 }
 
+
 function isLineIntersectingWithLine(LineInfo1 , LineInfo2) {
     const xIntersect = (LineInfo2.bOffset - LineInfo1.bOffset)/(LineInfo1.mSlope - LineInfo2.mSlope);
     const yIntersect = LineInfo2.mSlope * xIntersect + LineInfo2.bOffset;
@@ -213,13 +212,17 @@ function isLineIntersectingWithLine(LineInfo1 , LineInfo2) {
     return pointOnL1 && pointOnL2;
 }
 
+//Finds the y corresponding to x on the line with the slope and y intercept of LineInfo. 
+//May or may not be on the actual line segment LineInfo.
 function calcYFromX(LineInfo, x) {
     return LineInfo.mSlope * x + LineInfo.bOffset;
 }
 
+//Determines if the point at (x, y) is on the LineSegment LineInfo
 function isPointOnLine(LineInfo, x, y) {
     let y1 = calcYFromX(LineInfo, LineInfo.xLeft);
     let y2 = calcYFromX(LineInfo, LineInfo.xRight);
+    // console.log(y1, y2);
     let yMin = Math.min(y1, y2);
     let yMax = Math.max(y1, y2);
     return LineInfo.xLeft <= x && LineInfo.xRight >= x &&
