@@ -86,11 +86,15 @@ class Floor {
         let drawY = this.cameraTransform(-40);
         // console.log(drawY);
         if(drawY) {
-            let width = this.srcWidthAndHeight[this.type][0];
-            let height = this.srcWidthAndHeight[this.type][1];
-            this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
-                width, height, this.x, drawY, 
-                width * this.scale, height * this.scale);
+            if (this.animation) {
+                this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
+            } else {
+                let width = this.srcWidthAndHeight[this.type][0];
+                let height = this.srcWidthAndHeight[this.type][1];
+                this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+                    width, height, this.x, drawY, 
+                    width * this.scale, height * this.scale);
+                }
         }
     }
 }
@@ -180,6 +184,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(FLOOR_FLASH_PATH);
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
+    AM.queueDownload(FLASHFORM);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

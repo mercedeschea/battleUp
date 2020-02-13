@@ -11,7 +11,6 @@ class PlaceformManager {
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
             this.placeformsCurrent[0].removeFromWorld = true;
-            this.placeformsCurrent.shift();
         }
         if (facingLeft) {
             if (angled) {

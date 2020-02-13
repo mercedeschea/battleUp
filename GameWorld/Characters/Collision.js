@@ -1,6 +1,5 @@
 
 
-
 function isCharacterColliding(PlayerCharacter) {
     // Convert the player character to useful coordinates
     let pc = PlayerCharacter;
@@ -16,23 +15,37 @@ function isCharacterColliding(PlayerCharacter) {
 
     // Determine if the player character is colliding!
     // for each placeform, call the method which handles that type of placeform
-
+    let attackEquation;
+    if(pc.attacking)
+        attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
     for (const platform of pc.placeformManager.placeformsCurrent) {
+        let platformEquation;
         if (platform.type === 'center') {
-            let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
-            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation))
+            platformEquation = convertHorizontalPlatformToEquation(platform, mapHeight);
+            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platformEquation))
                 pc.colliding = true;
         } else if (platform.type === 'left') {
-            let equation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) 
+            platformEquation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platformEquation)) 
                 pc.colliding = true;
         } else {
-            let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
-            console.log("right equation", equation);
-            console.log("pc coords", PlayerCircleInfo);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation))
+            platformEquation = convertRightSlopedPlatformToEquation(platform, mapHeight);
+            // console.log("right equation", equation);
+            // console.log("pc coords", PlayerCircleInfo);
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platformEquation))
                 pc.colliding = true;
         }
+        if (attackEquation) {
+            console.log("attack: ", attackEquation, "platform: ",
+            platformEquation, "player:", PlayerCartCords.cartesianY);
+            if(isLineIntersectingWithLine(attackEquation, platformEquation))
+                platform.removeFromWorld = true;
+        }
+    }
+    for (const gen of genForms) {
+        let platformEquation = convertHorizontalPlatformToEquation(gen, mapHeight);
+        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platformEquation))
+            pc.colliding = true;
     }
 
     for (const gen of genForms) {
@@ -48,7 +61,28 @@ function isCharacterColliding(PlayerCharacter) {
     // pc.colliding = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, PlatformCartCords);
 }
 
-
+//Calculates the coordinates of the line segment coming from the edge of the player at the angle of the attack.
+function calculateAttackLine(pc, PlayerCircleInfo, gameWorldHeight) {
+    //Calculates how many frames from the end of the animation. This is used to determine the length of the attack line segment.
+    let framesUntilDone = pc.currentAttackAnimation.animation.frames - pc.currentAttackAnimation.animation.currentFrame();
+    //Calculates the coordinates of edge of player at the angle of attack.
+    let playerEdgeX = PlayerCircleInfo.cartesianX + 32 * Math.cos(pc.currentAttackAnimation.angle);
+    let playerEdgeY = PlayerCircleInfo.cartesianY - 32 * Math.sin(pc.currentAttackAnimation.angle);
+    //These are the cartesian coordinates of the end point of the current attack frame
+    let attackPointX = pc.x + pc.currentAttackAnimation.xCalcAttack(framesUntilDone);
+    let attackPointY = gameWorldHeight - (pc.y + pc.currentAttackAnimation.yCalcAttack(framesUntilDone));
+    //slope and y intercept of the attack line
+    let m = (playerEdgeY - attackPointY)/(playerEdgeX - attackPointX);
+    let b = playerEdgeY - m * (playerEdgeX);
+    let xR = Math.max(playerEdgeX, attackPointX);
+    let xL = Math.min(playerEdgeX, attackPointX);
+    return {
+        mSlope:m,
+        bOffset:b,
+        xLeft:xL,
+        xRight:xR
+    }
+}
 
 
 function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " / " */
@@ -71,10 +105,10 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     b = max - this.y - (slope)(this.x + 80)
     SAME LINE
     */
-    console.log("platform.y", platform.y);
-    console.log("platform.x", platform.x);
-    console.log("gameWorldHeight", gameWorldHeight);
-    console.log("platform real y", gameWorldHeight - (platform.y + 80));
+    // console.log("platform.y", platform.y);
+    // console.log("platform.x", platform.x);
+    // console.log("gameWorldHeight", gameWorldHeight);
+    // console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
         bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
@@ -129,10 +163,10 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
-        console.log("no");
+        // console.log("no");
         return false;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
+        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
@@ -144,6 +178,8 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
 
 function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
     return {
+        bOffset: gameWorldHeight - platform.y,
+        mSlope: 0,
         yValue: gameWorldHeight - platform.y, 
         xLeft: platform.x, 
         xRight: platform.x + 119
@@ -173,6 +209,32 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
 }
 
 
+function isLineIntersectingWithLine(LineInfo1 , LineInfo2) {
+    const xIntersect = (LineInfo2.bOffset - LineInfo1.bOffset)/(LineInfo1.mSlope - LineInfo2.mSlope);
+    const yIntersect = LineInfo2.mSlope * xIntersect + LineInfo2.bOffset;
+    const pointOnL1 = isPointOnLine(LineInfo1, xIntersect, yIntersect);
+    const pointOnL2 = isPointOnLine(LineInfo2, xIntersect, yIntersect);
+    return pointOnL1 && pointOnL2;
+}
+
+//Finds the y corresponding to x on the line with the slope and y intercept of LineInfo. 
+//May or may not be on the actual line segment LineInfo.
+function calcYFromX(LineInfo, x) {
+    return LineInfo.mSlope * x + LineInfo.bOffset;
+}
+
+//Determines if the point at (x, y) is on the LineSegment LineInfo
+function isPointOnLine(LineInfo, x, y) {
+    let y1 = calcYFromX(LineInfo, LineInfo.xLeft);
+    let y2 = calcYFromX(LineInfo, LineInfo.xRight);
+    // console.log(y1, y2);
+    let yMin = Math.min(y1, y2);
+    let yMax = Math.max(y1, y2);
+    return LineInfo.xLeft <= x && LineInfo.xRight >= x &&
+        yMin <= y && yMax >= y;
+}
+
+
 function convertCharacterToGameWorldCoords(thisX, thisY) {
     // Assumes the circle character is a 64x68 sprite with 4 dead pixels on top
     return { gameWorldX: thisX + 32.5, gameWorldY: thisY + 36.5 };
@@ -185,6 +247,6 @@ function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {
 function quadraticFormula(a, b, c) {
     var result1 = (-1 * b + Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
     var result2 = (-1 * b - Math.sqrt(Math.pow(b, 2) - (4 * a * c))) / (2 * a);
-    console.log(result1);
+    // console.log(result1);
     return {result1: result1, result2: result2};
 }
