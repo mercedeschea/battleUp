@@ -62,12 +62,27 @@ class GameEngine {
             'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
         console.log('Starting input');
         var that = this;
-        this.ctx.canvas.addEventListener("click", function (e) {
+        this.showButton = true;
+        this.mouseDown = false;
+        this.ctx.canvas.addEventListener("mousedown", function (e) {
+            if (!that.started) {
+                // this.showStartButton = true;
+                that.showButton = false;
+                that.mouseDown = true;
+                that.draw();
+                console.log('mouse down')
+                console.log('mouse down in game engine: ' + that.mouseDown);
+            }
+        }, false);
+        this.ctx.canvas.addEventListener("mouseup", function (e) {
+            that.mouseDown = false;
+            console.log(that.mouseDown);
             if (!that.started) {
                 that.start();
-                this.showStartButton = true;
-                this.pushStart = true;
+                // this.showStartButton = true;
+                // this.pushStart = true;
             }
+            console.log('mouse up');
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
@@ -319,23 +334,38 @@ class StartButton {
         this.game = game;
         this.spriteSheet = AM.getAsset(START_BUTTON);
         //this.clicked = true;
-        this.animationStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 0.2, 2, true, false);
+        this.spriteWidth = this.spriteSheet.width/2;
+        this.spriteHeight = this.spriteSheet.height;
+        //this.animationStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 0.2, 2, true, false);
     }
     draw() {
-        if (!this.game.start.showStartButton & !this.game.start.pushStart) {
-            this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
-                this.game.surfaceHeight - this.spriteSheet.height);
+        console.log('mouse down game engine in draw: ' + this.game.mouseDown)
+        if (!this.game.mouseDown) {
+        // if (!this.game.start.showStartButton & !this.game.start.mouseDown) {
+            // this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
+            //     this.game.surfaceHeight - this.spriteSheet.height);
+            // (img, imgWidth, imgHeight, destX, destY, scaleX, scaleY)
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
             console.log('start button appeared');
-            console.log(this.animationStart);
-        } else {
-            this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
-                this.game.surfaceHeight - this.spriteSheet.height);
-                console.log('button pressed')
-                this.removeFromWorld = true;
+            //console.log(this.animationStart);
+            this.showButton = false;
+            this.removeFromWorld = true;
+            console.log('remove from world' + this.removeFromWorld);
+            //this.game.mouseDown = true;
+            console.log('mouseDown should be false: ' + this.game.mouseDown);
+        } if (this.game.mouseDown) {
+            console.log('mouseDown should be true: ' + this.game.mouseDown);
+            // console.log('mouse down');
+            console.log('other button appeared');
+            this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
+            this.removeFromWorld = true;
+            
+            // this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
+            //     this.game.surfaceHeight - this.spriteSheet.height);
+            //     console.log('button pressed')
+            //     this.removeFromWorld = true;
         }
-
-
-        
+  
     }
     update(){
     }
