@@ -62,7 +62,8 @@ class GameEngine {
     //'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 
     startInput() {
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
-            'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
+            'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
+            'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
             'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
@@ -78,17 +79,17 @@ class GameEngine {
             }
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
-            if (e.code === keyArr['up'])
+            if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = true;
             if (e.code === keyArr['jump'] && that.active)
                 that.jump = true;
-            if (e.code === keyArr['left'] && that.active)
+            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'] && that.active)
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
-            if (e.code === keyArr['down'])
+            if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = true;
-            if (e.code === keyArr['right'] && that.active)
+            if (e.code === keyArr['right'] || e.code === keyArr['altRight'] && that.active)
                 that.right = true;
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
@@ -102,16 +103,16 @@ class GameEngine {
         }, false);
 
         this.ctx.canvas.addEventListener("keyup", function (e) {
-            if (e.code === keyArr['up'])
+            if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = false;
-            if (e.code === keyArr['left'])
+            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'])
                 that.left = false;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = false;*/
-            if (e.code === keyArr['right'])
-                that.right = false;
-            if (e.code === keyArr['down'])
+                that.down = true;*/
+            if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = false;
+            if (e.code === keyArr['right'] || e.code === keyArr['altRight'])
+                that.right = false;
             // if (e.code === keyArr['')
             //     that.placeAngled = false;
             // if (e.code === keyArr[5])
@@ -282,10 +283,10 @@ class Camera {
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
-            console.log(this.game.clockTick, 'a tick with this value');
-            console.log(this.advanceTime);
+            // console.log(this.game.clockTick, 'a tick with this value');
+            // console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
-            console.log(this.advanceTime);
+            // console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;

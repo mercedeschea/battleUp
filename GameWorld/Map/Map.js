@@ -84,6 +84,14 @@ class Floor {
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
         this.spriteSheet = spriteSheet;
         this.scale = scale;
+        // console.log(this);
+        if (type === 'center') {
+            this.equation = convertHorizontalPlatformToEquation(this, game.mapHeight);
+        } else if (type === 'left') {
+            this.equation = convertLeftSlopedPlatformToEquation(this, game.mapHeight);
+        } else {
+            this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
+        }
     }
     draw() {
         let drawY = this.cameraTransform(-40);
@@ -143,7 +151,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
                 let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
-                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .2, 4, true, false);
+                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);
             }

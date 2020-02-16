@@ -19,32 +19,33 @@ function isCharacterColliding(PlayerCharacter) {
     if(pc.attacking)
         attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
     for (const platform of pc.placeformManager.placeformsCurrent) {
-        let platformEquation;
         if (platform.type === 'center') {
-            platformEquation = convertHorizontalPlatformToEquation(platform, mapHeight);
-            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platformEquation))
+            if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platform.equation)) {
                 pc.colliding = true;
+            }
+
         } else if (platform.type === 'left') {
-            platformEquation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platformEquation)) 
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation)) {
                 pc.colliding = true;
+                pc.currentPlatform = platform;
+            }
         } else {
-            platformEquation = convertRightSlopedPlatformToEquation(platform, mapHeight);
             // console.log("right equation", equation);
             // console.log("pc coords", PlayerCircleInfo);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platformEquation))
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation)) {
                 pc.colliding = true;
+                pc.currentPlatform = platform;
+            }
         }
         if (attackEquation) {
             // console.log("attack: ", attackEquation, "platform: ",
             // platformEquation, "player:", PlayerCartCords.cartesianY);
-            if(isLineIntersectingWithLine(attackEquation, platformEquation))
+            if(isLineIntersectingWithLine(attackEquation, platform.equation))
                 platform.removeFromWorld = true;
         }
     }
     for (const gen of genForms) {
-        let platformEquation = convertHorizontalPlatformToEquation(gen, mapHeight);
-        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platformEquation))
+        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, gen.equation))
             pc.colliding = true;
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
@@ -124,6 +125,7 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     // console.log("platform real y", gameWorldHeight - (platform.y + 80));
     return {
         mSlope: slope,
+        gameB: platform.y + 80 - (slope * platform.x),
         bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
         xLeft: platform.x,
         xRight: (platform.x + 80)
@@ -137,6 +139,7 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
     // gameHeight - this.y = (-1) * (this.x + 7) + b 
     return {
         mSlope: slope,
+        gameB: platform.y + (platform.x + 7),
         bOffset: (gameWorldHeight - platform.y) + (platform.x + 7),
         xLeft: platform.x,
         xRight: platform.x + 83,
@@ -172,19 +175,24 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     // console.log('a', a);
     // console.log('b', b);
     // console.log('c', c);
-
+    let lineYMax = calcYFromX(LineInfo.xLeft);
+    let lineYMin = calcYFromX(LineInfo.xRight);
+    lineYMax = Math.max(lineYMax, lineYMin);
+    lineYMin = Math.min(lineYMin, lineYMax);
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
         // console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
+    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft)
+     && (CircleInfo.cartesianX <= LineInfo.xRight)){// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
         // console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
         return true;
     }
+    return false;
 }
 
 

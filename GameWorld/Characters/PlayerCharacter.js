@@ -18,6 +18,7 @@ const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
+const PLAYER_SPEED = 200;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -57,6 +58,7 @@ class PlayerCharacter extends Entity {
         this.attackpoint = null;
         this.floorTimer = 0;
         this.dead = false;
+        this.currentPlatform = null;
     }
 
     setupAnimations() {
@@ -117,17 +119,52 @@ class PlayerCharacter extends Entity {
             this.facingLeft = false;
         }
         if (this.movingLeft) {
-            if (this.x > 2) {   // stops character at the left border
-                this.x -= this.game.clockTick * 200;
+            if (this.currentPlatform) {
+                const platformSlope = this.currentPlatform.equation.mSlope;
+                const platformB = this.currentPlatform.equation.gameB;
+                if (this.currentPlatform.type === 'left') {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.currentPlatform.type === 'right') {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    console.log(platformSlope, platformB);
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else {
+                    this.x -= this.game.clockTick * PLAYER_SPEED;
+                }
+
+            } else {
+                this.x -= this.game.clockTick * PLAYER_SPEED;
             }
             
         } else if (this.movingRight) {
             if (this.x < 1200 - 115) {  // stops character at the right border
-                this.x += this.game.clockTick * 200;
+                if (this.currentPlatform) {
+                    const platformSlope = this.currentPlatform.equation.mSlope;
+                    const platformB = this.currentPlatform.equation.gameB;
+                    if (this.currentPlatform.type === 'left') {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        console.log(platformSlope, platformB);
+                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else  if (this.currentPlatform.type === 'right') {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        console.log(platformSlope, platformB);
+                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else {
+                        this.x += this.game.clockTick * PLAYER_SPEED;
+                    }
+
+                } else {
+                    this.x += this.game.clockTick * PLAYER_SPEED;
+                }
+                
+                
             }
         }
 
         this.colliding = false;
+        this.currentPlatform = null;
         this.checkCollisions();
         if (this.dead) {
             if (this.game.active) {
