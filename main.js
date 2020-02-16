@@ -86,15 +86,11 @@ AM.downloadAll(function () {
     
     gameEngine.addEntity(playerCharacter); 
     
-    ctx.font = '40px Times New Roman';
-    ctx.fillStyle = 'gold';
-    ctx.textAlign = 'center';
-    //ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2);
     let startButton = new StartButton(gameEngine, AM);
     gameEngine.addEntity(startButton); 
     gameEngine.draw();
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(score);
-
+    
     console.log("All Done!");
 });

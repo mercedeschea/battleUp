@@ -64,9 +64,9 @@ class GameEngine {
         var that = this;
         this.showButton = true;
         this.mouseDown = false;
+        this.mouseReleased = false;
         this.ctx.canvas.addEventListener("mousedown", function (e) {
             if (!that.started) {
-                // this.showStartButton = true;
                 that.showButton = false;
                 that.mouseDown = true;
                 that.draw();
@@ -76,11 +76,10 @@ class GameEngine {
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
             that.mouseDown = false;
-            console.log(that.mouseDown);
+            that.mouseReleased = true;
+            console.log(that.mouseReleased);
             if (!that.started) {
                 that.start();
-                // this.showStartButton = true;
-                // this.pushStart = true;
             }
             console.log('mouse up');
         }, false);
@@ -289,13 +288,17 @@ class Score {
         this.startY = this.game.mapHeight - this.playerCharacter.y;
     }
     draw() {
-        this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-            this.spriteSheet.width/5, this.spriteSheet.height/5);
-        //this.game.ctx.font("Press Start 2P");
-        this.game.ctx.font = ("20px Times New Roman");
-        this.game.ctx.fillStyle = "gold";
-        //console.log(this.playerY);
-        this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+        console.log(this.game.mouseReleased);
+        if (this.game.mouseReleased) {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0,
+                this.spriteSheet.width/5, this.spriteSheet.height/5);
+            //this.game.ctx.font("Press Start 2P");
+            this.game.ctx.font = ("20px Times New Roman");
+            this.game.ctx.fillStyle = "gold";
+            //console.log(this.playerY);
+            this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+        }
+        
         
     }
     update() {
@@ -322,9 +325,6 @@ class StartScreen {
     }
     draw(){
         this.game.addEntity(this.background);
-        //console.log(this.startButton);
-        //console.log(this.startButton.width)
-        //console.log(this.startButton.height);
     }
     update(){}
 }
@@ -341,29 +341,17 @@ class StartButton {
     draw() {
         console.log('mouse down game engine in draw: ' + this.game.mouseDown)
         if (!this.game.mouseDown) {
-        // if (!this.game.start.showStartButton & !this.game.start.mouseDown) {
-            // this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
-            //     this.game.surfaceHeight - this.spriteSheet.height);
-            // (img, imgWidth, imgHeight, destX, destY, scaleX, scaleY)
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
             console.log('start button appeared');
-            //console.log(this.animationStart);
             this.showButton = false;
             this.removeFromWorld = true;
             console.log('remove from world' + this.removeFromWorld);
-            //this.game.mouseDown = true;
             console.log('mouseDown should be false: ' + this.game.mouseDown);
         } if (this.game.mouseDown) {
             console.log('mouseDown should be true: ' + this.game.mouseDown);
-            // console.log('mouse down');
             console.log('other button appeared');
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
             this.removeFromWorld = true;
-            
-            // this.animationStart.drawFrame(this.game.clockTick, this.game.ctx, this.game.surfaceWidth/2 - 32, 
-            //     this.game.surfaceHeight - this.spriteSheet.height);
-            //     console.log('button pressed')
-            //     this.removeFromWorld = true;
         }
   
     }
