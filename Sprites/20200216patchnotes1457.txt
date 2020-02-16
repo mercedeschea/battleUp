@@ -1,0 +1,46 @@
+20200216 14:57 patch notes
+
+
+SUMMARY:
+
+Added all gloop colors (blue, green, orange, purple)
+Renamed some files
+Start button rework
+new platforms added
+Reworked file system
+
+
+ASSETS ADDED:
+
+Usables/lvl1/placeform.png
+Usables/lvl2/placeform.png
+BLUE:
+Usables/gloop(blue)/gloop.png
+Usables/gloop(blue)/gloopHopLeft.png
+Usables/gloop(blue)/gloopHopRight.png
+Usables/gloop(blue)/gloopTurn.png
+ORANGE:
+Usables/gloop(orange)/gloop.png
+Usables/gloop(orange)/gloopHopLeft.png
+Usables/gloop(orange)/gloopHopRight.png
+Usables/gloop(orange)/gloopTurn.png
+PURPLE:
+Usables/gloop(purple)/gloopHopLeft.png
+Usables/gloop(purple)/gloopHopRight.png
+Usables/gloop(purple)/gloopTurn.png
+
+ASSETS MOVED / ASSETS RENAMED:
+
+Usables/gloop(purple).png -> Usables/gloop(purple)/gloop.png
+Usables/gloop(green).png) -> Usables/gloop(green)/gloop.png
+Usables/glopHopLeft(green).png -> Usables/gloop(green)/gloopHopLeft.png
+Usables/glopHopRight(green).png -> Usables/gloop(green)/gloopHopRight.png
+Usables/glopTurn(green).png -> Usables/gloop(green)/gloopTurn.png
+Usables/drillPrototype.png -> Usables/tools/drillPrototype.png
+
+SPRITE REWORK:
+
+HUD/startButtonPress.png has been made larger
+
+
+
