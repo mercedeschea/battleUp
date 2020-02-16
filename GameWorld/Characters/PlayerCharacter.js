@@ -48,7 +48,7 @@ class PlayerCharacter extends Entity {
         this.collidingWithHoriz = false;
         this.colldingWithLeftSlope = false;
         this.colldingWithRightSlope = false;
-        this.radius = 32;
+        this.radius = 40;
 
         // Extras
         this.attackDelay = 50;
@@ -67,7 +67,7 @@ class PlayerCharacter extends Entity {
 
     update() {
         super.update();
-
+        this.needsMovingUp = false;
         // Determine if character is colliding and how
         // Then check movement commands and how they should be moving based on these collisions
         // Then enact special actions like attacking and placing platforms
@@ -76,10 +76,10 @@ class PlayerCharacter extends Entity {
         this.colliding = false;
         this.checkCollisions();
 
-        if (this.colliding) {
-            if (this.jumping)
-                this.jumping = false;
-        }
+        // if (this.colliding) {
+        //     if (this.jumping)
+        //         this.jumping = false;
+        // }
         if (!this.jumping && !this.colliding) {
             this.y += 1;
         }
@@ -102,14 +102,16 @@ class PlayerCharacter extends Entity {
             if (this.x > 2) {   // stops character at the left border
                 this.x -= this.game.clockTick * 200;
             }
-            
         } else if (this.movingRight) {
             if (this.x < 1200 - 115) {  // stops character at the right border
                 this.x += this.game.clockTick * 200;
             }
         }
 
-
+        if (this.needsMovingUp) {
+            console.log("need to move up");
+            // this.y -= 2;
+        }
 
 
 
@@ -184,6 +186,12 @@ class PlayerCharacter extends Entity {
                 this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
                 this.reverseAttackAnimation.elapsedTime = 0;
                 this.attacking = false;
+            }
+        }
+        if (this.colliding && !this.needsMovingUp) { // if I'm perfectly colliding
+            if (this.jumping) {
+                this.jumping = false;                  // stop my jumping - which would take me to an imperfect collision?
+                console.log("stopped jumping here");
             }
         }
 

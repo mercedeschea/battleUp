@@ -81,6 +81,13 @@ class Floor {
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
         this.spriteSheet = spriteSheet;
         this.scale = scale;
+        // Collision
+        if (type == 'center')
+            this.equation = convertHorizontalPlatformToEquation(this, MAP_HEIGHT);
+        else if (type == 'right')
+            this.equation = convertRightSlopedPlatformToEquation(this, MAP_HEIGHT)
+        else 
+            this.equation = convertLeftSlopedPlatformToEquation(this, MAP_HEIGHT);
     }
     draw() {
         let drawY = this.cameraTransform(-40);
@@ -106,7 +113,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
     let xFound;
     let yFound;
 
-    for (var j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
+    for (var j = 0; j <= 0; j++) { //<= is a quick hack should be fixed later
         let startIndex = xCoordinatesGenforms.length;
         for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
             xFound = false;

@@ -11,7 +11,7 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 9.85;
+const SCROLL_DELAY = 100009.85;
 const SCROLL_PERCENTAGE = .6;
 
 class GameEngine {
@@ -105,7 +105,7 @@ class GameEngine {
         console.log('Input started');
     }
     addEntity(entity) {
-        console.log('added entity');
+        // console.log('added entity');
         this.entities.push(entity);
         this.moveRight = null;
         this.moveLeft = null;

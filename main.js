@@ -1,5 +1,6 @@
 const AM = new AssetManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
+let MAP_HEIGHT;
 
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -69,12 +70,13 @@ AM.downloadAll(function () {
     let mapHeight = background.spritesheet.height;
     let playerCharacter = new PlayerCharacter(gameEngine, AM);
     gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
+    MAP_HEIGHT = mapHeight; // trying this lol forgive me -Conner
 
     // gameEngine.start();
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
     gameEngine.addEntity(new Floor(gameEngine, AM));
-    genGenforms(20, gameEngine, AM, mapHeight);
+    genGenforms(1, gameEngine, AM, mapHeight);
     playerCharacter.x = lowestGenformCoords[0];
     playerCharacter.y = lowestGenformCoords[1] - 64;
     let score = new Score(gameEngine, AM, playerCharacter);
