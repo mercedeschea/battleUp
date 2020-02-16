@@ -18,6 +18,7 @@ const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
+const PLAYER_SPEED = 200;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -55,6 +56,9 @@ class PlayerCharacter extends Entity {
         this.attackDelay = 0;
         this.attacking = false;
         this.attackpoint = null;
+        this.floorTimer = 0;
+        this.dead = false;
+        this.currentPlatform = null;
     }
 
     setupAnimations() {
@@ -63,6 +67,7 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
+        this.deadAnimation = this.jumpRightAnimation;
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -114,19 +119,65 @@ class PlayerCharacter extends Entity {
             this.facingLeft = false;
         }
         if (this.movingLeft) {
-            if (this.x > 2) {   // stops character at the left border
-                this.x -= this.game.clockTick * 200;
+            if (this.currentPlatform) {
+                const platformSlope = this.currentPlatform.equation.mSlope;
+                const platformB = this.currentPlatform.equation.gameB;
+                if (this.currentPlatform.type === 'left') {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.currentPlatform.type === 'right') {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    console.log(platformSlope, platformB);
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else {
+                    this.x -= this.game.clockTick * PLAYER_SPEED;
+                }
+
+            } else {
+                this.x -= this.game.clockTick * PLAYER_SPEED;
             }
             
         } else if (this.movingRight) {
             if (this.x < 1200 - 115) {  // stops character at the right border
-                this.x += this.game.clockTick * 200;
+                if (this.currentPlatform) {
+                    const platformSlope = this.currentPlatform.equation.mSlope;
+                    const platformB = this.currentPlatform.equation.gameB;
+                    if (this.currentPlatform.type === 'left') {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        console.log(platformSlope, platformB);
+                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else  if (this.currentPlatform.type === 'right') {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        console.log(platformSlope, platformB);
+                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else {
+                        this.x += this.game.clockTick * PLAYER_SPEED;
+                    }
+
+                } else {
+                    this.x += this.game.clockTick * PLAYER_SPEED;
+                }
+                
+                
             }
         }
 
         this.colliding = false;
+        this.currentPlatform = null;
         this.checkCollisions();
-
+        if (this.dead) {
+            if (this.game.active) {
+                this.game.active = false;
+                this.jumpY = this.y;
+                this.deadAnimation.elapsedTime = 0;
+            }
+            if (this.deadAnimation.isDone()) {
+                this.game.over = true;
+            }
+            this.calcJump(this.deadAnimation);
+            return;
+        }
         if (this.colliding) {
             if (this.jumping)
                 this.jumping = false;
@@ -167,12 +218,7 @@ class PlayerCharacter extends Entity {
                 this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
             }
             
-            var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
-            var totalHeight = 100;
-            if (jumpDistance > 0.5)
-                jumpDistance = 1 - jumpDistance;
-            this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = this.jumpY - this.height;
+            this.calcJump(jumpAnimation);
         }
 
         //do we want players to be able to double place?
@@ -242,10 +288,29 @@ class PlayerCharacter extends Entity {
         
 
     }
+
+    calcJump(jumpAnimation) {
+        var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
+        var totalHeight = 100;
+        if (jumpDistance > 0.5)
+        jumpDistance = 1 - jumpDistance;
+            this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+            this.y = this.jumpY - this.height;
+    }
+
     draw(ctx) {
         let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (drawY) {
-            if (this.jumping && this.facingLeft) {
+            if (this.game.over) {
+                this.game.ctx.fillStyle = 'red';
+                this.game.ctx.textAlign = 'center';
+                // console.log(canvas.width/2, canvas.height/2);
+                this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+            } 
+            if (this.dead) {
+                this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+                return;
+            } else if (this.jumping && this.facingLeft) {
                 this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             } else if (this.jumping && !this.facingLeft) {
                 this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
@@ -272,6 +337,8 @@ class PlayerCharacter extends Entity {
                 // this.ctx.stroke();
                 // this.ctx.restore();
             }
+
+            
             // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
             // let ndx = 0;
             // Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
