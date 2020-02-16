@@ -69,7 +69,7 @@ AM.queueDownload(SCORE_TEXT);
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
     let ctx = canvas.getContext("2d");
-    let gameEngine = new GameEngine();
+    let gameEngine = new GameEngine(AM);
     gameEngine.init(ctx);
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
@@ -79,7 +79,8 @@ AM.downloadAll(function () {
     // gameEngine.start();
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
-    gameEngine.addEntity(new Floor(gameEngine, AM));
+    gameEngine.floor = new Floor(gameEngine, AM);
+    gameEngine.addEntity(gameEngine.floor);
     genGenforms(20, gameEngine, AM, mapHeight);
     playerCharacter.x = lowestGenformCoords[0];
     playerCharacter.y = lowestGenformCoords[1] - 64;

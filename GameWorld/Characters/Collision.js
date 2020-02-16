@@ -36,8 +36,8 @@ function isCharacterColliding(PlayerCharacter) {
                 pc.colliding = true;
         }
         if (attackEquation) {
-            console.log("attack: ", attackEquation, "platform: ",
-            platformEquation, "player:", PlayerCartCords.cartesianY);
+            // console.log("attack: ", attackEquation, "platform: ",
+            // platformEquation, "player:", PlayerCartCords.cartesianY);
             if(isLineIntersectingWithLine(attackEquation, platformEquation))
                 platform.removeFromWorld = true;
         }
@@ -47,7 +47,25 @@ function isCharacterColliding(PlayerCharacter) {
         if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platformEquation))
             pc.colliding = true;
     }
+    const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
+    // console.log(pcDistanceFromFloor);
+    if (pc.game.floor && pcDistanceFromFloor <= 0) {
+        pc.y += pcDistanceFromFloor;
+        pc.colliding = true;
+        // console.log(pc.floorTimer, "a floor timer");
+        if (!pc.game.floor.flashing) {
+            pc.game.floor.flashing = true;
+            pc.floorTimer = 2;
+            // console.log(pc.floorTimer);
+        } else if (pc.floorTimer <= 0) {
+            pc.dead = true;
+        } else {
+            pc.floorTimer -= pc.game.clockTick;
+        }
 
+    } else {
+        pc.floorTimer = 0;
+    }
 
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform

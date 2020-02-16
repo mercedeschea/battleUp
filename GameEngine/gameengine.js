@@ -31,6 +31,9 @@ class GameEngine {
         this.placeFlat = false;
         this.started = false;
         this.clockTick = 0;
+        this.floor = null;
+        this.active = true;
+        this.over = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -64,7 +67,11 @@ class GameEngine {
         console.log('Starting input');
         var that = this;
         this.ctx.canvas.addEventListener("click", function (e) {
-            if (!that.started) {
+            if(that.over) {
+                console.log("should reload");
+                that.reload();
+            }
+            else if (!that.started) {
                 that.start();
             } else {
                 that.camera.musicManager.playPause();
@@ -73,15 +80,15 @@ class GameEngine {
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'])
                 that.up = true;
-            if (e.code === keyArr['jump'])
+            if (e.code === keyArr['jump'] && that.active)
                 that.jump = true;
-            if (e.code === keyArr['left'])
+            if (e.code === keyArr['left'] && that.active)
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
             if (e.code === keyArr['down'])
                 that.down = true;
-            if (e.code === keyArr['right'])
+            if (e.code === keyArr['right'] && that.active)
                 that.right = true;
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
@@ -117,6 +124,13 @@ class GameEngine {
         }, false);
         console.log('Input started');
     }
+    // reload() {
+    //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
+    //     genGenforms(20, gameEngine, AM, mapHeight);
+    //     playerCharacter.x = lowestGenformCoords[0];
+    //     playerCharacter.y = lowestGenformCoords[1] - 64;
+    //     this.playerCharacter = 
+    // }
     addEntity(entity) {
         console.log('added entity');
         this.entities.push(entity);
@@ -200,10 +214,10 @@ class Entity {
     cameraTransform(removalTolerance, parallaxFactor) {
         let drawY = this.y - this.game.camera.totalDrawOffset;
         if (parallaxFactor) drawY *= parallaxFactor;
-        if(drawY > this.game.surfaceHeight + removalTolerance) {
-            this.removeFromWorld = true;
-            return null;
-        }
+        // if(drawY > this.game.surfaceHeight + removalTolerance) {
+        //     this.removeFromWorld = true;
+        //     return null;
+        // }
         return drawY;
     }
     

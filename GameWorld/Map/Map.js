@@ -1,7 +1,7 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
 const genForms = [];
-const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
+const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
@@ -51,16 +51,19 @@ class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
         this.game = game;
-        this.flashing = true;
+        this.flashing = false;
+        this.flashTime = 3;
         let flashSheet = AM.getAsset(FLOOR_FLASH_PATH);
         this.animationFlash = new Animation(flashSheet, 0, 
             0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
     }
     draw() {
-        if (this.flashing) {
+        if (this.flashing && this.flashTime > 0) {
+            this.flashTime -= this.game.clockTick;
             this.animationFlash.drawFrame(this.game.clockTick, this.game.ctx, 0, 
                 this.game.surfaceHeight - FLOOR_HEIGHT);
         } else {
+            this.flashTime = 3;
             this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - FLOOR_HEIGHT, //draws only half the floor
                 this.spriteSheet.width, this.spriteSheet.height);
         }
@@ -140,6 +143,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
                 let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
+                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .2, 4, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);
             }

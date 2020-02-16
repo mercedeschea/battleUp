@@ -55,6 +55,8 @@ class PlayerCharacter extends Entity {
         this.attackDelay = 0;
         this.attacking = false;
         this.attackpoint = null;
+        this.floorTimer = 0;
+        this.dead = false;
     }
 
     setupAnimations() {
@@ -63,6 +65,7 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
+        this.deadAnimation = this.jumpRightAnimation;
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -126,7 +129,18 @@ class PlayerCharacter extends Entity {
 
         this.colliding = false;
         this.checkCollisions();
-
+        if (this.dead) {
+            if (this.game.active) {
+                this.game.active = false;
+                this.jumpY = this.y;
+                this.deadAnimation.elapsedTime = 0;
+            }
+            if (this.deadAnimation.isDone()) {
+                this.game.over = true;
+            }
+            this.calcJump(this.deadAnimation);
+            return;
+        }
         if (this.colliding) {
             if (this.jumping)
                 this.jumping = false;
@@ -167,12 +181,7 @@ class PlayerCharacter extends Entity {
                 this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
             }
             
-            var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
-            var totalHeight = 100;
-            if (jumpDistance > 0.5)
-                jumpDistance = 1 - jumpDistance;
-            this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-            this.y = this.jumpY - this.height;
+            this.calcJump(jumpAnimation);
         }
 
         //do we want players to be able to double place?
@@ -242,10 +251,29 @@ class PlayerCharacter extends Entity {
         
 
     }
+
+    calcJump(jumpAnimation) {
+        var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
+        var totalHeight = 100;
+        if (jumpDistance > 0.5)
+        jumpDistance = 1 - jumpDistance;
+            this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+            this.y = this.jumpY - this.height;
+    }
+
     draw(ctx) {
         let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (drawY) {
-            if (this.jumping && this.facingLeft) {
+            if (this.game.over) {
+                this.game.ctx.fillStyle = 'red';
+                this.game.ctx.textAlign = 'center';
+                // console.log(canvas.width/2, canvas.height/2);
+                this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+            } 
+            if (this.dead) {
+                this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+                return;
+            } else if (this.jumping && this.facingLeft) {
                 this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             } else if (this.jumping && !this.facingLeft) {
                 this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
@@ -272,6 +300,8 @@ class PlayerCharacter extends Entity {
                 // this.ctx.stroke();
                 // this.ctx.restore();
             }
+
+            
             // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
             // let ndx = 0;
             // Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
