@@ -11,27 +11,30 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 9.85;
+const SCROLL_DELAY = 100000000000;
 const SCROLL_PERCENTAGE = .6;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor() {
-        this.right = null;
-        this.left = null;
         this.entities = [];
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
         this.mapHeight = null;
+        this.down = false;
         this.left = false;
         this.right = false;
         this.up = false;
+        this.jump = false;
         this.attack = false;
         this.placeAngled = false;
         this.placeFlat = false;
         this.started = false;
         this.clockTick = 0;
+        this.floor = null;
+        this.active = true;
+        this.over = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -51,15 +54,18 @@ class GameEngine {
         console.log("starting game");
         var that = this;
         this.started = true;
-        this.camera.musicManager.authorized = true;
+        this.camera.musicManager.activated = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
     }
+    //'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 
     startInput() {
-        var keyArr = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
-            'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'KeyR'];
+        const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
+            'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
+            'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
+            'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         this.showButton = true;
@@ -80,6 +86,8 @@ class GameEngine {
             console.log(that.mouseReleased);
             if (!that.started) {
                 that.start();
+            } else {
+                that.camera.musicManager.playPause();
             }
             console.log('mouse up');
         }, false);
@@ -87,42 +95,58 @@ class GameEngine {
             that.mouse = {x: e.clientX, y: e.clientY}
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
-            if (e.code === keyArr[0] || e.code === keyArr[6])
+            if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = true;
-            if (e.code === keyArr[1] || e.code === keyArr[7])
+            if (e.code === keyArr['jump'] && that.active)
+                that.jump = true;
+            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'] && that.active)
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
-            if (e.code === keyArr[3] || e.code === keyArr[9])
+            if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
+                that.down = true;
+            if (e.code === keyArr['right'] || e.code === keyArr['altRight'] && that.active)
                 that.right = true;
-            if (e.code === keyArr[4])
+            if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
-            if (e.code === keyArr[5])
-                that.placeFlat = true;
-            if (e.code === keyArr[10])
+            if (e.code === keyArr['placeFlat'])
+                that.placeFlat = true;   
+            if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
-
+            if (e.code === keyArr['pause'])
+                that.started ? that.started = false : that.started = true;    
             e.preventDefault();
         }, false);
         this.ctx.canvas.addEventListener("keyup", function (e) {
-            if (e.code === keyArr[0] || e.code === keyArr[6])
+            if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = false;
-            if (e.code === keyArr[1] || e.code === keyArr[7])
+            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'])
                 that.left = false;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = false;*/
-            if (e.code === keyArr[3] || e.code === keyArr[9])
+                that.down = true;*/
+            if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
+                that.down = false;
+            if (e.code === keyArr['right'] || e.code === keyArr['altRight'])
                 that.right = false;
-            if (e.code === keyArr[4])
-                that.placeAngled = false;
-            if (e.code === keyArr[5])
-                that.placeFlat = false;
-            if (e.code === keyArr[10])
-                that.attack = false;
+            // if (e.code === keyArr['')
+            //     that.placeAngled = false;
+            // if (e.code === keyArr[5])
+            //     that.placeFlat = false;
+            // if (e.code === keyArr[10])
+            //     that.attack = false;
+            // if (e.code === keyArr[11])
+            //     that.attack = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
     }
+    // reload() {
+    //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
+    //     genGenforms(20, gameEngine, AM, mapHeight);
+    //     playerCharacter.x = lowestGenformCoords[0];
+    //     playerCharacter.y = lowestGenformCoords[1] - 64;
+    //     this.playerCharacter = 
+    // }
     addEntity(entity) {
         console.log('added entity');
         this.entities.push(entity);
@@ -154,10 +178,13 @@ class GameEngine {
         //console.log(this.timer.gameTime);
     }
     loop() {
+        if (!this.started) {
+            return;
+        }
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
-        this.up = false; // jump and placements only happen once
+        this.jump = false; // jump and placements only happen once
         this.attack = false;
         this.placeAngled = false;
         this.placeFlat = false;
@@ -203,14 +230,14 @@ class Entity {
     cameraTransform(removalTolerance, parallaxFactor) {
         let drawY = this.y - this.game.camera.totalDrawOffset;
         if (parallaxFactor) drawY *= parallaxFactor;
-        if(drawY > this.game.surfaceHeight + removalTolerance) {
-            this.removeFromWorld = true;
-            return null;
-        }
+        // if(drawY > this.game.surfaceHeight + removalTolerance) {
+        //     this.removeFromWorld = true;
+        //     return null;
+        // }
         return drawY;
     }
     
-    rotateAndCache(image, angle) {
+    rotateAndCache(image, angle, srcX, srcY, frameWidth, frameHeight, scale) {
         var offscreenCanvas = document.createElement('canvas');
         var size = Math.max(image.width, image.height);
         offscreenCanvas.width = size;
@@ -220,7 +247,8 @@ class Entity {
         offscreenCtx.translate(size / 2, size / 2);
         offscreenCtx.rotate(angle);
         offscreenCtx.translate(0, 0);
-        offscreenCtx.drawImage(image, -(image.width / 2), -(image.height / 2));
+        offscreenCtx.drawImage(image, srcX, srcY, frameWidth, frameHeight,
+            -(image.width / 2), -(image.height / 2), scale * frameWidth, scale * frameHeight);
         offscreenCtx.restore();
         //offscreenCtx.strokeStyle = "red";
         //offscreenCtx.strokeRect(0,0,size,size);
@@ -231,10 +259,18 @@ class Entity {
 class MusicManager {
     constructor (music) {
         this.currentMusic = music;
-        this.authorized = false;
+        this.activated = false;
     }
-    play() {
-        this.currentMusic.play();
+    playPause() {
+        if(!this.currentMusic.paused) {
+            console.log('here');
+            this.currentMusic.pause();
+            this.activated = false;
+        } else {
+            this.currentMusic.play();
+            this.activated = true;
+        }
+
     }
 }
 
@@ -254,7 +290,7 @@ class Camera {
     draw() {}
     update() {
         //if the player has interacted with the dom, play the music
-        if(this.musicManager.authorized)
+        if(this.musicManager.activated)
             this.musicManager.currentMusic.play();
         //if the player is at the top of the canvas
         if (this.playerCharacter.y - this.totalDrawOffset < 0) {
@@ -262,10 +298,10 @@ class Camera {
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
-            //console.log(this.game.clockTick, 'a tick with this value');
-            //console.log(this.advanceTime);
+            // console.log(this.game.clockTick, 'a tick with this value');
+            // console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
-            //console.log(this.advanceTime);
+            // console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;

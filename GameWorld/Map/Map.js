@@ -1,7 +1,7 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
 const genForms = [];
-const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
+const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
@@ -51,16 +51,19 @@ class Floor {
     constructor(game, AM) {
         this.spriteSheet = AM.getAsset(FLOOR_PATH);
         this.game = game;
-        this.flashing = true;
+        this.flashing = false;
+        this.flashTime = 3;
         let flashSheet = AM.getAsset(FLOOR_FLASH_PATH);
         this.animationFlash = new Animation(flashSheet, 0, 
             0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
     }
     draw() {
-        if (this.flashing) {
+        if (this.flashing && this.flashTime > 0) {
+            this.flashTime -= this.game.clockTick;
             this.animationFlash.drawFrame(this.game.clockTick, this.game.ctx, 0, 
                 this.game.surfaceHeight - FLOOR_HEIGHT);
         } else {
+            this.flashTime = 3;
             this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - FLOOR_HEIGHT, //draws only half the floor
                 this.spriteSheet.width, this.spriteSheet.height);
         }
@@ -81,16 +84,28 @@ class Floor {
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
         this.spriteSheet = spriteSheet;
         this.scale = scale;
+        // console.log(this);
+        if (type === 'center') {
+            this.equation = convertHorizontalPlatformToEquation(this, game.mapHeight);
+        } else if (type === 'left') {
+            this.equation = convertLeftSlopedPlatformToEquation(this, game.mapHeight);
+        } else {
+            this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
+        }
     }
     draw() {
         let drawY = this.cameraTransform(-40);
         // console.log(drawY);
         if(drawY) {
-            let width = this.srcWidthAndHeight[this.type][0];
-            let height = this.srcWidthAndHeight[this.type][1];
-            this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
-                width, height, this.x, drawY, 
-                width * this.scale, height * this.scale);
+            if (this.animation) {
+                this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
+            } else {
+                let width = this.srcWidthAndHeight[this.type][0];
+                let height = this.srcWidthAndHeight[this.type][1];
+                this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+                    width, height, this.x, drawY, 
+                    width * this.scale, height * this.scale);
+                }
         }
     }
 }
@@ -136,6 +151,7 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
                 let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
+                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);
             }
@@ -180,6 +196,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(FLOOR_FLASH_PATH);
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
+    AM.queueDownload(FLASHFORM);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
