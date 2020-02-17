@@ -175,10 +175,10 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     // console.log('a', a);
     // console.log('b', b);
     // console.log('c', c);
-    let lineYMax = calcYFromX(LineInfo.xLeft);
-    let lineYMin = calcYFromX(LineInfo.xRight);
-    lineYMax = Math.max(lineYMax, lineYMin);
-    lineYMin = Math.min(lineYMin, lineYMax);
+    let lineYLeft = calcYFromX(LineInfo, LineInfo.xLeft);
+    let lineYRight = calcYFromX(LineInfo, LineInfo.xRight);
+    console.log(lineYLeft, lineYRight);
+    lineYMin = Math.min(lineYLeft, lineYRight);
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
@@ -186,7 +186,7 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
         return false;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft)
      && (CircleInfo.cartesianX <= LineInfo.xRight)){// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
+        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS")git ;
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);

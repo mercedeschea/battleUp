@@ -3,7 +3,7 @@ const yCoordinatesGenforms = [];
 const genForms = [];
 const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
-const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
+const PLACEFORM_PATH = './Sprites/Usables/lvl2/placeform.png';
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
@@ -80,8 +80,10 @@ class Floor {
     constructor(spriteSheet, type, destX, destY, scale, game) {
         super(self, game, destX, destY);
         this.type = type;
-        this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
-        this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
+        // this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
+        // this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
+        this.srcCoordinates = {'left':[417, 0], 'center':[179, 0], 'right':[0,0]};
+        this.srcWidthAndHeight = {'left':[180, 179], 'center':[235, 24], 'right':[180, 179]};
         this.spriteSheet = spriteSheet;
         this.scale = scale;
         // console.log(this);

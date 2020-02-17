@@ -16,6 +16,7 @@ const SCROLL_PERCENTAGE = .6;
 
 class GameEngine {
     constructor() {
+        this.gamepads = {};
         this.entities = [];
         this.ctx = null;
         this.surfaceWidth = null;
@@ -59,14 +60,35 @@ class GameEngine {
             requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
     }
-    //'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 
+    // scangamepads() {
+    //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+    //     for (var i = 0; i < gamepads.length; i++) {
+    //       if (gamepads[i]) {
+    //         if (gamepads[i].index in this.gamepads) {
+    //           this.gamepads[gamepads[i].index] = gamepads[i];
+    //         } else {
+    //           this.gamepads[i] = (gamepads[i]);
+    //         }
+    //       }
+    //     }
+    //     console.log(this.gamepads);
+    // }
     startInput() {
+        // this.scangamepads();
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
             'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
+        window.addEventListener("gamepadconnected", function (e) {
+            that.gamepads[e.gamepad.index] = e.gamepad;
+            console.log(that.gamepads);
+        } );
+        window.addEventListener("gamepaddisconnected", function (e) {
+            delete(that.gamepads[e.gamepad.index]);
+        });
+
         this.ctx.canvas.addEventListener("click", function (e) {
             if(that.over) {
                 console.log("should reload");
