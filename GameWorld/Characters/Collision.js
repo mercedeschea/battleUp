@@ -13,25 +13,21 @@ function isCharacterColliding(PlayerCharacter) {
         cartesianX: PlayerCartCords.cartesianX,
         cartesianY: PlayerCartCords.cartesianY
     }
-    let mapHeight = pc.game.mapHeight;
 
     for (const platform of pc.placeformManager.placeformsCurrent) {
         let equation = platform.equation;
         if (platform.type === 'center') {
-            // let equation = convertHorizontalPlatformToEquation(platform, mapHeight);
             if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithHoriz = true;
             }
         } else if (platform.type === 'left') {
-            // let equation = convertLeftSlopedPlatformToEquation(platform, mapHeight);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) {
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithLeftSlope = true;
             }
         } else {
-            // let equation = convertRightSlopedPlatformToEquation(platform, mapHeight);
-            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation)) {
+            if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithRightSlope = true;
             }
@@ -39,11 +35,11 @@ function isCharacterColliding(PlayerCharacter) {
     }
 
     for (const gen of genForms) {
-        let equation = gen.equation;//convertHorizontalPlatformToEquation(gen, mapHeight);
+        let equation = gen.equation;
         if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation, pc)) {
             pc.colliding = true;
             pc.collidingWithHoriz = true;
-        }    
+        }
     }
 }
 
@@ -80,7 +76,17 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
     }
 }
 
-function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
+function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
+    return {
+        yValue: gameWorldHeight - platform.y, 
+        xLeft: platform.x, 
+        xRight: platform.x + 119,
+        yValue: gameWorldHeight - platform.y
+    };
+}
+
+
+function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo, pc) {
     const a = 2;
     const b = 2 * LineInfo.mSlope * (LineInfo.bOffset - CircleInfo.cartesianY) - 2 * CircleInfo.cartesianX;
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + (LineInfo.bOffset - CircleInfo.cartesianY) * (LineInfo.bOffset - CircleInfo.cartesianY) 
@@ -89,20 +95,14 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         return false;
+    } else if (((!isNaN(answer.result1) && isNaN(answer.result2)) || (isNaN(answer.result1) && !isNaN(answer.result2))) // one root
+    && ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight))) {
+        console.log('perfect collision sloped wow');
+        return true;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {
+        pc.needsMovingUp = true;
         return true;
     }
-}
-
-
-
-function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
-    return {
-        yValue: gameWorldHeight - platform.y, 
-        xLeft: platform.x, 
-        xRight: platform.x + 119,
-        yValue: gameWorldHeight - platform.y
-    };
 }
 
 function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo, pc) { // Char is circle, Platform is a line
@@ -113,22 +113,30 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo, pc) { // Char
         - CircleInfo.radius * CircleInfo.radius;
 
     let answer = quadraticFormula(a,b,c);
-
-    console.log("answer", answer);
-    console.log("CircleInfo", CircleInfo);
-    console.log("LineInfo", LineInfo);
-
-
+    // console.log("answer", answer);
+    // console.log("CircleInfo", CircleInfo);
+    // console.log("LineInfo", LineInfo);
 
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
-        console.log("no collision");
+        // console.log("no collision");
         return false; // no roots
     } else if (((!isNaN(answer.result1) && isNaN(answer.result2)) || (isNaN(answer.result1) && !isNaN(answer.result2))) // one root
-        && ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY -25) >= LineInfo.yValue)) {
+        && ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) )){//&& (CircleInfo.cartesianY -25) >= LineInfo.yValue)) {
         console.log("PERFECT COLLISION");    
         return true;  // perfect collision
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY -25) >= LineInfo.yValue) {
+    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY -15) >= LineInfo.yValue) {
         pc.needsMovingUp = true;
+        
+        // set the pc to the correct coords for a perfect collision 
+        let newY = CircleInfo.cartesianY - Math.sqrt( -(CircleInfo.cartesianX^2) + (CircleInfo.cartesianX ^2) + CircleInfo.radius^2);
+        let diff = (CircleInfo.cartesianY - newY);
+        console.log("diff:", diff - 100)
+        // pc.y -= diff;
+        // console.log('idea for new y', pc.game.mapHeight - newY);
+        // console.log('current this.y', pc.y);
+
+
+
         return true;  // two roots / imperfect collision / needs handling
     }
 }

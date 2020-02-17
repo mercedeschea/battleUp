@@ -243,10 +243,10 @@ class Camera {
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
-            console.log(this.game.clockTick, 'a tick with this value');
-            console.log(this.advanceTime);
+            // console.log(this.game.clockTick, 'a tick with this value');
+            // console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
-            console.log(this.advanceTime);
+            // console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;

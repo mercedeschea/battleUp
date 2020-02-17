@@ -48,7 +48,7 @@ class PlayerCharacter extends Entity {
         this.collidingWithHoriz = false;
         this.colldingWithLeftSlope = false;
         this.colldingWithRightSlope = false;
-        this.radius = 40;
+        this.radius = 32.5;
 
         // Extras
         this.attackDelay = 50;
@@ -64,27 +64,86 @@ class PlayerCharacter extends Entity {
         this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.currentAttackAnimation = null;
     }
-
     update() {
         super.update();
-        this.needsMovingUp = false;
         // Determine if character is colliding and how
         // Then check movement commands and how they should be moving based on these collisions
         // Then enact special actions like attacking and placing platforms
 
         // Determine collisions 
         this.colliding = false;
+        this.needsMovingUp = false;
         this.checkCollisions();
 
         // if (this.colliding) {
         //     if (this.jumping)
         //         this.jumping = false;
         // }
-        if (!this.jumping && !this.colliding) {
+        if (this.colliding && this.fallingDown) {
+            this.stopJumping();
+        }
+
+        // if (this.colliding && !this.needsMovingUp) { // if I'm perfectly colliding
+        //     if (this.jumping) {
+        //         this.jumping = false;                  // stop my jumping - which would take me to an imperfect collision?
+        //         console.log("stopped jumping here");
+        //     }
+        // }
+        
+        // Gravity
+        if (!this.jumping && !this.colliding){//} && !this.needsMovingUp) {
             this.y += 1;
         }
 
+        // Left right movement
+        this.updateLeftRightMovement();
+        
+        // Debugging
+        if (this.needsMovingUp) {
+            console.log("need to move up");
+            // this.y -= .2;
+        }
 
+        // Jumping
+        this.updateJumping();
+        // Special actions
+        this.updateSpecialActions();
+
+        console.log(this.colliding);
+        // console.log(this.needsMovingUp)
+ 
+
+
+    }
+    draw(ctx) {
+        let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
+        if (drawY) {
+            if (this.jumping && this.facingLeft) {
+                this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.jumping && !this.facingLeft) {
+                this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.movingLeft) {
+                this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else if (this.movingRight) {
+                this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            } else {
+                this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            }
+            if (this.attacking) {
+                if (this.facingLeft) {
+                    console.log("attack left");
+                    this.ctx.scale(-1, 1);
+                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, drawY);
+                    this.ctx.restore();
+                } else {
+                    console.log("attack right");
+                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
+                }
+            }
+            // this.placeformManager.placeformsDraw();
+        }
+    }
+    updateLeftRightMovement() {
         // Check movement commands and move character
         this.movingLeft = false;
         this.movingRight = false;
@@ -107,20 +166,13 @@ class PlayerCharacter extends Entity {
                 this.x += this.game.clockTick * 200;
             }
         }
-
-        if (this.needsMovingUp) {
-            console.log("need to move up");
-            // this.y -= 2;
-        }
-
-
-
-        // if (this.game.up) { //glitch jumpppsss
+    }
+    updateJumping() {
         if (this.game.up && !this.jumping) {
             this.jumping = true;
             this.jumpY = this.y;
-            // console.log('jumping', this.y);
-            // console.log('colliding', this.colliding)
+            this.jumpLeftAnimation.elapsedTime = 0;
+            this.jumpRightAnimation.elapsedTime = 0;
         }
 
         if (this.jumping) {
@@ -147,15 +199,21 @@ class PlayerCharacter extends Entity {
             
             var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
             var totalHeight = 100;
-            if (jumpDistance > 0.5)
+            if (jumpDistance > 0.5) {
+                this.fallingDown = true;
                 jumpDistance = 1 - jumpDistance;
+            }
             this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
             this.y = this.jumpY - this.height;
         }
-
-
-        // Special actions
-
+    }
+    stopJumping() {
+        this.jumping = false;
+        this.jumpLeftAnimation.elapsedTime = 0;
+        this.jumpRightAnimation.elapsedTime = 0;
+        this.fallingDown = false;
+    }
+    updateSpecialActions() {
         //do we want players to be able to double place?
         // /__ has interesting blocking? or not I have bad spacial awareness
         //written to favor angled because it seems like those are going to be more likely to be used
@@ -187,41 +245,6 @@ class PlayerCharacter extends Entity {
                 this.reverseAttackAnimation.elapsedTime = 0;
                 this.attacking = false;
             }
-        }
-        if (this.colliding && !this.needsMovingUp) { // if I'm perfectly colliding
-            if (this.jumping) {
-                this.jumping = false;                  // stop my jumping - which would take me to an imperfect collision?
-                console.log("stopped jumping here");
-            }
-        }
-
-    }
-    draw(ctx) {
-        let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
-        if (drawY) {
-            if (this.jumping && this.facingLeft) {
-                this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.jumping && !this.facingLeft) {
-                this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingLeft) {
-                this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingRight) {
-                this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else {
-                this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            }
-            if (this.attacking) {
-                if (this.facingLeft) {
-                    console.log("attack left");
-                    this.ctx.scale(-1, 1);
-                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, -1 * this.x, drawY);
-                    this.ctx.restore();
-                } else {
-                    console.log("attack right");
-                    this.currentAttackAnimation.drawFrame(this.game.clockTick, this.ctx, (this.x + this.lookForwardAnimation.frameWidth), drawY);
-                }
-            }
-            // this.placeformManager.placeformsDraw();
         }
     }
     checkCollisions() {

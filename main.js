@@ -76,7 +76,7 @@ AM.downloadAll(function () {
     gameEngine.addEntity(background);
     genWalls(gameEngine, AM);
     gameEngine.addEntity(new Floor(gameEngine, AM));
-    genGenforms(1, gameEngine, AM, mapHeight);
+    genGenforms(20, gameEngine, AM, mapHeight);
     playerCharacter.x = lowestGenformCoords[0];
     playerCharacter.y = lowestGenformCoords[1] - 64;
     let score = new Score(gameEngine, AM, playerCharacter);
