@@ -45,8 +45,11 @@ function isCharacterColliding(PlayerCharacter) {
         }
     }
     for (const gen of genForms) {
-        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, gen.equation))
+        if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, gen.equation, true))
             pc.colliding = true;
+        else if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, gen.equation, false))
+            pc.collidingAbove = true;
+        
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
@@ -175,23 +178,39 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     // console.log('a', a);
     // console.log('b', b);
     // console.log('c', c);
-    let lineYMax = calcYFromX(LineInfo.xLeft);
-    let lineYMin = calcYFromX(LineInfo.xRight);
-    lineYMax = Math.max(lineYMax, lineYMin);
-    lineYMin = Math.min(lineYMin, lineYMax);
+    let lineYLeft = calcYFromX(LineInfo, LineInfo.xLeft);
+    let lineYRight = calcYFromX(LineInfo, LineInfo.xRight);
+
+    console.log(lineYLeft, lineYRight);
+    lineYMin = Math.min(lineYLeft, lineYRight);
+    lineYMax = Math.max(lineYLeft, lineYRight);
+    let centerOffset = Math.sqrt(2)/2 * CircleInfo.radius;
+    let contactY = calcYFromX(LineInfo, CircleInfo.cartesianX);
+    // let platformThicknessCorrect = LineInfo.mSlope < 0 ? PLATFORM_HEIGHT : PLATFORM_HEIGHT * -1;
+    let platformThicknessCorrect = PLATFORM_HEIGHT;
+    contactY += platformThicknessCorrect;
     let answer = quadraticFormula(a, b, c);
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
         // console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft)
-     && (CircleInfo.cartesianX <= LineInfo.xRight)){// && (CircleInfo.cartesianY -25) >= LineInfo.yValue - 100) {
-        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS");
+    }
+    let centerCollide = CircleInfo.cartesianX >= LineInfo.xLeft 
+    && CircleInfo.cartesianX <= LineInfo.xRight && CircleInfo.cartesianY - centerOffset > contactY;
+    let lowCollide;
+    if (LineInfo.mSlope === 1) {         
+        lowCollide = LineInfo.xLeft - CircleInfo.cartesianX < CircleInfo.radius
+            && LineInfo.xLeft - CircleInfo.cartesianX > 0 && CircleInfo.cartesianY > contactY;
+    } else {
+        lowCollide = CircleInfo.cartesianX - LineInfo.xRight < CircleInfo.radius
+            && CircleInfo.cartesianX - LineInfo.xRight  > 0 && CircleInfo.cartesianY > contactY;
+    }
+        // console.log("12f3YESYEYESYESYESYESYSEYSEYSS")git ;
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+    if(centerCollide || lowCollide) 
         return true;
-    }
     return false;
 }
 
@@ -207,24 +226,25 @@ function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
     };
 }
 
-function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is circle, Platform is a line
+function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo, down) { // Char is circle, Platform is a line
     // ax^2 + bx + c = 0
     const a = 1;
     const b = -2 * CircleInfo.cartesianX;
     const c = CircleInfo.cartesianX * CircleInfo.cartesianX + LineInfo.yValue * LineInfo.yValue 
         - 2 * CircleInfo.cartesianY * LineInfo.yValue + CircleInfo.cartesianY * CircleInfo.cartesianY 
         - CircleInfo.radius * CircleInfo.radius;
-
     let answer = quadraticFormula(a,b,c);
 
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY -25) >= LineInfo.yValue) {
+    } else if (down && (CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY -25) >= LineInfo.yValue) {
         // console.log("YESYEYESYESYESYESYSEYSEYSS");
         // console.log("1", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("2", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+        return true;
+    } else if (!down && (CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY + CircleInfo.radius * 2 + PLATFORM_HEIGHT) >= LineInfo.yValue) {
         return true;
     }
 }

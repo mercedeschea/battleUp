@@ -13,7 +13,7 @@ const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
-const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
+const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
@@ -40,8 +40,10 @@ class PlayerCharacter extends Entity {
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
 
-        //Collision 
+        //Collision
+        this.wasColliding = false; 
         this.colliding = false;
+        this.collidingAbove = false;
         this.radius = 32;
         this.setupAnimations();
 
@@ -49,6 +51,7 @@ class PlayerCharacter extends Entity {
         this.facingLeft = false;
         this.facingRight = true;
         this.speed = 100;
+        this.fallSpeed = 75;
         this.jumping = false;
         this.jumpY = this.y;
 
@@ -146,11 +149,13 @@ class PlayerCharacter extends Entity {
                     if (this.currentPlatform.type === 'left') {
                         this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
                         console.log(platformSlope, platformB);
+                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
                         this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
                     } else  if (this.currentPlatform.type === 'right') {
                         this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
                         console.log(platformSlope, platformB);
                         this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
                     } else {
                         this.x += this.game.clockTick * PLAYER_SPEED;
                     }
@@ -162,8 +167,11 @@ class PlayerCharacter extends Entity {
                 
             }
         }
-
+        if (this.colliding) {
+            this.wasColliding = true;
+        }
         this.colliding = false;
+        this.collidingAbove = false;
         this.currentPlatform = null;
         this.checkCollisions();
         if (this.dead) {
@@ -178,18 +186,34 @@ class PlayerCharacter extends Entity {
             this.calcJump(this.deadAnimation);
             return;
         }
-        if (this.colliding) {
-            if (this.jumping)
+        if (this.colliding && !this.wasColliding) {
+            if (this.jumping) {
                 this.jumping = false;
+                this.jumpRightAnimation.elapsedTime = 0;
+                this.jumpLeftAnimation.elapsedTime = 0;
+            }
+                
+        }
+        if (!this.colliding)
+            this.wasColliding = false;
+        if (this.collidingAbove) {
+            if (this.jumping) {
+                this.jumping = false;
+                this.jumpRightAnimation.elapsedTime = 0;
+                this.jumpLeftAnimation.elapsedTime = 0;
+            }
+            this.fallSpeed = 100;
+        } else {
+            this.fallSpeed = 75;
         }
         if (!this.jumping && !this.colliding) {
-            this.y += 1;
+            this.y += this.fallSpeed * this.game.clockTick;
         }
 
 
 
-        // if (this.game.jump) { //glitch jumpppsss
-        if (this.game.jump && !this.jumping) {
+        if (this.game.jump) { //glitch jumpppsss
+        // if (this.game.jump && !this.jumping && this.colliding) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);
@@ -226,11 +250,11 @@ class PlayerCharacter extends Entity {
         //written to favor angled because it seems like those are going to be more likely to be used
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
-        if (this.game.placeAngled) {
+        if (this.game.placeAngled && this.colliding) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else if (this.game.placeFlat) {
+        } else if (this.game.placeFlat && this.colliding) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);

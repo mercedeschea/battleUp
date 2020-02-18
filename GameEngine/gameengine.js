@@ -45,15 +45,14 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, musicManager, playerCharacter) {
+    initCamera(mapHeight, musicManager, playerCharacter, startY) {
         this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager, playerCharacter);
+        this.camera = new Camera(this, SCROLL_SPEED, startY, musicManager, playerCharacter);
     }
-    start() {
+    start(startY) {
         console.log("starting game");
         var that = this;
         this.started = true;
-        this.camera.musicManager.activated = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
@@ -74,8 +73,11 @@ class GameEngine {
             }
             else if (!that.started) {
                 that.start();
+                //uncomment for music on start
+                // this.camera.musicManager.activated = true;
             } else {
-                that.camera.musicManager.playPause();
+                //uncomment for music start/stop on click
+                // that.camera.musicManager.playPause();
             }
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
@@ -125,6 +127,24 @@ class GameEngine {
         }, false);
         console.log('Input started');
     }
+
+    controllerStatus(gamepad) {
+        if(gamepad.buttons[0] == 1.0)
+            this.jump = true;
+        // if(game.buttons[1] == 1.0)
+        //     this.attack = true;
+        // if (game.buttons[2] == 1.0)
+        if(gamepad.axes[0] >= .5) 
+            this.down =  true;
+        if(gamepad.axes[1] >= .5) 
+            this.right =  true;
+        if(gamepad.axes[2] >= .5)
+            this.up =  true;    
+        if(gamepad.axes[3] >= .5) 
+            this.left =  true;
+
+    }
+
     // reload() {
     //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
     //     genGenforms(20, gameEngine, AM, mapHeight);
@@ -148,6 +168,9 @@ class GameEngine {
         this.ctx.restore();
     }
     update() {
+        if (this.gamepads[0]) {
+            this.controllerStatus(this.gamepads[0]);
+        }
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
@@ -262,10 +285,12 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight, musicManager, playerCharacter) {
+    //startY should be the game world coordinate of the top left you want the game to start from
+    //eg game.mapHeight - game.surfaceHeight would start the game from the beginning.
+    constructor(game, speed, startY, musicManager, playerCharacter) {
         this.game = game;
         this.speed = speed;
-        this.totalDrawOffset = mapHeight - surfaceHeight;
+        this.totalDrawOffset = startY;
         this.currentDrawOffset = 0;
         this.musicManager = musicManager;
         this.playerCharacter = playerCharacter;
