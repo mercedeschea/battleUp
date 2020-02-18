@@ -13,7 +13,7 @@ const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
-const DRILL_PROTO = "./Sprites/Usables/drillPrototype.png"
+const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
@@ -306,6 +306,7 @@ class PlayerCharacter extends Entity {
             //     this.game.ctx.textAlign = 'center';
             //     // console.log(canvas.width/2, canvas.height/2);
             //     this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+            //     this.game.started = false;
             // } 
             if (this.dead) {
                 this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);

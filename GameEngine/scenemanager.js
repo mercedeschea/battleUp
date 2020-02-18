@@ -4,17 +4,18 @@ const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 class SceneManager {
     constructor(gameEngine, musicManager) {
         this.scenes = [];
+        this.gameSceneArr = [];
         this.game = gameEngine;
         this.playerCharacter = null;
         this.background = null;
         this.musicManager = MUSIC_MANAGER;
     }
-    addScene(scene) {
-        this.scenes.push(scene);
-    }
-    loadScene(scene, ctx) {
+    // addScene(scene) {
+    //     this.scenes.push(scene);
+    // }
+    // loadScene(scene, ctx) {
 
-    }
+    // }
     gameScene() {
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
         let mapHeight = this.background.spritesheet.height;
@@ -36,18 +37,40 @@ class SceneManager {
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(score);
-        // console.log("All Done!");
+        
+        for (var i = 0; i < this.game.entities.length; i++) {
+            this.gameSceneArr.push(this.game.entities[i]);
+        }
+        // console.log(this.gameSceneArr);
     }
+
 
     gameOverScene() {
         this.game.entities = [];
-        this.game.camera.musicManager.currentMusic.pause();
-        console.log(GAMEOVER_PATH);
-        this.background = new Background(this.game, AM, GAMEOVER_PATH);
-        this.game.addEntity(this.background);
-        this.game.ctx.font = ("100px Times New Roman");
-        this.game.ctx.fillStyle = "white";
-        this.game.ctx.fillText('GAME OVER!', 100, 100);
+        this.gameOver = new GameOver(this.game, AM);
+        this.game.addEntity(this.gameOver);
+        this.game.started = false;
+        // console.log(this.game.entities);
+        // console.log(this.gameSceneArr);
+        // for (var i = 0; i < this.gameSceneArr.length; i++) {
+        //     this.game.entities.push(this.gameSceneArr[i]);
+        // }
     }
 }
 
+class GameOver {
+    constructor(gameEngine, AM) {
+        this.game = gameEngine;
+        this.background = new Background(this.game, AM, GAMEOVER_PATH);
+    }
+    update() {
+    }
+    draw(){
+        // console.log(this.background);
+        this.background.draw();
+        // this.game.ctx.font = ("50px");
+        this.game.ctx.fillStyle = "red";
+        this.game.ctx.textAlign = 'center';
+        this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+    }
+}

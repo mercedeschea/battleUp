@@ -177,7 +177,7 @@ class GameEngine {
         }
         if (this.over) {
             SCENE_MANAGER.gameOverScene(); 
-            console.log('game is over');
+            // console.log('game is over');
         }
         // console.log(this.timer.gameTime);
     }
