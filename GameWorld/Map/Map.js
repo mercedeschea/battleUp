@@ -8,9 +8,12 @@ const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
 const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
+const MAP_FILE_NAME = "test.txt";
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
+const ROW_COUNT = 8;
+const BLOCK_SIZE = 128;
 let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
@@ -168,6 +171,7 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
 }
 function genLevel0Exit(game, AM, startY) {
     lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);
+    buildMapFromFile(game, AM, startY - 2 * BLOCK_SIZE, MAP_FILE_NAME);
     
 }
 function lineOfGenForms (game, AM, startY) {
@@ -189,8 +193,27 @@ function lineOfGenForms (game, AM, startY) {
 
 }
 
-function zigZagTunnel (game, AM, startY) {
-    
+function buildMapFromFile (game, AM, startY, fileName) {
+    const mapInfo = AM.getServerAsset(fileName);
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    if (!mapInfo) {
+        console.log("error with map file");
+        return;
+    }
+    let bottomRow = mapInfo.length - 1;
+    for (let i = bottomRow; i >= 0; i--) {
+        for (let j = 0; j < ROW_COUNT; j++ ) {
+            if (mapInfo[i][j] === '.') {
+                continue;
+            } else if (mapInfo[i][j] === '-') {
+                let curGenform = new Platform(genformSpriteSheet, 'center', j * BLOCK_SIZE, startY - i * BLOCK_SIZE, 1, game);
+                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+                genForms.push(curGenform);
+                game.addEntity(curGenform);                
+            }
+
+        }
+    }
 }
 
 //builds the walls
@@ -232,6 +255,7 @@ function MapAMDownloads(AM) {
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
+    AM.queueServerDownload(MAP_FILE_NAME);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

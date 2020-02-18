@@ -102,5 +102,4 @@ AM.downloadAll(function () {
     ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
     //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
     console.log("All Done!");
-    loadFile();
 });
