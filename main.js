@@ -74,14 +74,18 @@ AM.downloadAll(function () {
     let background = new Background(gameEngine, AM);
     let mapHeight = background.spritesheet.height;
     let playerCharacter = new PlayerCharacter(gameEngine, AM);
-    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
+    let cameraStartY = mapHeight - 4 * canvas.height;
+    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter, cameraStartY);//we don't have game.mapHeight until here
 
     // gameEngine.start();
     gameEngine.addEntity(background);
-    genWalls(gameEngine, AM);
+    let endOfWalls = genWalls(gameEngine, AM);
     gameEngine.floor = new Floor(gameEngine, AM);
     gameEngine.addEntity(gameEngine.floor);
-    genGenforms(20, gameEngine, AM, mapHeight);
+    //change this value to change where platforms start being generated(and thus where gloop starts) 
+    let formGenerationStartY = mapHeight - canvas.height * 3;
+    genGenforms(20, gameEngine, AM, endOfWalls, formGenerationStartY);
+    genLevel0Exit(gameEngine, AM, endOfWalls);
     playerCharacter.x = lowestGenformCoords[0];
     playerCharacter.y = lowestGenformCoords[1] - 64;
     let score = new Score(gameEngine, AM, playerCharacter);

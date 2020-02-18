@@ -7,7 +7,7 @@ class PlaceformManager {
     }
     //should we allow placeforms to be placed partly offscreen?
     placeformPlace(facingLeft, angled, x, y, characterWidth, characterHeight) {
-       const scale = .5;
+       const scale = 1; //modify this line to resize;
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
             this.placeformsCurrent[0].removeFromWorld = true;
