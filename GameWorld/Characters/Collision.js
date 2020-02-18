@@ -210,7 +210,7 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo, down) {
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log(answer.result1, answer.result2);
         // console.log("no");
-        return false;
+        return 'notColliding';
     }
     //check if player is entirely within the boundaries of the platform
     let centerCollide = CircleInfo.cartesianX >= LineInfo.xLeft 
@@ -234,10 +234,10 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo, down) {
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("12f3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
     if(((centerCollide && aboveMiddle) || (lowCollide && aboveLowEdge)) && down)
-        return true;
+        return 'fromAbove';
     else if ((centerCollide && belowMiddle) || (lowCollide && belowLowEdge))
-        return true;
-    return false;
+        return 'fromBelow';
+    return 'notColliding';
 }
 
 
