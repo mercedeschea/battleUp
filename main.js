@@ -30,7 +30,7 @@ class Animation {
         }
         var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
         var vindex = 0;
-        // console.log(this.spriteSheet);
+        // console.log(this);
         if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
             index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
             vindex++;
@@ -86,8 +86,10 @@ AM.downloadAll(function () {
     let formGenerationStartY = mapHeight - canvas.height * 3;
     genGenforms(20, gameEngine, AM, endOfWalls, formGenerationStartY);
     genLevel0Exit(gameEngine, AM, endOfWalls);
-    playerCharacter.x = lowestGenformCoords[0];
-    playerCharacter.y = lowestGenformCoords[1] - 64;
+    // playerCharacter.x = lowestGenformCoords[0];
+    // playerCharacter.y = lowestGenformCoords[1] - 64;
+    playerCharacter.x = 0;
+    playerCharacter.y = endOfWalls
     let score = new Score(gameEngine, AM, playerCharacter);
     gameEngine.addEntity(playerCharacter); 
     gameEngine.addEntity(score);

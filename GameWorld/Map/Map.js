@@ -1,7 +1,9 @@
 const xCoordinatesGenforms = [];
 const yCoordinatesGenforms = [];
 const genForms = [];
-const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
+const PROTO_PATHS = {'center':'./Sprites/prototypes/horizontal.png',
+'left':'./Sprites/prototypes/backslash.png', 'right':'./Sprites/prototypes/forward.png', 'vertical':'./Sprites/prototypes/horizontal.png'};
+const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';//modify this line to view the different sprites
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
@@ -13,7 +15,9 @@ const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
 const ROW_COUNT = 9;
-const BLOCK_SIZE = 128;
+const HOR_BLOCK_SIZE = 120;
+const VERT_BLOCK_SIZE = 85;
+const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '|':'vertical'};
 let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
@@ -106,6 +110,7 @@ class Floor {
         // console.log(drawY);
         if(drawY) {
             if (this.animation) {
+                // console.log(this);
                 this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
             } else {
                 let width = this.srcWidthAndHeight[this.type][0];
@@ -172,7 +177,7 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
 }
 function genLevel0Exit(game, AM, startY) {
     lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);
-    buildMapFromFile(game, AM, startY - 2 * BLOCK_SIZE, MAP_FILE_NAME);
+    buildMapFromFile(game, AM, startY - 2 * VERT_BLOCK_SIZE, MAP_FILE_NAME);
     
 }
 function lineOfGenForms (game, AM, startY) {
@@ -197,22 +202,26 @@ function lineOfGenForms (game, AM, startY) {
 function buildMapFromFile (game, AM, startY, fileName) {
     const mapInfo = AM.getServerAsset(fileName);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    
     if (!mapInfo) {
         console.log("error with map file");
         return;
     }
     let bottomRow = mapInfo.length - 1;
-    for (let i = bottomRow; i >= 0; i--) {
+    let i;
+    for (i = bottomRow; i >= 0; i--) {
         for (let j = 0; j < ROW_COUNT; j++ ) {
-            if (mapInfo[i][j] === '.') {
-                continue;
-            } else if (mapInfo[i][j] === '-') {
-                let curGenform = new Platform(genformSpriteSheet, 'center', j * BLOCK_SIZE, startY - i * BLOCK_SIZE, 1, game);
-                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+            let type = MAPPING[mapInfo[i][j]];
+            let validTypes = Object.keys(PROTO_PATHS);
+            let checkMembership = (member) => member == type; 
+            console.log(type, validTypes, type in validTypes);
+            if (validTypes.some(checkMembership)){
+                let curGenform = new Platform(genformSpriteSheet, type, j * HOR_BLOCK_SIZE, startY - i * VERT_BLOCK_SIZE, 1, game);
+                // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
                 genForms.push(curGenform);
-                game.addEntity(curGenform);                
+                game.addEntity(curGenform);   
+                console.log(curGenform);
             }
-
         }
     }
 }
@@ -257,6 +266,9 @@ function MapAMDownloads(AM) {
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
     AM.queueServerDownload(MAP_FILE_NAME);
+    for (const key of Object.keys(PROTO_PATHS)) {
+        AM.queueDownload(PROTO_PATHS[key]);
+    }
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
