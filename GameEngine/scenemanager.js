@@ -50,11 +50,7 @@ class SceneManager {
         this.gameOver = new GameOver(this.game, AM);
         this.game.addEntity(this.gameOver);
         this.game.started = false;
-        // console.log(this.game.entities);
-        // console.log(this.gameSceneArr);
-        // for (var i = 0; i < this.gameSceneArr.length; i++) {
-        //     this.game.entities.push(this.gameSceneArr[i]);
-        // }
+
     }
 }
 
@@ -72,5 +68,7 @@ class GameOver {
         this.game.ctx.fillStyle = "red";
         this.game.ctx.textAlign = 'center';
         this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+        let startButton = new StartButton(this.game, AM);
+        this.game.addEntity(startButton); 
     }
 }
