@@ -301,12 +301,12 @@ class PlayerCharacter extends Entity {
     draw(ctx) {
         let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (drawY) {
-            if (this.game.over) {
-                this.game.ctx.fillStyle = 'red';
-                this.game.ctx.textAlign = 'center';
-                // console.log(canvas.width/2, canvas.height/2);
-                this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
-            } 
+            // if (this.game.over) {
+            //     this.game.ctx.fillStyle = 'red';
+            //     this.game.ctx.textAlign = 'center';
+            //     // console.log(canvas.width/2, canvas.height/2);
+            //     this.game.ctx.fillText("Game over!", this.game.surfaceWidth/2, this.game.surfaceHeight/2);
+            // } 
             if (this.dead) {
                 this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
                 return;

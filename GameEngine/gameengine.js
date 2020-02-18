@@ -76,20 +76,20 @@ class GameEngine {
                 that.showButton = false;
                 that.mouseDown = true;
                 that.draw();
-                console.log('mouse down')
-                console.log('mouse down in game engine: ' + that.mouseDown);
+                // console.log('mouse down')
+                // console.log('mouse down in game engine: ' + that.mouseDown);
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
             that.mouseDown = false;
             that.mouseReleased = true;
-            console.log(that.mouseReleased);
+            //console.log(that.mouseReleased);
             if (!that.started) {
                 that.start();
             } else {
                 that.camera.musicManager.playPause();
             }
-            console.log('mouse up');
+            //console.log('mouse up');
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
@@ -175,7 +175,11 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
-        //console.log(this.timer.gameTime);
+        if (this.over) {
+            SCENE_MANAGER.gameOverScene(); 
+            console.log('game is over');
+        }
+        // console.log(this.timer.gameTime);
     }
     loop() {
         if (!this.started) {
@@ -189,6 +193,7 @@ class GameEngine {
         this.placeAngled = false;
         this.placeFlat = false;
     }
+
 }
 
 class Timer {
@@ -277,12 +282,12 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight, musicManager, playerCharacter) {
+    constructor(game, speed, surfaceHeight, mapHeight, MUSIC_MANAGER, playerCharacter) {
         this.game = game;
         this.speed = speed;
         this.totalDrawOffset = mapHeight - surfaceHeight;
         this.currentDrawOffset = 0;
-        this.musicManager = musicManager;
+        this.musicManager = MUSIC_MANAGER;
         this.playerCharacter = playerCharacter;
         this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
         this.advanceFactor = 15;
@@ -324,7 +329,7 @@ class Score {
         this.startY = this.game.mapHeight - this.playerCharacter.y;
     }
     draw() {
-        console.log(this.game.mouseReleased);
+        //console.log(this.game.mouseReleased);
         if (this.game.mouseReleased) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0,
                 this.spriteSheet.width/5, this.spriteSheet.height/5);
@@ -354,16 +359,6 @@ class Score {
     }
 }
 
-class StartScreen {
-    constructor(game, background) {
-        this.game = game;
-        this.background = background;    
-    }
-    draw(){
-        this.game.addEntity(this.background);
-    }
-    update(){}
-}
 
 class StartButton {
     constructor(game, AM) {
@@ -375,17 +370,17 @@ class StartButton {
         //this.animationStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 0.2, 2, true, false);
     }
     draw() {
-        console.log('mouse down game engine in draw: ' + this.game.mouseDown)
+        //console.log('mouse down game engine in draw: ' + this.game.mouseDown)
         if (!this.game.mouseDown) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
-            console.log('start button appeared');
+            //console.log('start button appeared');
             this.showButton = false;
             this.removeFromWorld = true;
-            console.log('remove from world' + this.removeFromWorld);
-            console.log('mouseDown should be false: ' + this.game.mouseDown);
+            // console.log('remove from world' + this.removeFromWorld);
+            // console.log('mouseDown should be false: ' + this.game.mouseDown);
         } if (this.game.mouseDown) {
-            console.log('mouseDown should be true: ' + this.game.mouseDown);
-            console.log('other button appeared');
+            // console.log('mouseDown should be true: ' + this.game.mouseDown);
+            // console.log('other button appeared');
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
             this.removeFromWorld = true;
         }

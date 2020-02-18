@@ -15,8 +15,8 @@ let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
 class Background {
-    constructor(game, AM) {
-        this.spritesheet = AM.getAsset(BACKGROUND_PATH);
+    constructor(game, AM, spriteSheet) {
+        this.spritesheet = AM.getAsset(spriteSheet);
         this.game = game;
         this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
@@ -197,6 +197,7 @@ function MapAMDownloads(AM) {
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
+    AM.queueDownload(GAMEOVER_PATH);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

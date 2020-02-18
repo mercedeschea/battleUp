@@ -1,4 +1,5 @@
 const AM = new AssetManager();
+const SCENE_MANAGER = new SceneManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
 
@@ -73,35 +74,32 @@ AM.downloadAll(function () {
     let ctx = canvas.getContext("2d");
     let gameEngine = new GameEngine(AM);
     gameEngine.init(ctx);
-    let background = new Background(gameEngine, AM);
-    let mapHeight = background.spritesheet.height;
-    let playerCharacter = new PlayerCharacter(gameEngine, AM);
-    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter);//we don't have game.mapHeight until here
+    SCENE_MANAGER.game = gameEngine;
+    // console.log(gameEngine);
+    // console.log(sceneManager);
+    SCENE_MANAGER.gameScene();
+    // sceneManager.gameOverScene();
+    // console.log(sceneManager);
+    // let background = new Background(gameEngine, AM);
+    // let mapHeight = background.spritesheet.height;
+    // let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    // let musicManager = new MusicManager(document.getElementById("soundTrack"));
+    // gameEngine.initCamera(mapHeight, musicManager, playerCharacter);//we don't have game.mapHeight until here
 
+    // gameEngine.addEntity(background);
+    // genWalls(gameEngine, AM);
+    // gameEngine.floor = new Floor(gameEngine, AM);
+    // gameEngine.addEntity(gameEngine.floor);
+    // genGenforms(20, gameEngine, AM, mapHeight);
+    // playerCharacter.x = lowestGenformCoords[0];
+    // playerCharacter.y = lowestGenformCoords[1] - 64;
     
-    //ctx.drawImage(this.START_BUTTON, 500, 300);
+    // gameEngine.addEntity(playerCharacter); 
     
-    // let startScreen = new StartScreen(gameEngine, background);
-    // gameEngine.addEntity(startScreen, AM);
-    gameEngine.addEntity(background);
-    genWalls(gameEngine, AM);
-    gameEngine.floor = new Floor(gameEngine, AM);
-    gameEngine.addEntity(gameEngine.floor);
-    genGenforms(20, gameEngine, AM, mapHeight);
-    playerCharacter.x = lowestGenformCoords[0];
-    playerCharacter.y = lowestGenformCoords[1] - 64;
-    
-    gameEngine.addEntity(playerCharacter); 
-    
-    let startButton = new StartButton(gameEngine, AM);
-    gameEngine.addEntity(startButton); 
-    //gameEngine.addEntity(score);
-    // let flashform = new Platform(AM.getAsset(FLASHFORM), 'center', lowestGenformCoords[0], lowestGenformCoords[1], 1, gameEngine);
-    // flashform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118, 16, .2, 4, true, false);
-    // gameEngine.addEntity(flashform);
-    gameEngine.draw();
-    let score = new Score(gameEngine, AM, playerCharacter);
-    gameEngine.addEntity(score);
-    
+    // let startButton = new StartButton(gameEngine, AM);
+    // gameEngine.addEntity(startButton); 
+    // gameEngine.draw();
+    // let score = new Score(gameEngine, AM, playerCharacter);
+    // gameEngine.addEntity(score);
     console.log("All Done!");
 });
