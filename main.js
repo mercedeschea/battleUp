@@ -67,7 +67,7 @@ PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
 AM.queueDownload(SCORE_TEXT);
-AM.queueDownload(START_BUTTON);
+
 
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
@@ -77,7 +77,8 @@ AM.downloadAll(function () {
     SCENE_MANAGER.game = gameEngine;
     // console.log(gameEngine);
     // console.log(sceneManager);
-    SCENE_MANAGER.gameScene();
+    SCENE_MANAGER.startScene();
+    // SCENE_MANAGER.gameSceneSetup();
     // sceneManager.gameOverScene();
     // console.log(sceneManager);
     // let background = new Background(gameEngine, AM);

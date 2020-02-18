@@ -121,6 +121,11 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
     let xFound;
     let yFound;
 
+    // xCoordinatesGenforms = [];
+    // yCoordinatesGenforms = [];
+    // genForms = [];
+    // lowestGenformCoords = [0, 0];
+    
     for (var j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
         let startIndex = xCoordinatesGenforms.length;
         for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
@@ -197,7 +202,9 @@ function MapAMDownloads(AM) {
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
+    AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
+    AM.queueDownload(GAMEOVER_ICON);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

@@ -35,6 +35,7 @@ class GameEngine {
         this.floor = null;
         this.active = true;
         this.over = false;
+        this.scene = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -46,9 +47,9 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, musicManager, playerCharacter) {
+    initCamera(mapHeight, camera) {
         this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, this.surfaceHeight, mapHeight, musicManager, playerCharacter);
+        this.camera = camera;
     }
     start() {
         console.log("starting game");
@@ -83,10 +84,16 @@ class GameEngine {
         this.ctx.canvas.addEventListener("mouseup", function (e) {
             that.mouseDown = false;
             that.mouseReleased = true;
-            //console.log(that.mouseReleased);
-            if (!that.started) {
+            if (that.scene === 'start' && !that.started) {
+                that.active = true;
+                SCENE_MANAGER.gameScene();
                 that.start();
-            } else {
+            } else if (that.scene == 'gameOver' && that.over){
+                SCENE_MANAGER.startScene();
+
+            }
+            
+            else {
                 that.camera.musicManager.playPause();
             }
             //console.log('mouse up');
@@ -97,15 +104,15 @@ class GameEngine {
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = true;
-            if (e.code === keyArr['jump'] && that.active)
+            if ((e.code === keyArr['jump']) && that.active)
                 that.jump = true;
-            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'] && that.active)
+            if ((e.code === keyArr['left'] || e.code === keyArr['altLeft']) && that.active)
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = true;
-            if (e.code === keyArr['right'] || e.code === keyArr['altRight'] && that.active)
+            if ((e.code === keyArr['right'] || e.code === keyArr['altRight']) && that.active)
                 that.right = true;
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
@@ -154,7 +161,9 @@ class GameEngine {
         this.moveLeft = null;
     }
     draw() {
-        this.camera.update();
+        if (this.camera) {
+            this.camera.update();
+        }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
@@ -314,78 +323,5 @@ class Camera {
             this.currentDrawOffset = 0;
         }
         this.totalDrawOffset -= this.currentDrawOffset;
-    }
-}
-
-class Score {
-    constructor(game, AM, PlayerCharacter) {
-        this.spriteSheet = AM.getAsset(SCORE_TEXT);
-        this.game = game;
-        this.scoreTimer = new Timer();
-        this.displayScore = 0;
-        this.playerCharacter = PlayerCharacter;
-        this.currentY = 0;
-        this.maxY = 0;
-        this.startY = this.game.mapHeight - this.playerCharacter.y;
-    }
-    draw() {
-        //console.log(this.game.mouseReleased);
-        if (this.game.mouseReleased) {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-                this.spriteSheet.width/5, this.spriteSheet.height/5);
-            //this.game.ctx.font("Press Start 2P");
-            this.game.ctx.font = ("20px Times New Roman");
-            this.game.ctx.fillStyle = "gold";
-            //console.log(this.playerY);
-            this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
-        }
-        
-        
-    }
-    update() {
-        this.displayScore = this.scoreTimer.tick();
-        let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y - this.startY)* 100)/100);
-        if (this.currentY > this.maxY) {
-            this.maxY = this.currentY;
-        }
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
-        
-        // console.log(formatTime);
-        //console.log(this.playerCharacter);
-    }
-
-    loop() { 
-    }
-}
-
-
-class StartButton {
-    constructor(game, AM) {
-        this.game = game;
-        this.spriteSheet = AM.getAsset(START_BUTTON);
-        //this.clicked = true;
-        this.spriteWidth = this.spriteSheet.width/2;
-        this.spriteHeight = this.spriteSheet.height;
-        //this.animationStart = new Animation(AM.getAsset(START_BUTTON), 0, 0, 34, 14, 0.2, 2, true, false);
-    }
-    draw() {
-        //console.log('mouse down game engine in draw: ' + this.game.mouseDown)
-        if (!this.game.mouseDown) {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
-            //console.log('start button appeared');
-            this.showButton = false;
-            this.removeFromWorld = true;
-            // console.log('remove from world' + this.removeFromWorld);
-            // console.log('mouseDown should be false: ' + this.game.mouseDown);
-        } if (this.game.mouseDown) {
-            // console.log('mouseDown should be true: ' + this.game.mouseDown);
-            // console.log('other button appeared');
-            this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 250, 250, 200, 200);
-            this.removeFromWorld = true;
-        }
-  
-    }
-    update(){
     }
 }
