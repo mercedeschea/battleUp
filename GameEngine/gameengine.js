@@ -168,9 +168,9 @@ class GameEngine {
         this.ctx.restore();
     }
     update() {
-        if (this.gamepads[0]) {
-            this.controllerStatus(this.gamepads[0]);
-        }
+        // if (this.gamepads[0]) {
+        //     this.controllerStatus(this.gamepads[0]);
+        // }
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
