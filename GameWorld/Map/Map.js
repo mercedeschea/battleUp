@@ -12,7 +12,7 @@ const MAP_FILE_NAME = "test.txt";
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
-const ROW_COUNT = 8;
+const ROW_COUNT = 9;
 const BLOCK_SIZE = 128;
 let lowestGenformCoords = [0, 0];
 
