@@ -82,8 +82,10 @@ class Floor {
         this.spriteSheet = spriteSheet;
         this.scale = scale;
         // Collision
-        if (type == 'center')
+        if (type == 'center') {
             this.equation = convertHorizontalPlatformToEquation(this, MAP_HEIGHT);
+            this.ABOVEequation = convertHorizontalPlatformToEquationABOVE(this, MAP_HEIGHT);
+        }
         else if (type == 'right')
             this.equation = convertRightSlopedPlatformToEquation(this, MAP_HEIGHT)
         else 
