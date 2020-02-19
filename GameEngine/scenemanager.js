@@ -24,35 +24,56 @@ class SceneManager {
         this.game.scene = 'start';
         this.game.over = false;
         this.game.entities = [];
-
+        if (this.game.camera) {
+            this.game.camera = null;
+        }
+        
         for (var i = this.game.entities.length - 1; i >= 0; --i) {
             this.game.entities[i].removeFromWorld = true;
         }
-        // console.log('start scene entities: ', this.game.entities);
+
+        console.log('start scene entities: ', this.game.entities);
         
-        this.startScreen = new StartScreen(this.game, AM);
-        // console.log(this.game.scene);
+
+        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
+        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE);
+        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
+
+        this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.addEntity(this.startScreen);
-        let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
-        this.game.addEntity(startButton);
+        this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
+        this.game.addEntity(this.startButton);
+
+        
+
+
+        this.game.addEntity(this.greenGloop);
+        this.game.addEntity(this.startScreen.purpleGloop);
+        this.game.addEntity(this.startScreen.orangeGloop);
+        this.game.addEntity(this.startScreen.blueGloop);
+        console.log(this.startScreen.greenGloop.x);
+        console.log(this.startScreen.greenGloop.y);
+        console.log(this.game.camera);
+
+
         this.game.draw();
 
-        // console.log('start scene entities after start scene draw: ', this.game.entities);
+        console.log('start scene entities after start scene draw: ', this.game.entities);
     }
 
     gameScene() {
         this.game.scene = 'game';   
-        this.game.entities = [];
-        for (var i = this.game.entities.length - 1; i >= 0; --i) {
-            this.game.entities[i].removeFromWorld = true;
-        }
+        // this.game.entities = [];
+        this.game.entities.splice(0, this.game.entities.length);
+        
         // console.log('game scene entities: ', this.game.entities)
         // console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
         let mapHeight = this.background.spritesheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
-        // console.log(GLOOP_SHEET_PATHS_ORANGE);
-        //let musicManager = new MusicManager(document.getElementById("soundTrack"));
+        console.log('gloop y coord: ', this.playerCharacter.y);
+       
         let camera = new Camera(this.game, SCROLL_SPEED, this.game.surfaceHeight, mapHeight, MUSIC_MANAGER, this.playerCharacter);
         this.game.initCamera(mapHeight, camera);//we don't have game.mapHeight until here
 
@@ -63,7 +84,7 @@ class SceneManager {
         genGenforms(20, this.game, AM, mapHeight);
         this.playerCharacter.x = lowestGenformCoords[0];
         this.playerCharacter.y = lowestGenformCoords[1] - 64;
-            
+        console.log(this.playerCharacter.y);
         this.game.addEntity(this.playerCharacter); 
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);
@@ -114,30 +135,45 @@ class GameOver {
 }
 
 class StartScreen {
-    constructor(gameEngine, AM) {
+    constructor(gameEngine, AM, greenGloop, purpleGloop, orangeGloop, blueGloop) {
         this.game = gameEngine;
         this.background = new Background(this.game, AM, STARTSCREEN_PATH);
-        // this.floor = new Floor(this.game, AM, AM.getAsset(STARTSCREEN_FLOOR));
-        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
-        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE);
-        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
-        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
+        this.floor = new Floor(this.game, AM, AM.getAsset(STARTSCREEN_FLOOR));
+        // this.startButton = new StartButton()
 
+        this.greenGloop = greenGloop;
+        this.purpleGloop = purpleGloop;
+        this.orangeGloop = orangeGloop;
+        this.blueGloop = blueGloop;
+
+        this.gloopY = this.game.surfaceHeight - 123;
         this.greenGloop.x = this.game.surfaceWidth/3;
         this.purpleGloop.x = this.game.surfaceWidth/3 + 100;
         this.orangeGloop.x = this.game.surfaceWidth/3 + 200;
         this.blueGloop.x = this.game.surfaceWidth/3 + 300;
+        // this.greenGloop.y = this.game.surfaceHeight - 55 * 2;
+        this.greenGloop.y = this.gloopY;
+        this.purpleGloop.y = this.gloopY;
+        this.orangeGloop.y = this.gloopY;
+        this.blueGloop.y = this.gloopY;
+        console.log(this.greenGloop.y);
 
     }
-    update() {}
+    update() {
+        this.greenGloop.jumping = true;
+    }
     draw() {
         this.background.draw();
-        let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
-        this.game.addEntity(startButton); 
-        this.game.addEntity(this.greenGloop);
-        this.game.addEntity(this.purpleGloop);
-        this.game.addEntity(this.orangeGloop);
-        this.game.addEntity(this.blueGloop);
+        this.floor.draw();
+        // this.game.addEntity(this.floor);
+        // this.game.addEntity(this.startButton); 
+        // this.game.addEntity(this.greenGloop);
+        // this.game.addEntity(this.purpleGloop);
+        // this.game.addEntity(this.orangeGloop);
+        // this.game.addEntity(this.blueGloop);
+        
+        // this.greenGloop.draw();
+        
         // this.greenGloop.draw(this.game.ctx);
         // this.purpleGloop.draw(this.game.ctx);
         // this.orangeGloop.draw(this.game.ctx);
@@ -220,6 +256,3 @@ class Score {
     loop() { 
     }
 }
-
-
-

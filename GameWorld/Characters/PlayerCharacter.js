@@ -392,6 +392,3 @@ class PlayerCharacter extends Entity {
     }
 
 }
-
-
-
