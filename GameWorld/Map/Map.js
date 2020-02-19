@@ -208,7 +208,7 @@ function buildMapFromFile (game, AM, startY, fileName) {
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     
     if (!mapInfo) {
-        console.log("error with map file");
+        // console.log("error with map file");
         return;
     }
     let bottomRow = mapInfo.length - 1;
@@ -218,7 +218,7 @@ function buildMapFromFile (game, AM, startY, fileName) {
             let type = MAPPING[mapInfo[i][j]];
             let validTypes = Object.keys(PROTO_PATHS);
             let checkMembership = (member) => member == type; 
-            console.log(type, validTypes, type in validTypes);
+            // console.log(type, validTypes, type in validTypes);
             if (validTypes.some(checkMembership)){ //lol this is dumb but I don't know why the right way doesn't work
             // if (type != 'none') {
                 let xCoord;
@@ -237,7 +237,7 @@ function buildMapFromFile (game, AM, startY, fileName) {
                 // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);   
-                console.log(curGenform);
+                // console.log(curGenform);
             }
         }
     }

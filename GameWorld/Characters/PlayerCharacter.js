@@ -74,7 +74,8 @@ class PlayerCharacter extends Entity {
         this.collidingBotRight = false;
         this.collidingTop = false;
         this.radius = 32;
-        this.setupAnimations();
+        // console.log(this.gloopSheetPath);
+        this.setupAnimations(gloopSheetPath);
 
         // Movement
         this.facingLeft = false;
@@ -91,14 +92,15 @@ class PlayerCharacter extends Entity {
         this.floorTimer = 0;
         this.dead = false;
         this.currentPlatform = null;
+
     }
     
-    setupAnimations() {
-        this.moveLeftAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.moveRightAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.lookForwardAnimation = new Animation(AM.getAsset(this.gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
-        this.jumpLeftAnimation = new Animation(AM.getAsset(this.gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
-        this.jumpRightAnimation = new Animation(AM.getAsset(this.gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
+    setupAnimations(gloopSheetPath) {
+        this.moveLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.moveRightAnimation = new Animation(AM.getAsset(gloopSheetPath.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.lookForwardAnimation = new Animation(AM.getAsset(gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
+        this.jumpLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
+        this.jumpRightAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
         this.deadAnimation = this.jumpRightAnimation;
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
@@ -171,7 +173,7 @@ class PlayerCharacter extends Entity {
         }
         if (this.collidingTop || this.collidingTopLeft || this.collidingTopRight) {
             if (this.jumping) {
-                console.log('here');
+                // console.log('here');
                 this.jumping = false;
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumpLeftAnimation.elapsedTime = 0;

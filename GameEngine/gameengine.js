@@ -350,8 +350,8 @@ class Camera {
     draw() {}
     update() {
         //if the player is at the top of the canvas
-        console.log(this);
-        console.log(this.playerCharacter.y - this.totalDrawOffset);
+        // console.log(this);
+        // console.log(this.playerCharacter.y - this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
             this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }

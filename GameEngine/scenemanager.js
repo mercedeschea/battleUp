@@ -32,7 +32,7 @@ class SceneManager {
             this.game.entities[i].removeFromWorld = true;
         }
 
-        console.log('start scene entities: ', this.game.entities);
+        // console.log('start scene entities: ', this.game.entities);
         
 
         this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
@@ -52,39 +52,39 @@ class SceneManager {
         this.game.addEntity(this.startScreen.purpleGloop);
         this.game.addEntity(this.startScreen.orangeGloop);
         this.game.addEntity(this.startScreen.blueGloop);
-        console.log(this.startScreen.greenGloop.x);
-        console.log(this.startScreen.greenGloop.y);
-        console.log(this.game.camera);
+        // console.log(this.startScreen.greenGloop.x);
+        // console.log(this.startScreen.greenGloop.y);
+        // console.log(this.game.camera);
 
 
         this.game.draw();
 
-        console.log('start scene entities after start scene draw: ', this.game.entities);
+        // console.log('start scene entities after start scene draw: ', this.game.entities);
     }
 
     gameScene() {
         this.game.scene = 'game';   
-        // this.game.entities = [];
         this.game.entities.splice(0, this.game.entities.length);
-        
+        // for (var i = this.game.entities.length - 1; i >= 0; --i) {
+        //     this.game.entities[i].removeFromWorld = true;
+        // }
         // console.log('game scene entities: ', this.game.entities)
         // console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
-        let mapHeight = this.background.spritesheet.height;
-        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
-        console.log('gloop y coord: ', this.playerCharacter.y);
-       
-        let camera = new Camera(this.game, SCROLL_SPEED, this.game.surfaceHeight, mapHeight, MUSIC_MANAGER, this.playerCharacter);
-        this.game.initCamera(mapHeight, camera);//we don't have game.mapHeight until here
+        this.game.mapHeight = this.background.spritesheet.height;
 
+        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        //let musicManager = new MusicManager(document.getElementById("soundTrack"));
+        // console.log(this.game.surfaceHeight);
+        this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);//we don't have game.mapHeight until here
         this.game.addEntity(this.background);
         genWalls(this.game, AM);
         this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
         this.game.addEntity(this.game.floor);
-        genGenforms(20, this.game, AM, mapHeight);
-        this.playerCharacter.x = lowestGenformCoords[0];
-        this.playerCharacter.y = lowestGenformCoords[1] - 64;
-        console.log(this.playerCharacter.y);
+        let startCoordinates = genGenforms(10, this.game, AM, this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
+        this.playerCharacter.x = startCoordinates.x;
+        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);    
         this.game.addEntity(this.playerCharacter); 
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);
@@ -100,16 +100,16 @@ class SceneManager {
         // this.game.entities = [];
         this.game.scene = 'gameOver';
         this.game.entities = [];
-        console.log(this.playerCharacter);
+        // console.log(this.playerCharacter);
         for (var i = this.game.entities.length - 1; i >= 0; --i) {
             this.game.entities[i].removeFromWorld = true;
         }
-        console.log('gameOver scene entities: ', this.game.entities)
+        // console.log('gameOver scene entities: ', this.game.entities)
         
         this.gameOver = new GameOver(this.game, AM);
         this.game.addEntity(this.gameOver);
         this.gameOver.draw();
-        console.log('game scene entities after draw: ', this.game.entities)
+        // console.log('game scene entities after draw: ', this.game.entities)
         this.game.started = false;
     }
 }
@@ -156,7 +156,7 @@ class StartScreen {
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;
         this.blueGloop.y = this.gloopY;
-        console.log(this.greenGloop.y);
+        // console.log(this.greenGloop.y);
 
     }
     update() {
@@ -232,7 +232,7 @@ class Score {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0,
                 this.spriteSheet.width/5, this.spriteSheet.height/5);
             //this.game.ctx.font("Press Start 2P");
-            this.game.ctx.font = ("100px Press Start 2P");
+            this.game.ctx.font = ("20px Times New Roman");
             this.game.ctx.fillStyle = "#D4AF37";
             //console.log(this.playerY);
             this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
