@@ -1,6 +1,8 @@
 const AM = new AssetManager();
+const SCENE_MANAGER = new SceneManager();
 const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
 const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
+
 
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
@@ -66,42 +68,39 @@ MapAMDownloads(AM);
 
 AM.queueDownload(SCORE_TEXT);
 
+
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
     let ctx = canvas.getContext("2d");
     let gameEngine = new GameEngine(AM);
     gameEngine.init(ctx);
-    let background = new Background(gameEngine, AM);
-    let mapHeight = background.spritesheet.height;
-    let playerCharacter = new PlayerCharacter(gameEngine, AM);
-    let cameraStartY = mapHeight - 4 * canvas.height;
-    gameEngine.initCamera(mapHeight, new MusicManager(document.getElementById("soundTrack")), playerCharacter, cameraStartY);//we don't have game.mapHeight until here
+    SCENE_MANAGER.game = gameEngine;
+    // console.log(gameEngine);
+    // console.log(sceneManager);
+    SCENE_MANAGER.startScene();
+    // SCENE_MANAGER.gameSceneSetup();
+    // sceneManager.gameOverScene();
+    // console.log(sceneManager);
+    // let background = new Background(gameEngine, AM);
+    // let mapHeight = background.spritesheet.height;
+    // let playerCharacter = new PlayerCharacter(gameEngine, AM);
+    // let musicManager = new MusicManager(document.getElementById("soundTrack"));
+    // gameEngine.initCamera(mapHeight, musicManager, playerCharacter);//we don't have game.mapHeight until here
 
-    // gameEngine.start();
-    gameEngine.addEntity(background);
-    let endOfWalls = genWalls(gameEngine, AM);
-    gameEngine.floor = new Floor(gameEngine, AM);
-    gameEngine.addEntity(gameEngine.floor);
-    //change this value to change where platforms start being generated(and thus where gloop starts) 
-    let formGenerationStartY = mapHeight - canvas.height * 3;
-    genGenforms(20, gameEngine, AM, endOfWalls, formGenerationStartY);
-    genLevel0Exit(gameEngine, AM, endOfWalls);
+    // gameEngine.addEntity(background);
+    // genWalls(gameEngine, AM);
+    // gameEngine.floor = new Floor(gameEngine, AM);
+    // gameEngine.addEntity(gameEngine.floor);
+    // genGenforms(20, gameEngine, AM, mapHeight);
     // playerCharacter.x = lowestGenformCoords[0];
     // playerCharacter.y = lowestGenformCoords[1] - 64;
-    playerCharacter.x = 0;
-    playerCharacter.y = endOfWalls
-    let score = new Score(gameEngine, AM, playerCharacter);
-    gameEngine.addEntity(playerCharacter); 
-    gameEngine.addEntity(score);
-    // let flashform = new Platform(AM.getAsset(FLASHFORM), 'center', lowestGenformCoords[0], lowestGenformCoords[1], 1, gameEngine);
-    // flashform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118, 16, .2, 4, true, false);
-    // gameEngine.addEntity(flashform);
-    gameEngine.draw();
-    ctx.font = '40px Times New Roman';
-    ctx.fillStyle = 'gold';
-    ctx.textAlign = 'center';
-    // console.log(canvas.width/2, canvas.height/2);
-    ctx.fillText("Click to Start!", canvas.width/2, canvas.height/2); 
-    //ctx.drawImage(AM.getAsset("./Sprites/HUD/score_Text.png"), 0, 0, 64, 68,);
+    
+    // gameEngine.addEntity(playerCharacter); 
+    
+    // let startButton = new StartButton(gameEngine, AM);
+    // gameEngine.addEntity(startButton); 
+    // gameEngine.draw();
+    // let score = new Score(gameEngine, AM, playerCharacter);
+    // gameEngine.addEntity(score);
     console.log("All Done!");
 });

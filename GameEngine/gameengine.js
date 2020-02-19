@@ -13,6 +13,7 @@ const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000000000;
 const SCROLL_PERCENTAGE = .6;
+const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor() {
@@ -35,6 +36,7 @@ class GameEngine {
         this.floor = null;
         this.active = true;
         this.over = false;
+        this.scene = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -87,33 +89,50 @@ class GameEngine {
         window.addEventListener("gamepaddisconnected", function (e) {
             delete(that.gamepads[e.gamepad.index]);
         });
-
-        this.ctx.canvas.addEventListener("click", function (e) {
-            if(that.over) {
-                console.log("should reload");
-                that.reload();
+        this.showButton = true;
+        this.mouseDown = false;
+        this.mouseReleased = false;
+        this.ctx.canvas.addEventListener("mousedown", function (e) {
+            if (!that.started) {
+                that.showButton = false;
+                that.mouseDown = true;
+                that.draw();
+                // console.log('mouse down')
+                // console.log('mouse down in game engine: ' + that.mouseDown);
             }
-            else if (!that.started) {
+        }, false);
+        this.ctx.canvas.addEventListener("mouseup", function (e) {
+            that.mouseDown = false;
+            that.mouseReleased = true;
+            if (that.scene === 'start' && !that.started) {
+                that.active = true;
+                SCENE_MANAGER.gameScene();
                 that.start();
                 //uncomment for music on start
                 // this.camera.musicManager.activated = true;
-            } else {
-                //uncomment for music start/stop on click
-                // that.camera.musicManager.playPause();
+            } else  if (that.scene == 'gameOver' && that.over){
+                SCENE_MANAGER.startScene();
             }
+            else {
+                that.camera.musicManager.playPause();
+            }
+            //console.log('mouse up');
+        }, false);
+        this.ctx.canvas.addEventListener("", function (e) {
+            that.mouse = {x: e.clientX, y: e.clientY}
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = true;
-            if (e.code === keyArr['jump'] && that.active)
+            if ((e.code === keyArr['jump']) && that.active)
                 that.jump = true;
-            if (e.code === keyArr['left'] || e.code === keyArr['altLeft'] && that.active)
+            if ((e.code === keyArr['left'] || e.code === keyArr['altLeft']) && that.active)
                 that.left = true;
             /*if (e.code === keyArr[2] || e.code === keyArr[8])
                 that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = true;
-            if (e.code === keyArr['right'] || e.code === keyArr['altRight'] && that.active)
+            if ((e.code === keyArr['right'] || e.code === keyArr['altRight']) && that.active)
                 that.right = true;
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
@@ -125,7 +144,6 @@ class GameEngine {
                 that.started ? that.started = false : that.started = true;    
             e.preventDefault();
         }, false);
-
         this.ctx.canvas.addEventListener("keyup", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.up = false;
@@ -181,7 +199,9 @@ class GameEngine {
         this.moveLeft = null;
     }
     draw() {
-        this.camera.update();
+        if (this.camera) {
+            this.camera.update();
+        }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         for (var i = 0; i < this.entities.length; i++) {
@@ -205,7 +225,11 @@ class GameEngine {
                 this.entities.splice(i, 1);
             }
         }
-        //console.log(this.timer.gameTime);
+        if (this.over) {
+            SCENE_MANAGER.gameOverScene(); 
+            // console.log('game is over');
+        }
+        // console.log(this.timer.gameTime);
     }
     loop() {
         if (!this.started) {
@@ -219,6 +243,7 @@ class GameEngine {
         this.placeAngled = false;
         this.placeFlat = false;
     }
+
 }
 
 class Timer {
@@ -307,14 +332,12 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    //startY should be the game world coordinate of the top left you want the game to start from
-    //eg game.mapHeight - game.surfaceHeight would start the game from the beginning.
-    constructor(game, speed, startY, musicManager, playerCharacter) {
+    constructor(game, speed, surfaceHeight, mapHeight, MUSIC_MANAGER, playerCharacter) {
         this.game = game;
         this.speed = speed;
         this.totalDrawOffset = startY;
         this.currentDrawOffset = 0;
-        this.musicManager = musicManager;
+        this.musicManager = MUSIC_MANAGER;
         this.playerCharacter = playerCharacter;
         this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
         this.advanceFactor = 15;
@@ -341,42 +364,5 @@ class Camera {
             this.currentDrawOffset = 0;
         }
         this.totalDrawOffset -= this.currentDrawOffset;
-    }
-}
-
-class Score {
-    constructor(game, AM, PlayerCharacter) {
-        this.spriteSheet = AM.getAsset(SCORE_TEXT);
-        this.game = game;
-        this.scoreTimer = new Timer();
-        this.displayScore = 0;
-        this.playerCharacter = PlayerCharacter;
-        this.currentY = 0;
-        this.maxY = 0;
-        this.startY = this.game.mapHeight - this.playerCharacter.y;
-    }
-    draw() {
-        this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-            this.spriteSheet.width/5, this.spriteSheet.height/5);
-        //this.game.ctx.font("Press Start 2P");
-        this.game.ctx.font = ("20px Times New Roman");
-        this.game.ctx.fillStyle = "gold";
-        //console.log(this.playerY);
-        this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
-        
-    }
-    update() {
-        this.displayScore = this.scoreTimer.tick();
-        let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y - this.startY)* 100)/100);
-        if (this.currentY > this.maxY) {
-            this.maxY = this.currentY;
-        }
-        
-        // console.log(formatTime);
-        //console.log(this.playerCharacter);
-    }
-
-    loop() { 
     }
 }
