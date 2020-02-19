@@ -167,7 +167,7 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
                 let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
-                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+                // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);
             }

@@ -43,7 +43,11 @@ class PlayerCharacter extends Entity {
         //Collision
         this.wasColliding = false; 
         this.colliding = false;
-        this.collidingAbove = false;
+        this.collidingTopLeft = false;
+        this.collidingTopRight = false;
+        this.collidingBotLeft = false;
+        this.collidingBotRight = false;
+        this.collidingTop = false;
         this.radius = 32;
         this.setupAnimations();
 
@@ -63,7 +67,7 @@ class PlayerCharacter extends Entity {
         this.dead = false;
         this.currentPlatform = null;
     }
-
+    
     setupAnimations() {
         this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
@@ -108,70 +112,16 @@ class PlayerCharacter extends Entity {
 
     update() {
         super.update();
-
-        this.movingLeft = false;
-        this.movingRight = false;
-        if (this.game.left) {
-            this.movingLeft = true;
-            this.facingLeft = true;
-            this.facingRight = false;
-        }
-        else if (this.game.right) {
-            this.movingRight = true;
-            this.facingRight = true;
-            this.facingLeft = false;
-        }
-        if (this.movingLeft) {
-            if (this.currentPlatform) {
-                const platformSlope = this.currentPlatform.equation.mSlope;
-                const platformB = this.currentPlatform.equation.gameB;
-                if (this.currentPlatform.type === 'left') {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    console.log(platformSlope, platformB);
-                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else  if (this.currentPlatform.type === 'right') {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    console.log(platformSlope, platformB);
-                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else {
-                    this.x -= this.game.clockTick * PLAYER_SPEED;
-                }
-
-            } else {
-                this.x -= this.game.clockTick * PLAYER_SPEED;
-            }
-            
-        } else if (this.movingRight) {
-            if (this.x < 1200 - 115) {  // stops character at the right border
-                if (this.currentPlatform) {
-                    const platformSlope = this.currentPlatform.equation.mSlope;
-                    const platformB = this.currentPlatform.equation.gameB;
-                    if (this.currentPlatform.type === 'left') {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        console.log(platformSlope, platformB);
-                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
-                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    } else  if (this.currentPlatform.type === 'right') {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        console.log(platformSlope, platformB);
-                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
-                    } else {
-                        this.x += this.game.clockTick * PLAYER_SPEED;
-                    }
-
-                } else {
-                    this.x += this.game.clockTick * PLAYER_SPEED;
-                }
-                
-                
-            }
-        }
-        if (this.colliding) {
+        this.wasColliding = false;
+        if (this.isSupported()) {
             this.wasColliding = true;
         }
         this.colliding = false;
-        this.collidingAbove = false;
+        this.collidingTop = false;
+        this.collidingTopRight = false;
+        this.collidingTopLeft = false;
+        this.collidingBotLeft = false;
+        this.collidingBotRight = false;
         this.currentPlatform = null;
         this.checkCollisions();
         if (this.dead) {
@@ -186,7 +136,7 @@ class PlayerCharacter extends Entity {
             this.calcJump(this.deadAnimation);
             return;
         }
-        if (this.colliding && !this.wasColliding) {
+        if (this.isSupported() && !this.wasColliding) {
             if (this.jumping) {
                 this.jumping = false;
                 this.jumpRightAnimation.elapsedTime = 0;
@@ -194,10 +144,9 @@ class PlayerCharacter extends Entity {
             }
                 
         }
-        if (!this.colliding)
-            this.wasColliding = false;
-        if (this.collidingAbove) {
+        if (this.collidingTop || this.collidingTopLeft || this.collidingTopRight) {
             if (this.jumping) {
+                console.log('here');
                 this.jumping = false;
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumpLeftAnimation.elapsedTime = 0;
@@ -206,8 +155,66 @@ class PlayerCharacter extends Entity {
         } else {
             this.fallSpeed = 75;
         }
-        if (!this.jumping && !this.colliding) {
+        if (!this.jumping && !this.isSupported()) {
             this.y += this.fallSpeed * this.game.clockTick;
+        }
+        this.movingLeft = false;
+        this.movingRight = false;
+        if (this.game.left) {
+            this.movingLeft = true;
+            this.facingLeft = true;
+            this.facingRight = false;
+        }
+        else if (this.game.right) {
+            this.movingRight = true;
+            this.facingRight = true;
+            this.facingLeft = false;
+        }
+        if (this.movingLeft) {
+            if (true) {
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.colliding)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else if (!(this.collidingTopLeft)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED;
+                }
+
+            } else {
+                this.x -= this.game.clockTick * PLAYER_SPEED;
+            }
+            
+        } else if (this.movingRight) {
+            if (this.x < 1200 - 115) {  // stops character at the right border
+                if (true) {
+                    // const platformSlope = this.currentPlatform.equation.mSlope;
+                    // const platformB = this.currentPlatform.equation.gameB;
+                    if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // console.log(platformSlope, platformB);
+                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
+                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // console.log(platformSlope, platformB);
+                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
+                    } else if (!(this.collidingTopRight)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED;
+                    }
+
+                } else {
+                    this.x += this.game.clockTick * PLAYER_SPEED;
+                }
+                
+                
+            }
         }
 
 
@@ -250,11 +257,11 @@ class PlayerCharacter extends Entity {
         //written to favor angled because it seems like those are going to be more likely to be used
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
-        if (this.game.placeAngled && this.colliding) {
+        if (this.game.placeAngled && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else if (this.game.placeFlat && this.colliding) {
+        } else if (this.game.placeFlat && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
@@ -387,6 +394,11 @@ class PlayerCharacter extends Entity {
         //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
         //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
     }
+
+    isSupported() {
+        return this.colliding || this.collidingBotLeft || this.collidingBotRight;
+    }
+
     checkCollisions() {
         isCharacterColliding(this);
     }
