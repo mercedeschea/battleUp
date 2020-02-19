@@ -56,12 +56,14 @@ function PlayerCharacterAMDownloads(AM) {
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
 NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
-    constructor(game, AM) {
+    constructor(game, AM, gloopSheetPath) {
         super(self, game, 0, 0);
 
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+        this.gloopSheetPath = gloopSheetPath;
+        // console.log(this.gloopSheetPath);
 
         //Collision 
         this.colliding = false;
@@ -85,11 +87,11 @@ class PlayerCharacter extends Entity {
     }
 
     setupAnimations() {
-        this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_SHEET_PATHS_ORANGE.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_SHEET_PATHS_ORANGE.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_SHEET_PATHS_ORANGE.lookForward), 0, 0, 64, 68, 1, 1, true, true);
-        this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_SHEET_PATHS_ORANGE.turning), 65, 0, 64, 64, 1, 1, false, true);
-        this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_SHEET_PATHS_ORANGE.turning), 193, 0, 64, 64, 1, 1, false, true);
+        this.moveLeftAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.moveRightAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.lookForwardAnimation = new Animation(AM.getAsset(this.gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
+        this.jumpLeftAnimation = new Animation(AM.getAsset(this.gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
+        this.jumpRightAnimation = new Animation(AM.getAsset(this.gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
         this.deadAnimation = this.jumpRightAnimation;
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
@@ -322,38 +324,66 @@ class PlayerCharacter extends Entity {
     }
 
     draw(ctx) {
-        let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
-        if (drawY) {
-            if (this.dead) {
-                this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-                return;
-            } else if (this.jumping && this.facingLeft) {
-                this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.jumping && !this.facingLeft) {
-                this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingLeft) {
-                this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingRight) {
-                this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else {
-                this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            }
-            if (this.attacking) {
-                this.currentAttackAnimation['animation'].drawFrame
-                    (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
-                        drawY + this.currentAttackAnimation.yOffset);
-                //This code is used to debug attacks
-                // this.ctx.save();
-                // this.ctx.fillStyle = 'red';
-                // this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
-                //     drawY + this.currentAttackAnimation.yOffset, 10, 10);
-                // this.ctx.beginPath();
-                // this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.currentAttackAnimation.angle), drawY + 36.5 + 32 * Math.sin(this.currentAttackAnimation.angle));
-                // let frame = this.currentAttackAnimation.animation.frames - this.currentAttackAnimation.animation.currentFrame();
-                // this.ctx.lineTo(this.x + this.currentAttackAnimation.xCalcAttack(frame), drawY + this.currentAttackAnimation.yCalcAttack(frame));
-                // this.ctx.stroke();
-                // this.ctx.restore();
-            }
+        let drawY;
+        if (this.game.camera) {
+            // let drawY = this.cameraTransform(); 
+        } else {
+            drawY = this.y;
+        }
+        //this  is where we get transformed coordinates, drawY will be null if player is off screen
+        if (this.dead) {
+            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            return;
+        } else if (this.jumping && this.facingLeft) {
+            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.jumping && !this.facingLeft) {
+            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.movingLeft) {
+            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.movingRight) {
+            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else {
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        }
+        if (this.attacking) {
+            this.currentAttackAnimation['animation'].drawFrame
+                (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
+                    drawY + this.currentAttackAnimation.yOffset);
+        }
+    }
+    // draw(ctx) {
+    //     let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
+    //     if (drawY) {
+    //         if (this.dead) {
+    //             this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //             return;
+    //         } else if (this.jumping && this.facingLeft) {
+    //             this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //         } else if (this.jumping && !this.facingLeft) {
+    //             this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //         } else if (this.movingLeft) {
+    //             this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //         } else if (this.movingRight) {
+    //             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //         } else {
+    //             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+    //         }
+    //         if (this.attacking) {
+    //             this.currentAttackAnimation['animation'].drawFrame
+    //                 (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
+    //                     drawY + this.currentAttackAnimation.yOffset);
+    //             //This code is used to debug attacks
+    //             // this.ctx.save();
+    //             // this.ctx.fillStyle = 'red';
+    //             // this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
+    //             //     drawY + this.currentAttackAnimation.yOffset, 10, 10);
+    //             // this.ctx.beginPath();
+    //             // this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.currentAttackAnimation.angle), drawY + 36.5 + 32 * Math.sin(this.currentAttackAnimation.angle));
+    //             // let frame = this.currentAttackAnimation.animation.frames - this.currentAttackAnimation.animation.currentFrame();
+    //             // this.ctx.lineTo(this.x + this.currentAttackAnimation.xCalcAttack(frame), drawY + this.currentAttackAnimation.yCalcAttack(frame));
+    //             // this.ctx.stroke();
+    //             // this.ctx.restore();
+    //         }
 
             
             // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
@@ -376,10 +406,10 @@ class PlayerCharacter extends Entity {
             //         drawY + this.attackCache[direction].yCalcAttack(frame), 10, 10);
             //     this.ctx.restore();
             // });
-        }
-        //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
-        //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
-    }
+    //     }
+    //     //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
+    //     //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
+    // }
     checkCollisions() {
         isCharacterColliding(this);
     }

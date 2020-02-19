@@ -1,5 +1,7 @@
 const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
+const STARTSCREEN_PATH = './Sprites/Usables/lvl1/background.png';
+const STARTSCREEN_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 
 class SceneManager {
@@ -34,6 +36,7 @@ class SceneManager {
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
         this.game.addEntity(startButton);
         this.game.draw();
+
         // console.log('start scene entities after start scene draw: ', this.game.entities);
     }
 
@@ -43,18 +46,19 @@ class SceneManager {
         for (var i = this.game.entities.length - 1; i >= 0; --i) {
             this.game.entities[i].removeFromWorld = true;
         }
-        console.log('game scene entities: ', this.game.entities)
-        console.log(this.game.scene);
+        // console.log('game scene entities: ', this.game.entities)
+        // console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
         let mapHeight = this.background.spritesheet.height;
-        this.playerCharacter = new PlayerCharacter(this.game, AM);
+        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        // console.log(GLOOP_SHEET_PATHS_ORANGE);
         //let musicManager = new MusicManager(document.getElementById("soundTrack"));
         let camera = new Camera(this.game, SCROLL_SPEED, this.game.surfaceHeight, mapHeight, MUSIC_MANAGER, this.playerCharacter);
         this.game.initCamera(mapHeight, camera);//we don't have game.mapHeight until here
 
         this.game.addEntity(this.background);
         genWalls(this.game, AM);
-        this.game.floor = new Floor(this.game, AM);
+        this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
         this.game.addEntity(this.game.floor);
         genGenforms(20, this.game, AM, mapHeight);
         this.playerCharacter.x = lowestGenformCoords[0];
@@ -112,17 +116,32 @@ class GameOver {
 class StartScreen {
     constructor(gameEngine, AM) {
         this.game = gameEngine;
-        this.background = new Background(this.game, AM, GAMEOVER_PATH);
+        this.background = new Background(this.game, AM, STARTSCREEN_PATH);
+        // this.floor = new Floor(this.game, AM, AM.getAsset(STARTSCREEN_FLOOR));
+        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
+        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE);
+        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
+
+        this.greenGloop.x = this.game.surfaceWidth/3;
+        this.purpleGloop.x = this.game.surfaceWidth/3 + 100;
+        this.orangeGloop.x = this.game.surfaceWidth/3 + 200;
+        this.blueGloop.x = this.game.surfaceWidth/3 + 300;
 
     }
     update() {}
     draw() {
         this.background.draw();
-        // this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-        //     this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
-        //     this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
         this.game.addEntity(startButton); 
+        this.game.addEntity(this.greenGloop);
+        this.game.addEntity(this.purpleGloop);
+        this.game.addEntity(this.orangeGloop);
+        this.game.addEntity(this.blueGloop);
+        // this.greenGloop.draw(this.game.ctx);
+        // this.purpleGloop.draw(this.game.ctx);
+        // this.orangeGloop.draw(this.game.ctx);
+        // this.blueGloop.draw(this.game.ctx);
     }
 }
 

@@ -48,8 +48,8 @@ class Wall extends Entity{
 
 }
 class Floor {
-    constructor(game, AM) {
-        this.spriteSheet = AM.getAsset(FLOOR_PATH);
+    constructor(game, AM, spriteSheet) {
+        this.spriteSheet = spriteSheet;
         this.game = game;
         this.flashing = false;
         this.flashTime = 3;
@@ -205,6 +205,8 @@ function MapAMDownloads(AM) {
     AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
+    AM.queueDownload(STARTSCREEN_PATH);
+    AM.queueDownload(STARTSCREEN_FLOOR);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
