@@ -59,7 +59,7 @@ class SceneManager {
         let startCoordinates = genGenforms(40, this.game, AM, 7 * this.game.mapHeight/9, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
         this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        genLevel0Exit(this.game, AM, 7 * this.game.mapHeight/9);    
+        genLevel0Exit(this.game, AM, this.game.mapHeight);    
         this.game.addEntity(this.playerCharacter); 
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);

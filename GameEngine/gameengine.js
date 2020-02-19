@@ -12,7 +12,7 @@ window.requestAnimFrame = (function () {
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000000000;
-const SCROLL_PERCENTAGE = .6;
+const SCROLL_POINT = 100;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
@@ -352,7 +352,7 @@ class Camera {
         //if the player is at the top of the canvas
         console.log(this);
         console.log(this.playerCharacter.y - this.totalDrawOffset);
-        if (this.playerCharacter.y - this.totalDrawOffset < 0) {
+        if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
             this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {

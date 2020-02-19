@@ -13,7 +13,7 @@ const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
 const COL_COUNT = 10;
-const HOR_BLOCK_SIZE = 118;
+const HOR_BLOCK_SIZE = 85;
 const VERT_BLOCK_SIZE = 85;
 const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '_':'center', '|':'vertical'};
 
@@ -227,7 +227,7 @@ function buildMapFromFile (game, AM, startY, fileName) {
                     xCoord = j * HOR_BLOCK_SIZE;
                     yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE + VERT_BLOCK_SIZE - PLATFORM_HEIGHT;
                 } else if (mapInfo[i][j]  === '/' || mapInfo[i][j] === '\\') {
-                    xCoord = j * HOR_BLOCK_SIZE + 17;
+                    xCoord = j * HOR_BLOCK_SIZE;
                     yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
                 } else {
                     xCoord = j * HOR_BLOCK_SIZE;
