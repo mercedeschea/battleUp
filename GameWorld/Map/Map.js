@@ -119,34 +119,64 @@ class Floor {
         }
     }
 }
+
+function genCoins(numberOfCoins, game, AM, startY, end) {
+    // generatedCoordinates = randomlyDistributeItems(numberOfCoins, game, AM, startY, end);
+    // const xCoords = generatedCoordinates.xCoords;
+    // const yCoords = generatedCoordinates.yCoords;
+    // const cookieSpriteSheet = AM.getAsset(GENFORM_PATH);
+    // let i;
+    // for (i = 0; i < xCoords.length; i++) {
+    //     let curGenform = new Cookie(genformSpriteSheet, 'center', xCoords[i], yCoords[i], 1, game);
+    //     // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+    //     genForms.push(curGenform);
+    //     game.addEntity(curGenform);
+    // }
+}
+
 //this function randomly generates genforms in groups per canvas height of the map
 //starting from startY(highest point, lowest value gw coords)
 //and going down to endY(lowest point, highest gw coords)
 function genGenforms (numOfGenForms, game, AM, startY, endY) {
     // console.log("form width correction", formWidth);
     genForms.splice(0, genForms.length);
-    const xCoordinatesGenforms = [];
-    const yCoordinatesGenforms = [];
-    let lowestGenformCoords = {x:0, y:0};
+    const generatedCoordinates = randomlyDistributeItems(numOfGenForms, game, startY, endY);
+    const xCoords = generatedCoordinates.xCoords;
+    const yCoords = generatedCoordinates.yCoords;
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    let i;
+    for (i = 0; i < xCoords.length; i++) {
+        let curGenform = new Platform(genformSpriteSheet, 'center', xCoords[i], yCoords[i], 1, game);
+        // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+        genForms.push(curGenform);
+        game.addEntity(curGenform);
+    }
+    return generatedCoordinates.lowest;
+}
+
+
+function randomlyDistributeItems(numOfItems, game, startY, endY) {
+    const xCoordinates = [];
+    const yCoordinates = [];
+    let lowestCoords = {x:0, y:0};
     const minHorizontalSeperation = PLATFORM_WIDTH;
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
-    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
-    numCanvasesInLevel = Math.floor(endY/game.surfaceHeight);
+    numCanvasesInLevel = Math.floor((endY - startY)/game.surfaceHeight);
     let xFound;
     let yFound;
     let yOffset = startY;
     let j;
-    for (j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
-        let startIndex = xCoordinatesGenforms.length;
-        for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
+    for (j = 0; j < numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
+        let startIndex = xCoordinates.length;
+        for (var i = 0; i < numOfItems/numCanvasesInLevel; i++) {
             xFound = false;
             yFound = false;
             x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
             y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
             for (let i = 0; i < tryLimit; i++) {
-                if (rejectCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation, startIndex)) {
+                if (rejectCoordinate(x, xCoordinates, minHorizontalSeperation, startIndex)) {
                     x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
                 } else {
                     xFound = true;
@@ -154,28 +184,24 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
                 }
             }
             for (let i = 0; i < tryLimit; i++) {
-                if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
+                if (rejectCoordinate(y, yCoordinates, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
                 } else {
-                    if (y > lowestGenformCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
-                        lowestGenformCoords = {x:x, y:y};
+                    if (y > lowestCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
+                        lowestCoords = {x:x, y:y};
                     }
                     yFound = true;
                     break;
                 }    
             }
             if(xFound && yFound) {
-                xCoordinatesGenforms.push(x);
-                yCoordinatesGenforms.push(y);
-                let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
-                // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
-                genForms.push(curGenform);
-                game.addEntity(curGenform);
+                xCoordinates.push(x);
+                yCoordinates.push(y);
             }
             
         }
     }
-    return lowestGenformCoords;
+    return {xCoords:xCoordinates, yCoords:yCoordinates, lowest:lowestCoords};
 }
 
 function genLevel0Exit(game, AM, startY) {

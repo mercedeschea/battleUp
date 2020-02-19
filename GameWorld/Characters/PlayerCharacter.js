@@ -13,6 +13,7 @@ const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
 const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
+const GLOOP_DEAD = "./Sprites/Usables/gloopDead.png";
 const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
 const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
@@ -28,6 +29,7 @@ function PlayerCharacterAMDownloads(AM) {
     AM.queueDownload(GLOOP_LOOK_FORWARD);
     AM.queueDownload(GLOOP_TURNING);
     AM.queueDownload(DRILL_PROTO);
+    AM.queueDownload(GLOOP_DEAD);
 }
 
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -74,7 +76,7 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
-        this.deadAnimation = this.jumpRightAnimation;
+        this.deadAnimation = new Animation(AM.getAsset(GLOOP_DEAD) ,0, 0, 64, 64, 1, 1, false, true);
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -219,8 +221,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        // if (this.game.jump) { //glitch jumpppsss
-        if (this.game.jump && !this.jumping && this.isSupported()) {
+        if (this.game.jump) { //glitch jumpppsss
+        // if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);

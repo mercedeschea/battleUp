@@ -71,6 +71,8 @@ function isCharacterColliding(PlayerCharacter) {
         pc.floorTimer = 0;
     }
 
+
+
     // let collidePlaceform = pc.placeformManager.placeformsCurrent[0];
     // // Convert the horizontal platform
     // let PlatformCartCords = convertHorizontalPlatformToEquation(collidePlaceform.x, collidePlaceform.y, pc.game.mapHeight);
@@ -300,6 +302,15 @@ function isPointOnLine(LineInfo, x, y) {
     let yMax = Math.max(y1, y2);
     return LineInfo.xLeft <= x && LineInfo.xRight >= x &&
         yMin <= y && yMax >= y;
+}
+
+function isCircleCollidingWithCircle(PlayerCircleInfo, OtherCircleInfo) {
+    var dx = PlayerCircleInfo.cartesianX - OtherCircleInfo.cartesianY;
+    var dy = PlayerCircleInfo.cartesianY - OtherCircleInfo.cartesianY;
+    var distance = Math.sqrt(dx * dx + dy * dy);
+    if(distance < PlayerCircleInfo.radius + OtherCircleInfo.radius){
+           return true;
+    }
 }
 
 
