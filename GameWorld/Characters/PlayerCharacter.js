@@ -71,14 +71,9 @@ class PlayerCharacter extends Entity {
         // Then enact special actions like attacking and placing platforms
 
         // Determine collisions 
-        this.colliding = false;
-        this.needsMovingUp = false;
+        // this.needsMovingUp = false;
         this.checkCollisions();
 
-        // if (this.colliding) {
-        //     if (this.jumping)
-        //         this.jumping = false;
-        // }
         if (this.colliding && this.fallingDown) {
             this.stopJumping();
         }
@@ -97,19 +92,12 @@ class PlayerCharacter extends Entity {
 
         // Left right movement
         this.updateLeftRightMovement();
-        
-        // Debugging
-        if (this.needsMovingUp) {
-            console.log("need to move up");
-            // this.y -= .2;
-        }
-
         // Jumping
         this.updateJumping();
         // Special actions
         this.updateSpecialActions();
 
-        console.log(this.colliding);
+        // console.log(this.colliding);
         // console.log(this.needsMovingUp)
  
 
@@ -159,11 +147,27 @@ class PlayerCharacter extends Entity {
         }
         if (this.movingLeft) {
             if (this.x > 2) {   // stops character at the left border
-                this.x -= this.game.clockTick * 200;
+                if (this.collidingWithLeftSlope) {
+                    this.x -= (this.game.clockTick * 200) / Math.sqrt(2);
+                    this.y -= (this.game.clockTick * 200) / Math.sqrt(2);
+                } else if (this.collidingWithRightSlope) {
+                    this.x -= (this.game.clockTick * 200) / Math.sqrt(2);
+                    this.y += (this.game.clockTick * 200) / Math.sqrt(2);
+                } else {
+                    this.x -= this.game.clockTick * 200;
+                }
             }
         } else if (this.movingRight) {
             if (this.x < 1200 - 115) {  // stops character at the right border
-                this.x += this.game.clockTick * 200;
+                if (this.collidingWithRightSlope) {
+                    this.x += (this.game.clockTick * 200) / Math.sqrt(2);
+                    this.y -= (this.game.clockTick * 200) / Math.sqrt(2);
+                } else if (this.collidingWithLeftSlope) {
+                    this.x += (this.game.clockTick * 200) / Math.sqrt(2);
+                    this.y += (this.game.clockTick * 200) / Math.sqrt(2);
+                } else {
+                    this.x += this.game.clockTick * 200;
+                }            
             }
         }
     }
@@ -248,6 +252,9 @@ class PlayerCharacter extends Entity {
         }
     }
     checkCollisions() {
+        this.colliding = false;
+        this.collidingWithLeftSlope = false;
+        this.collidingWithRightSlope = false;
         isCharacterColliding(this);
     }
 

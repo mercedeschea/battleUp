@@ -93,15 +93,21 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo, pc) {
         - CircleInfo.radius * CircleInfo.radius;
 
     let answer = quadraticFormula(a, b, c);
+    let result1 = answer.result1;
+    let result2 = answer.result2;
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         return false;
     } else if (((!isNaN(answer.result1) && isNaN(answer.result2)) || (isNaN(answer.result1) && !isNaN(answer.result2))) // one root
-    && ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight))) {
-        console.log('perfect collision sloped wow');
+    // && ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight))) {
+    && ((result1 >= LineInfo.xLeft && result1 <= LineInfo.xRight) || (result2 >= LineInfo.xLeft && result2 <= LineInfo.xRight))) {    
         return true;
     } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight)) {
-        pc.needsMovingUp = true;
-        return true;
+        let toReturn = false;
+        if (!isNaN(result1))
+            toReturn = toReturn || (result1 >= LineInfo.xLeft && result1 <= LineInfo.xRight)
+        if (!isNaN(result2))
+            toReturn = toReturn || (result2 >= LineInfo.xLeft && result2 <= LineInfo.xRight)
+        return toReturn;
     }
 }
 
@@ -128,9 +134,9 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo, pc) { // Char
         pc.needsMovingUp = true;
         
         // set the pc to the correct coords for a perfect collision 
-        let newY = CircleInfo.cartesianY - Math.sqrt( -(CircleInfo.cartesianX^2) + (CircleInfo.cartesianX ^2) + CircleInfo.radius^2);
-        let diff = (CircleInfo.cartesianY - newY);
-        console.log("diff:", diff - 100)
+        // let newY = CircleInfo.cartesianY - Math.sqrt( -(CircleInfo.cartesianX^2) + (CircleInfo.cartesianX ^2) + CircleInfo.radius^2);
+        // let diff = (CircleInfo.cartesianY - newY);
+        // console.log("diff:", diff - 100)
         // pc.y -= diff;
         // console.log('idea for new y', pc.game.mapHeight - newY);
         // console.log('current this.y', pc.y);
