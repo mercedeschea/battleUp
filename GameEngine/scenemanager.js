@@ -73,7 +73,7 @@ class SceneManager {
         let mapHeight = this.background.spritesheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         console.log('gloop y coord: ', this.playerCharacter.y);
-        //let musicManager = new MusicManager(document.getElementById("soundTrack"));
+       
         let camera = new Camera(this.game, SCROLL_SPEED, this.game.surfaceHeight, mapHeight, MUSIC_MANAGER, this.playerCharacter);
         this.game.initCamera(mapHeight, camera);//we don't have game.mapHeight until here
 

@@ -7,7 +7,7 @@ class PlaceformManager {
     }
     //should we allow placeforms to be placed partly offscreen?
     placeformPlace(facingLeft, angled, x, y, characterWidth, characterHeight) {
-       const scale = 1;
+       const scale = 1; //modify this line to resize;
        let placeformPlaced;
         if (this.placeformsCurrent.length === this.placeformLimit) {
             this.placeformsCurrent[0].removeFromWorld = true;
@@ -15,7 +15,7 @@ class PlaceformManager {
         if (facingLeft) {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'left', 
-                x - 87 * scale, y - 87 * scale + characterHeight, scale, this.game);
+                x - 87 * scale + 5, y - 87 * scale + characterHeight + 5, scale, this.game);
                 this.placeformsCurrent.push(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 
@@ -26,7 +26,7 @@ class PlaceformManager {
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 
-                x + characterWidth, y - 87 * scale + characterHeight, scale, this.game);
+                x + characterWidth - 5, y - 87 * scale + characterHeight + 5, scale, this.game);
                 this.placeformsCurrent.push(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 

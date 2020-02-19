@@ -12,11 +12,12 @@ window.requestAnimFrame = (function () {
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000000000;
-const SCROLL_PERCENTAGE = .6;
+const SCROLL_POINT = 100;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
-    constructor() {
+    constructor(musicManager) {
+        this.gamepads = {};
         this.entities = [];
         this.ctx = null;
         this.surfaceWidth = null;
@@ -36,6 +37,7 @@ class GameEngine {
         this.active = true;
         this.over = false;
         this.scene = null;
+        this.musicManager = musicManager;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -47,28 +49,49 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, camera) {
-        this.mapHeight = mapHeight;
-        this.camera = camera;
+    initCamera(playerCharacter, startY) {
+        if (!this.camera)
+            this.camera = new Camera(this, SCROLL_SPEED, startY, playerCharacter);
+        else
+            this.camera.totalDrawOffset = startY;
     }
-    start() {
+    start(startY) {
         console.log("starting game");
         var that = this;
         this.started = true;
-        this.camera.musicManager.activated = true;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
     }
-    //'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 
+    // scangamepads() {
+    //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+    //     for (var i = 0; i < gamepads.length; i++) {
+    //       if (gamepads[i]) {
+    //         if (gamepads[i].index in this.gamepads) {
+    //           this.gamepads[gamepads[i].index] = gamepads[i];
+    //         } else {
+    //           this.gamepads[i] = (gamepads[i]);
+    //         }
+    //       }
+    //     }
+    //     console.log(this.gamepads);
+    // }
     startInput() {
+        // this.scangamepads();
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
             'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
+        window.addEventListener("gamepadconnected", function (e) {
+            that.gamepads[e.gamepad.index] = e.gamepad;
+            console.log(that.gamepads);
+        } );
+        window.addEventListener("gamepaddisconnected", function (e) {
+            delete(that.gamepads[e.gamepad.index]);
+        });
         this.showButton = true;
         this.mouseDown = false;
         this.mouseReleased = false;
@@ -88,13 +111,11 @@ class GameEngine {
                 that.active = true;
                 SCENE_MANAGER.gameScene();
                 that.start();
-            } else if (that.scene == 'gameOver' && that.over){
+            } else  if (that.scene == 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
-
             }
-            
             else {
-                that.camera.musicManager.playPause();
+                that.musicManager.playPause();
             }
             //console.log('mouse up');
         }, false);
@@ -147,6 +168,24 @@ class GameEngine {
         }, false);
         console.log('Input started');
     }
+
+    controllerStatus(gamepad) {
+        if(gamepad.buttons[0] == 1.0)
+            this.jump = true;
+        // if(game.buttons[1] == 1.0)
+        //     this.attack = true;
+        // if (game.buttons[2] == 1.0)
+        if(gamepad.axes[0] >= .5) 
+            this.down =  true;
+        if(gamepad.axes[1] >= .5) 
+            this.right =  true;
+        if(gamepad.axes[2] >= .5)
+            this.up =  true;    
+        if(gamepad.axes[3] >= .5) 
+            this.left =  true;
+
+    }
+
     // reload() {
     //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
     //     genGenforms(20, gameEngine, AM, mapHeight);
@@ -172,6 +211,9 @@ class GameEngine {
         this.ctx.restore();
     }
     update() {
+        // if (this.gamepads[0]) {
+        //     this.controllerStatus(this.gamepads[0]);
+        // }
         var entitiesCount = this.entities.length;
         for (var i = 0; i < entitiesCount; i++) {
             var entity = this.entities[i];
@@ -275,6 +317,11 @@ class MusicManager {
         this.currentMusic = music;
         this.activated = false;
     }
+    update() {
+        //if the player has interacted with the dom, play the music
+        if(this.musicManager.activated)
+            this.musicManager.currentMusic.play();
+    }
     playPause() {
         if(!this.currentMusic.paused) {
             console.log('here');
@@ -291,24 +338,22 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight, MUSIC_MANAGER, playerCharacter) {
+    constructor(game, speed, startY, playerCharacter) {
         this.game = game;
         this.speed = speed;
-        this.totalDrawOffset = mapHeight - surfaceHeight;
+        this.totalDrawOffset = startY;
         this.currentDrawOffset = 0;
-        this.musicManager = MUSIC_MANAGER;
         this.playerCharacter = playerCharacter;
-        this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
+        this.advanceTime = 0;
         this.advanceFactor = 15;
     }
     draw() {}
     update() {
-        //if the player has interacted with the dom, play the music
-        if(this.musicManager.activated)
-            this.musicManager.currentMusic.play();
         //if the player is at the top of the canvas
-        if (this.playerCharacter.y - this.totalDrawOffset < 0) {
-            this.advanceTime = .5;
+        console.log(this);
+        console.log(this.playerCharacter.y - this.totalDrawOffset);
+        if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
+            this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;

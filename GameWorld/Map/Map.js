@@ -1,17 +1,21 @@
-let xCoordinatesGenforms = [];
-let yCoordinatesGenforms = [];
-let genForms = [];
-const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
+const genForms = [];
+const PROTO_PATHS = {'center':'./Sprites/prototypes/horizontal.png',
+'left':'./Sprites/prototypes/backslash.png', 'right':'./Sprites/prototypes/forward.png', 'vertical':'./Sprites/prototypes/horizontal.png'};
+const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
-const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
+const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';//modify this line to view the different sprites
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
 const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
-const PLATFORM_WIDTH = 125;
-const PLATFORM_HEIGHT = 11;
+const MAP_FILE_NAME = "test.txt";
+const PLATFORM_WIDTH = 120;
+const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
-let lowestGenformCoords = [0, 0];
+const COL_COUNT = 10;
+const HOR_BLOCK_SIZE = 85;
+const VERT_BLOCK_SIZE = 85;
+const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '_':'center', '|':'vertical'};
 
 // this file now controls all map assets
 class Background {
@@ -47,6 +51,7 @@ class Wall extends Entity{
     }
 
 }
+
 class Floor {
     constructor(game, AM, spriteSheet) {
         this.spriteSheet = spriteSheet;
@@ -63,6 +68,7 @@ class Floor {
             this.animationFlash.drawFrame(this.game.clockTick, this.game.ctx, 0, 
                 this.game.surfaceHeight - FLOOR_HEIGHT);
         } else {
+            this.flashing = false;
             this.flashTime = 3;
             this.game.ctx.drawImage(this.spriteSheet, 0, this.game.surfaceHeight - FLOOR_HEIGHT, //draws only half the floor
                 this.spriteSheet.width, this.spriteSheet.height);
@@ -80,6 +86,9 @@ class Floor {
     constructor(spriteSheet, type, destX, destY, scale, game) {
         super(self, game, destX, destY);
         this.type = type;
+        //coordinates for new platform style
+        // this.srcCoordinates = {'left':[417, 0], 'center':[179, 0], 'right':[0,0]};
+        // this.srcWidthAndHeight = {'left':[180, 179], 'center':[237, 24], 'right':[180, 179]};
         this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
         this.spriteSheet = spriteSheet;
@@ -98,6 +107,7 @@ class Floor {
         // console.log(drawY);
         if(drawY) {
             if (this.animation) {
+                // console.log(this);
                 this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
             } else {
                 let width = this.srcWidthAndHeight[this.type][0];
@@ -110,29 +120,31 @@ class Floor {
     }
 }
 //this function randomly generates genforms in groups per canvas height of the map
-function genGenforms (numOfGenForms, game, AM, mapHeight) {
+//starting from startY(highest point, lowest value gw coords)
+//and going down to endY(lowest point, highest gw coords)
+function genGenforms (numOfGenForms, game, AM, startY, endY) {
     // console.log("form width correction", formWidth);
+    genForms.splice(0, genForms.length);
+    const xCoordinatesGenforms = [];
+    const yCoordinatesGenforms = [];
+    let lowestGenformCoords = {x:0, y:0};
     const minHorizontalSeperation = PLATFORM_WIDTH;
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
-    numCanvasesInLevel = Math.floor(mapHeight/game.surfaceHeight);
+    numCanvasesInLevel = Math.floor(endY/game.surfaceHeight);
     let xFound;
     let yFound;
-
-    xCoordinatesGenforms = [];
-    yCoordinatesGenforms = [];
-    genForms = [];
-    lowestGenformCoords = [0, 0];
-    
-    for (var j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
+    let yOffset = startY;
+    let j;
+    for (j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
         let startIndex = xCoordinatesGenforms.length;
         for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
             xFound = false;
             yFound = false;
             x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
-            y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
+            y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
             for (let i = 0; i < tryLimit; i++) {
                 if (rejectCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation, startIndex)) {
                     x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
@@ -143,10 +155,10 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
             }
             for (let i = 0; i < tryLimit; i++) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
-                    y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight;
+                    y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
                 } else {
-                    if (y > lowestGenformCoords[1] && y < mapHeight - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
-                        lowestGenformCoords = [x, y];
+                    if (y > lowestGenformCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
+                        lowestGenformCoords = {x:x, y:y};
                     }
                     yFound = true;
                     break;
@@ -156,14 +168,81 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
                 xCoordinatesGenforms.push(x);
                 yCoordinatesGenforms.push(y);
                 let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
-                curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+                // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);
             }
             
         }
     }
+    return lowestGenformCoords;
 }
+
+function genLevel0Exit(game, AM, startY) {
+    // lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);
+    buildMapFromFile(game, AM, startY - 2 * VERT_BLOCK_SIZE, MAP_FILE_NAME);
+    
+}
+
+function lineOfGenForms (game, AM, startY) {
+    let drawXPoint = game.surfaceWidth/PLATFORM_WIDTH/3; 
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    for (let i = 0; i < drawXPoint; i++) {
+        let curGenform = new Platform(genformSpriteSheet, 'center', i * PLATFORM_WIDTH, startY, 1, game);
+        curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+        genForms.push(curGenform);
+        game.addEntity(curGenform);
+    }
+    drawXPoint = 2 * game.surfaceWidth/PLATFORM_WIDTH/3;
+    for (let i = drawXPoint; i < game.surfaceWidth/PLATFORM_WIDTH; i++) {
+        let curGenform = new Platform(genformSpriteSheet, 'center', i * PLATFORM_WIDTH, startY, 1, game);
+        curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+        genForms.push(curGenform);
+        game.addEntity(curGenform);
+    }
+
+}
+
+function buildMapFromFile (game, AM, startY, fileName) {
+    const mapInfo = AM.getServerAsset(fileName);
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    
+    if (!mapInfo) {
+        console.log("error with map file");
+        return;
+    }
+    let bottomRow = mapInfo.length - 1;
+    let i;
+    for (i = bottomRow; i >= 0; i--) {
+        for (let j = 0; j < COL_COUNT; j++ ) {
+            let type = MAPPING[mapInfo[i][j]];
+            let validTypes = Object.keys(PROTO_PATHS);
+            let checkMembership = (member) => member == type; 
+            console.log(type, validTypes, type in validTypes);
+            if (validTypes.some(checkMembership)){ //lol this is dumb but I don't know why the right way doesn't work
+            // if (type != 'none') {
+                let xCoord;
+                let yCoord; 
+                if (mapInfo[i][j] === '_') {
+                    xCoord = j * HOR_BLOCK_SIZE;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE + VERT_BLOCK_SIZE - PLATFORM_HEIGHT;
+                } else if (mapInfo[i][j]  === '/' || mapInfo[i][j] === '\\') {
+                    xCoord = j * HOR_BLOCK_SIZE;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                } else {
+                    xCoord = j * HOR_BLOCK_SIZE;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                }
+                let curGenform = new Platform(genformSpriteSheet, type, xCoord, yCoord, 1, game);
+                // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
+                genForms.push(curGenform);
+                game.addEntity(curGenform);   
+                console.log(curGenform);
+            }
+        }
+    }
+}
+
 //builds the walls
 function genWalls (game, AM) {
     const wallSheet = AM.getAsset(PILLAR_PATH)
@@ -180,6 +259,7 @@ function genWalls (game, AM) {
         game.addEntity(new Wall(wallSheet, game, xLeft, destY));
         game.addEntity(new Wall(wallSheet, game, xRight, destY));
     }
+    return destY + firstWallSection.height;
 }
 
 
@@ -202,6 +282,10 @@ function MapAMDownloads(AM) {
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
+    AM.queueServerDownload(MAP_FILE_NAME);
+    for (const key of Object.keys(PROTO_PATHS)) {
+        AM.queueDownload(PROTO_PATHS[key]);
+    }
     AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);

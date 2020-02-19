@@ -29,7 +29,7 @@ const GLOOP_SHEET_PATHS_ORANGE = {'turning':"./Sprites/Usables/gloop(orange)/glo
 const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE,
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
 const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
-const PLACEFORM_LIMIT = 6;
+const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
@@ -65,15 +65,22 @@ class PlayerCharacter extends Entity {
         this.gloopSheetPath = gloopSheetPath;
         // console.log(this.gloopSheetPath);
 
-        //Collision 
+        //Collision
+        this.wasColliding = false; 
         this.colliding = false;
+        this.collidingTopLeft = false;
+        this.collidingTopRight = false;
+        this.collidingBotLeft = false;
+        this.collidingBotRight = false;
+        this.collidingTop = false;
         this.radius = 32;
         this.setupAnimations();
 
         // Movement
         this.facingLeft = false;
         this.facingRight = true;
-        this.speed = 100;
+        // this.speed = 100;
+        this.fallSpeed = 200;
         this.jumping = false;
         this.jumpY = this.y;
 
@@ -85,7 +92,7 @@ class PlayerCharacter extends Entity {
         this.dead = false;
         this.currentPlatform = null;
     }
-
+    
     setupAnimations() {
         this.moveLeftAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
         this.moveRightAnimation = new Animation(AM.getAsset(this.gloopSheetPath.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
@@ -130,65 +137,16 @@ class PlayerCharacter extends Entity {
 
     update() {
         super.update();
-
-        this.movingLeft = false;
-        this.movingRight = false;
-        if (this.game.left) {
-            this.movingLeft = true;
-            this.facingLeft = true;
-            this.facingRight = false;
+        this.wasColliding = false;
+        if (this.isSupported()) {
+            this.wasColliding = true;
         }
-        else if (this.game.right) {
-            this.movingRight = true;
-            this.facingRight = true;
-            this.facingLeft = false;
-        }
-        if (this.movingLeft) {
-            if (this.currentPlatform) {
-                const platformSlope = this.currentPlatform.equation.mSlope;
-                const platformB = this.currentPlatform.equation.gameB;
-                if (this.currentPlatform.type === 'left') {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    console.log(platformSlope, platformB);
-                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else  if (this.currentPlatform.type === 'right') {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    console.log(platformSlope, platformB);
-                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else {
-                    this.x -= this.game.clockTick * PLAYER_SPEED;
-                }
-
-            } else {
-                this.x -= this.game.clockTick * PLAYER_SPEED;
-            }
-            
-        } else if (this.movingRight) {
-            if (this.x < 1200 - 115) {  // stops character at the right border
-                if (this.currentPlatform) {
-                    const platformSlope = this.currentPlatform.equation.mSlope;
-                    const platformB = this.currentPlatform.equation.gameB;
-                    if (this.currentPlatform.type === 'left') {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        console.log(platformSlope, platformB);
-                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    } else  if (this.currentPlatform.type === 'right') {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        console.log(platformSlope, platformB);
-                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    } else {
-                        this.x += this.game.clockTick * PLAYER_SPEED;
-                    }
-
-                } else {
-                    this.x += this.game.clockTick * PLAYER_SPEED;
-                }
-                
-                
-            }
-        }
-
         this.colliding = false;
+        this.collidingTop = false;
+        this.collidingTopRight = false;
+        this.collidingTopLeft = false;
+        this.collidingBotLeft = false;
+        this.collidingBotRight = false;
         this.currentPlatform = null;
         this.checkCollisions();
         if (this.dead) {
@@ -203,18 +161,91 @@ class PlayerCharacter extends Entity {
             this.calcJump(this.deadAnimation);
             return;
         }
-        if (this.colliding) {
-            if (this.jumping)
+        if (this.isSupported() && !this.wasColliding) {
+            if (this.jumping) {
                 this.jumping = false;
+                this.jumpRightAnimation.elapsedTime = 0;
+                this.jumpLeftAnimation.elapsedTime = 0;
+            }
+                
         }
-        if (!this.jumping && !this.colliding) {
-            this.y += 1;
+        if (this.collidingTop || this.collidingTopLeft || this.collidingTopRight) {
+            if (this.jumping) {
+                console.log('here');
+                this.jumping = false;
+                this.jumpRightAnimation.elapsedTime = 0;
+                this.jumpLeftAnimation.elapsedTime = 0;
+            }
+            this.fallSpeed = 100;
+        } else {
+            this.fallSpeed = 75;
+        }
+        if (!this.jumping && !this.isSupported()) {
+            this.y += this.fallSpeed * this.game.clockTick;
+        }
+        this.movingLeft = false;
+        this.movingRight = false;
+        if (this.game.left) {
+            this.movingLeft = true;
+            this.facingLeft = true;
+            this.facingRight = false;
+        }
+        else if (this.game.right) {
+            this.movingRight = true;
+            this.facingRight = true;
+            this.facingLeft = false;
+        }
+        if (this.movingLeft) {
+            if (true) {
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.colliding)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else if (!(this.collidingTopLeft)) {
+                    this.x -= this.game.clockTick * PLAYER_SPEED;
+                }
+
+            } else {
+                this.x -= this.game.clockTick * PLAYER_SPEED;
+            }
+            
+        } else if (this.movingRight) {
+            if (this.x < 1200 - 115) {  // stops character at the right border
+                if (true) {
+                    // const platformSlope = this.currentPlatform.equation.mSlope;
+                    // const platformB = this.currentPlatform.equation.gameB;
+                    if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // console.log(platformSlope, platformB);
+                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
+                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // console.log(platformSlope, platformB);
+                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
+                    } else if (!(this.collidingTopRight)) {
+                        this.x += this.game.clockTick * PLAYER_SPEED;
+                    }
+
+                } else {
+                    this.x += this.game.clockTick * PLAYER_SPEED;
+                }
+                
+                
+            }
         }
 
 
 
         // if (this.game.jump) { //glitch jumpppsss
-        if (this.game.jump && !this.jumping) {
+        if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);
@@ -251,11 +282,11 @@ class PlayerCharacter extends Entity {
         //written to favor angled because it seems like those are going to be more likely to be used
         //also since jumping is going to disable platform placing do we want this before jump?
         //thinking of when a player jumps and places simultaneously
-        if (this.game.placeAngled) {
+        if (this.game.placeAngled && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else if (this.game.placeFlat) {
+        } else if (this.game.placeFlat && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
@@ -326,11 +357,11 @@ class PlayerCharacter extends Entity {
     draw(ctx) {
         let drawY;
         if (this.game.camera) {
-            // let drawY = this.cameraTransform(); 
+            drawY = this.cameraTransform(); 
         } else {
             drawY = this.y;
         }
-        //this  is where we get transformed coordinates, drawY will be null if player is off screen
+    //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (this.dead) {
             this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             return;
@@ -351,65 +382,11 @@ class PlayerCharacter extends Entity {
                     drawY + this.currentAttackAnimation.yOffset);
         }
     }
-    // draw(ctx) {
-    //     let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
-    //     if (drawY) {
-    //         if (this.dead) {
-    //             this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //             return;
-    //         } else if (this.jumping && this.facingLeft) {
-    //             this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //         } else if (this.jumping && !this.facingLeft) {
-    //             this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //         } else if (this.movingLeft) {
-    //             this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //         } else if (this.movingRight) {
-    //             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //         } else {
-    //             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-    //         }
-    //         if (this.attacking) {
-    //             this.currentAttackAnimation['animation'].drawFrame
-    //                 (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
-    //                     drawY + this.currentAttackAnimation.yOffset);
-    //             //This code is used to debug attacks
-    //             // this.ctx.save();
-    //             // this.ctx.fillStyle = 'red';
-    //             // this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
-    //             //     drawY + this.currentAttackAnimation.yOffset, 10, 10);
-    //             // this.ctx.beginPath();
-    //             // this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.currentAttackAnimation.angle), drawY + 36.5 + 32 * Math.sin(this.currentAttackAnimation.angle));
-    //             // let frame = this.currentAttackAnimation.animation.frames - this.currentAttackAnimation.animation.currentFrame();
-    //             // this.ctx.lineTo(this.x + this.currentAttackAnimation.xCalcAttack(frame), drawY + this.currentAttackAnimation.yCalcAttack(frame));
-    //             // this.ctx.stroke();
-    //             // this.ctx.restore();
-    //         }
 
-            
-            // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
-            // let ndx = 0;
-            // Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
-            //     let xO = this.attackCache[direction].xOffset;
-            //     let yO = this.attackCache[direction].yOffset;
-            //     // let xO = -2 * this.radius;
-            //     // let yO = -2 * this.radius;
-            //     this.attackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
-            //     this.ctx.save();
-            //     this.ctx.fillStyle = colors[ndx++];
-            //     this.ctx.beginPath();
-            //     this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.attackCache[direction].angle), drawY + 36.5 + 32 * Math.sin(this.attackCache[direction].angle));
-            //     let frame = this.attackCache[direction].animation.frames - this.attackCache[direction].animation.currentFrame();
-            //     this.ctx.lineTo(this.x + this.attackCache[direction].xCalcAttack(frame), drawY + this.attackCache[direction].yCalcAttack(frame));
-            //     this.ctx.stroke();
-            //     console.log(this.attackCache[direction].xCalcAttack(frame), this.attackCache[direction].yCalcAttack(frame));
-            //     this.ctx.fillRect(this.x + this.attackCache[direction].xCalcAttack(frame),
-            //         drawY + this.attackCache[direction].yCalcAttack(frame), 10, 10);
-            //     this.ctx.restore();
-            // });
-    //     }
-    //     //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
-    //     //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
-    // }
+    isSupported() {
+        return this.colliding || this.collidingBotLeft || this.collidingBotRight;
+    }
+
     checkCollisions() {
         isCharacterColliding(this);
     }
