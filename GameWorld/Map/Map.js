@@ -1,6 +1,6 @@
-const xCoordinatesGenforms = [];
-const yCoordinatesGenforms = [];
-const genForms = [];
+let xCoordinatesGenforms = [];
+let yCoordinatesGenforms = [];
+let genForms = [];
 const GENFORM_PATH = './Sprites/Usables/lvl0/placeform2.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';
@@ -121,10 +121,10 @@ function genGenforms (numOfGenForms, game, AM, mapHeight) {
     let xFound;
     let yFound;
 
-    // xCoordinatesGenforms = [];
-    // yCoordinatesGenforms = [];
-    // genForms = [];
-    // lowestGenformCoords = [0, 0];
+    xCoordinatesGenforms = [];
+    yCoordinatesGenforms = [];
+    genForms = [];
+    lowestGenformCoords = [0, 0];
     
     for (var j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
         let startIndex = xCoordinatesGenforms.length;

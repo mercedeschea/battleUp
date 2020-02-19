@@ -75,6 +75,7 @@ class SceneManager {
         // this.game.entities = [];
         this.game.scene = 'gameOver';
         this.game.entities = [];
+        console.log(this.playerCharacter);
         for (var i = this.game.entities.length - 1; i >= 0; --i) {
             this.game.entities[i].removeFromWorld = true;
         }
@@ -102,6 +103,7 @@ class GameOver {
         this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                                 this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
                                 this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
+        // this.game.ctx.
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
         this.game.addEntity(startButton); 
     }
@@ -175,8 +177,8 @@ class Score {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0,
                 this.spriteSheet.width/5, this.spriteSheet.height/5);
             //this.game.ctx.font("Press Start 2P");
-            this.game.ctx.font = ("20px Times New Roman");
-            this.game.ctx.fillStyle = "gold";
+            this.game.ctx.font = ("100px Press Start 2P");
+            this.game.ctx.fillStyle = "#D4AF37";
             //console.log(this.playerY);
             this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
         }

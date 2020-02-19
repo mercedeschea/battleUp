@@ -4,16 +4,26 @@
 <head>
     <meta charset="utf-8">
     <title>battleUp!</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script>
+        WebFont.load({
+            google: {
+                families: ['Press Start 2P']
+            }
+        });
+    </script>
     <script type="text/javascript" src="./GameEngine/gameengine.js"></script>
     <script type="text/javascript" src="./GameEngine/assetmanager.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Map.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Placeform.js"></script>
     <script type="text/javascript" src="./GameWorld/Characters/Collision.js"></script>    
     <script type="text/javascript" src="./GameWorld/Characters/PlayerCharacter.js"></script>
-    <audio id="soundTrack" <source src="./Music/Alien_One.wav" type="audio/wav"></audio>
+    <audio id="soundTrack" >
+        <source src="./Music/Alien_One.wav" type="audio/wav"> 
+    </audio>
     <script type="text/javascript" src="./GameEngine/scenemanager.js"></script>
     <script type="text/javascript" src="./main.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link id="pressStartFont" href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <canvas id="gameWorld" tabindex="1" width="1152" height="648" style="border: 1px solid brown; background: lightskyblue"></canvas>
