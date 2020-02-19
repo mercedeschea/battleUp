@@ -46,19 +46,19 @@ class SceneManager {
         console.log('game scene entities: ', this.game.entities)
         console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
-        let mapHeight = this.background.spritesheet.height;
+        this.game.mapHeight = this.background.spritesheet.height;
+
         this.playerCharacter = new PlayerCharacter(this.game, AM);
         //let musicManager = new MusicManager(document.getElementById("soundTrack"));
-        let camera = new Camera(this.game, SCROLL_SPEED, this.game.surfaceHeight, mapHeight, MUSIC_MANAGER, this.playerCharacter);
-        this.game.initCamera(mapHeight, camera);//we don't have game.mapHeight until here
-
+        console.log(this.game.surfaceHeight);
+        this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);//we don't have game.mapHeight until here
         this.game.addEntity(this.background);
         genWalls(this.game, AM);
         this.game.floor = new Floor(this.game, AM);
         this.game.addEntity(this.game.floor);
-        genGenforms(20, this.game, AM, mapHeight);
-        this.playerCharacter.x = lowestGenformCoords[0];
-        this.playerCharacter.y = lowestGenformCoords[1] - 64;
+        let startCoordinates = genGenforms(20, this.game, AM, 0, this.game.mapHeight - FLOOR_HEIGHT);
+        this.playerCharacter.x = startCoordinates.x;
+        this.playerCharacter.y = startCoordinates.y;
             
         this.game.addEntity(this.playerCharacter); 
         this.game.draw();

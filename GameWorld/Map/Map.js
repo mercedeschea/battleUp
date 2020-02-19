@@ -1,5 +1,3 @@
-const xCoordinatesGenforms = [];
-const yCoordinatesGenforms = [];
 const genForms = [];
 const PROTO_PATHS = {'center':'./Sprites/prototypes/horizontal.png',
 'left':'./Sprites/prototypes/backslash.png', 'right':'./Sprites/prototypes/forward.png', 'vertical':'./Sprites/prototypes/horizontal.png'};
@@ -18,7 +16,6 @@ const ROW_COUNT = 9;
 const HOR_BLOCK_SIZE = 120;
 const VERT_BLOCK_SIZE = 85;
 const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '|':'vertical'};
-let lowestGenformCoords = [0, 0];
 
 // this file now controls all map assets
 class Background {
@@ -127,6 +124,9 @@ class Floor {
 //and going down to endY(lowest point, highest gw coords)
 function genGenforms (numOfGenForms, game, AM, startY, endY) {
     // console.log("form width correction", formWidth);
+    const xCoordinatesGenforms = [];
+    const yCoordinatesGenforms = [];
+    let lowestGenformCoords = {x:0, y:0};
     const minHorizontalSeperation = PLATFORM_WIDTH;
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
@@ -156,8 +156,8 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
                 if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
                 } else {
-                    if (y > lowestGenformCoords[1] && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
-                        lowestGenformCoords = [x, y];
+                    if (y > lowestGenformCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
+                        lowestGenformCoords = {x:x, y:y};
                     }
                     yFound = true;
                     break;
@@ -174,6 +174,7 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
             
         }
     }
+    return lowestGenformCoords;
 }
 function genLevel0Exit(game, AM, startY) {
     lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);

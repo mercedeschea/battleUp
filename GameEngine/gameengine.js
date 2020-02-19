@@ -16,7 +16,7 @@ const SCROLL_PERCENTAGE = .6;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
-    constructor() {
+    constructor(musicManager) {
         this.gamepads = {};
         this.entities = [];
         this.ctx = null;
@@ -37,6 +37,7 @@ class GameEngine {
         this.active = true;
         this.over = false;
         this.scene = null;
+        this.musicManager = musicManager;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -48,9 +49,11 @@ class GameEngine {
         console.log('game initialized');
     }
     //initializes camera, in its own method because the background must be loaded first to determine map height
-    initCamera(mapHeight, musicManager, playerCharacter, startY) {
-        this.mapHeight = mapHeight;
-        this.camera = new Camera(this, SCROLL_SPEED, startY, musicManager, playerCharacter);
+    initCamera(playerCharacter, startY) {
+        if (!this.camera)
+            this.camera = new Camera(this, SCROLL_SPEED, startY, playerCharacter);
+        else
+            this.camera.totalDrawOffset = startY;
     }
     start(startY) {
         console.log("starting game");
@@ -108,13 +111,11 @@ class GameEngine {
                 that.active = true;
                 SCENE_MANAGER.gameScene();
                 that.start();
-                //uncomment for music on start
-                // this.camera.musicManager.activated = true;
             } else  if (that.scene == 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
             }
             else {
-                that.camera.musicManager.playPause();
+                that.musicManager.playPause();
             }
             //console.log('mouse up');
         }, false);
@@ -316,6 +317,11 @@ class MusicManager {
         this.currentMusic = music;
         this.activated = false;
     }
+    update() {
+        //if the player has interacted with the dom, play the music
+        if(this.musicManager.activated)
+            this.musicManager.currentMusic.play();
+    }
     playPause() {
         if(!this.currentMusic.paused) {
             console.log('here');
@@ -332,24 +338,22 @@ class MusicManager {
 //Records the total offset which we use to calculate drawing platforms and gloop
 //Also records the the offset for the current tick which we use to scroll the background
 class Camera {
-    constructor(game, speed, surfaceHeight, mapHeight, MUSIC_MANAGER, playerCharacter) {
+    constructor(game, speed, startY, playerCharacter) {
         this.game = game;
         this.speed = speed;
         this.totalDrawOffset = startY;
         this.currentDrawOffset = 0;
-        this.musicManager = MUSIC_MANAGER;
         this.playerCharacter = playerCharacter;
-        this.advanceTime = 0;//set to the amount of seconds you want to scroll the camera for
+        this.advanceTime = 0;
         this.advanceFactor = 15;
     }
     draw() {}
     update() {
-        //if the player has interacted with the dom, play the music
-        if(this.musicManager.activated)
-            this.musicManager.currentMusic.play();
         //if the player is at the top of the canvas
+        console.log(this);
+        console.log(this.playerCharacter.y - this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < 0) {
-            this.advanceTime = .5;
+            this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;

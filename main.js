@@ -72,7 +72,7 @@ AM.queueDownload(SCORE_TEXT);
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");
     let ctx = canvas.getContext("2d");
-    let gameEngine = new GameEngine(AM);
+    let gameEngine = new GameEngine(MUSIC_MANAGER);
     gameEngine.init(ctx);
     SCENE_MANAGER.game = gameEngine;
     // console.log(gameEngine);
