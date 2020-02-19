@@ -26,7 +26,7 @@ class PlaceformManager {
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 
-                x + characterWidth - 10, y - 87 * scale + characterHeight + 10, scale, this.game);
+                x + characterWidth - 5, y - 87 * scale + characterHeight + 5, scale, this.game);
                 this.placeformsCurrent.push(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 

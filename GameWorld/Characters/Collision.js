@@ -215,14 +215,14 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     && CircleInfo.cartesianX <= LineInfo.xRight;
     let clippingLeft = LineInfo.xLeft - CircleInfo.cartesianX <  CircleInfo.radius
     && LineInfo.xLeft - CircleInfo.cartesianX > 0;
-    let clippingRight = CircleInfo.cartesianX - LineInfo.xRight < CircleInfo.radius
+    let clippingRight = CircleInfo.cartesianX - LineInfo.xRight + platformThicknessCorrect < CircleInfo.radius
     && CircleInfo.cartesianX  - LineInfo.xRight > 0;
     //handle cases where player is at the top or bottom of a platform
     let rightAngled = LineInfo.mSlope === 1 ? true : false;
-    let aboveEdge = CircleInfo.cartesianY > contactY - platformThicknessCorrect;
+    let aboveEdge = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
     let aboveMiddle = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
-    let belowEdge = CircleInfo.cartesianY <= contactY + platformThicknessCorrect;
-    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) <= contactY + platformThicknessCorrect;
+    let belowEdge = CircleInfo.cartesianY < contactY;
+    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) < contactY + platformThicknessCorrect;
         // console.log("12f3YESYEYESYESYESYESYSEYSEYSS")git ;
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);

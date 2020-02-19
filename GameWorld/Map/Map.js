@@ -12,10 +12,10 @@ const MAP_FILE_NAME = "test.txt";
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
-const ROW_COUNT = 9;
-const HOR_BLOCK_SIZE = 120;
+const COL_COUNT = 10;
+const HOR_BLOCK_SIZE = 118;
 const VERT_BLOCK_SIZE = 85;
-const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '|':'vertical'};
+const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '_':'center', '|':'vertical'};
 
 // this file now controls all map assets
 class Background {
@@ -88,7 +88,7 @@ class Floor {
         this.type = type;
         //coordinates for new platform style
         // this.srcCoordinates = {'left':[417, 0], 'center':[179, 0], 'right':[0,0]};
-        // this.srcWidthAndHeight = {'left':[180, 179], 'center':[235, 24], 'right':[180, 179]};
+        // this.srcWidthAndHeight = {'left':[180, 179], 'center':[237, 24], 'right':[180, 179]};
         this.srcCoordinates = {'left':[212, 0], 'center':[90, 0], 'right':[0,0]};
         this.srcWidthAndHeight = {'left':[87, 87], 'center':[119, 12], 'right':[87, 87]};
         this.spriteSheet = spriteSheet;
@@ -124,6 +124,7 @@ class Floor {
 //and going down to endY(lowest point, highest gw coords)
 function genGenforms (numOfGenForms, game, AM, startY, endY) {
     // console.log("form width correction", formWidth);
+    genForms.splice(0, genForms.length);
     const xCoordinatesGenforms = [];
     const yCoordinatesGenforms = [];
     let lowestGenformCoords = {x:0, y:0};
@@ -176,11 +177,13 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
     }
     return lowestGenformCoords;
 }
+
 function genLevel0Exit(game, AM, startY) {
-    lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);
+    // lineOfGenForms(game, AM, startY - PLATFORM_HEIGHT);
     buildMapFromFile(game, AM, startY - 2 * VERT_BLOCK_SIZE, MAP_FILE_NAME);
     
 }
+
 function lineOfGenForms (game, AM, startY) {
     let drawXPoint = game.surfaceWidth/PLATFORM_WIDTH/3; 
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
@@ -211,13 +214,26 @@ function buildMapFromFile (game, AM, startY, fileName) {
     let bottomRow = mapInfo.length - 1;
     let i;
     for (i = bottomRow; i >= 0; i--) {
-        for (let j = 0; j < ROW_COUNT; j++ ) {
+        for (let j = 0; j < COL_COUNT; j++ ) {
             let type = MAPPING[mapInfo[i][j]];
             let validTypes = Object.keys(PROTO_PATHS);
             let checkMembership = (member) => member == type; 
             console.log(type, validTypes, type in validTypes);
-            if (validTypes.some(checkMembership)){
-                let curGenform = new Platform(genformSpriteSheet, type, j * HOR_BLOCK_SIZE, startY - i * VERT_BLOCK_SIZE, 1, game);
+            if (validTypes.some(checkMembership)){ //lol this is dumb but I don't know why the right way doesn't work
+            // if (type != 'none') {
+                let xCoord;
+                let yCoord; 
+                if (mapInfo[i][j] === '_') {
+                    xCoord = j * HOR_BLOCK_SIZE;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE + VERT_BLOCK_SIZE - PLATFORM_HEIGHT;
+                } else if (mapInfo[i][j]  === '/' || mapInfo[i][j] === '\\') {
+                    xCoord = j * HOR_BLOCK_SIZE + 17;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                } else {
+                    xCoord = j * HOR_BLOCK_SIZE;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                }
+                let curGenform = new Platform(genformSpriteSheet, type, xCoord, yCoord, 1, game);
                 // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
                 genForms.push(curGenform);
                 game.addEntity(curGenform);   

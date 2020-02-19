@@ -21,11 +21,11 @@ class SceneManager {
     startScene() {
         this.game.scene = 'start';
         this.game.over = false;
-        this.game.entities = [];
+        this.game.entities.splice(0, this.game.entities.length);
 
-        for (var i = this.game.entities.length - 1; i >= 0; --i) {
-            this.game.entities[i].removeFromWorld = true;
-        }
+        // for (var i = this.game.entities.length - 1; i >= 0; --i) {
+        //     this.game.entities[i].removeFromWorld = true;
+        // }
         // console.log('start scene entities: ', this.game.entities);
         
         this.startScreen = new StartScreen(this.game, AM);
@@ -39,10 +39,10 @@ class SceneManager {
 
     gameScene() {
         this.game.scene = 'game';   
-        this.game.entities = [];
-        for (var i = this.game.entities.length - 1; i >= 0; --i) {
-            this.game.entities[i].removeFromWorld = true;
-        }
+        this.game.entities.splice(0, this.game.entities.length);
+        // for (var i = this.game.entities.length - 1; i >= 0; --i) {
+        //     this.game.entities[i].removeFromWorld = true;
+        // }
         console.log('game scene entities: ', this.game.entities)
         console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
@@ -56,10 +56,10 @@ class SceneManager {
         genWalls(this.game, AM);
         this.game.floor = new Floor(this.game, AM);
         this.game.addEntity(this.game.floor);
-        let startCoordinates = genGenforms(20, this.game, AM, 0, this.game.mapHeight - FLOOR_HEIGHT);
+        let startCoordinates = genGenforms(40, this.game, AM, 7 * this.game.mapHeight/9, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
-        this.playerCharacter.y = startCoordinates.y;
-            
+        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        genLevel0Exit(this.game, AM, 7 * this.game.mapHeight/9);    
         this.game.addEntity(this.playerCharacter); 
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);

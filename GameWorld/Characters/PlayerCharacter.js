@@ -14,7 +14,7 @@ const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
 const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
-const PLACEFORM_LIMIT = 6;
+const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
@@ -54,8 +54,8 @@ class PlayerCharacter extends Entity {
         // Movement
         this.facingLeft = false;
         this.facingRight = true;
-        this.speed = 100;
-        this.fallSpeed = 75;
+        // this.speed = 100;
+        this.fallSpeed = 200;
         this.jumping = false;
         this.jumpY = this.y;
 
@@ -219,8 +219,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        if (this.game.jump) { //glitch jumpppsss
-        // if (this.game.jump && !this.jumping && this.colliding) {
+        // if (this.game.jump) { //glitch jumpppsss
+        if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);
@@ -330,63 +330,32 @@ class PlayerCharacter extends Entity {
     }
 
     draw(ctx) {
-        let drawY = this.cameraTransform(); //this  is where we get transformed coordinates, drawY will be null if player is off screen
-        if (drawY) {
-            if (this.dead) {
-                this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-                return;
-            } else if (this.jumping && this.facingLeft) {
-                this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.jumping && !this.facingLeft) {
-                this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingLeft) {
-                this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else if (this.movingRight) {
-                this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            } else {
-                this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
-            }
-            if (this.attacking) {
-                this.currentAttackAnimation['animation'].drawFrame
-                    (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
-                        drawY + this.currentAttackAnimation.yOffset);
-                //This code is used to debug attacks
-                // this.ctx.save();
-                // this.ctx.fillStyle = 'red';
-                // this.ctx.fillRect(this.x + this.currentAttackAnimation.xOffset,
-                //     drawY + this.currentAttackAnimation.yOffset, 10, 10);
-                // this.ctx.beginPath();
-                // this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.currentAttackAnimation.angle), drawY + 36.5 + 32 * Math.sin(this.currentAttackAnimation.angle));
-                // let frame = this.currentAttackAnimation.animation.frames - this.currentAttackAnimation.animation.currentFrame();
-                // this.ctx.lineTo(this.x + this.currentAttackAnimation.xCalcAttack(frame), drawY + this.currentAttackAnimation.yCalcAttack(frame));
-                // this.ctx.stroke();
-                // this.ctx.restore();
-            }
-
-            
-            // let colors = ['black', 'blue', 'green', 'red', 'yellow', 'orange', 'yellow', 'pink'];
-            // let ndx = 0;
-            // Object.keys(this.attackCache).forEach((direction) => {//function for testing attacks, leave until after resizing -sterling
-            //     let xO = this.attackCache[direction].xOffset;
-            //     let yO = this.attackCache[direction].yOffset;
-            //     // let xO = -2 * this.radius;
-            //     // let yO = -2 * this.radius;
-            //     this.attackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
-            //     this.ctx.save();
-            //     this.ctx.fillStyle = colors[ndx++];
-            //     this.ctx.beginPath();
-            //     this.ctx.moveTo(this.x + 32.5 + 32 * Math.cos(this.attackCache[direction].angle), drawY + 36.5 + 32 * Math.sin(this.attackCache[direction].angle));
-            //     let frame = this.attackCache[direction].animation.frames - this.attackCache[direction].animation.currentFrame();
-            //     this.ctx.lineTo(this.x + this.attackCache[direction].xCalcAttack(frame), drawY + this.attackCache[direction].yCalcAttack(frame));
-            //     this.ctx.stroke();
-            //     console.log(this.attackCache[direction].xCalcAttack(frame), this.attackCache[direction].yCalcAttack(frame));
-            //     this.ctx.fillRect(this.x + this.attackCache[direction].xCalcAttack(frame),
-            //         drawY + this.attackCache[direction].yCalcAttack(frame), 10, 10);
-            //     this.ctx.restore();
-            // });
+        let drawY;
+        if (this.game.camera) {
+            drawY = this.cameraTransform(); 
+        } else {
+            drawY = this.y;
         }
-        //this.attackCache[direction].yOffset - 5 + this.radius * (3 - frame * Math.sin(this.attackCache[direction].angle))
-        //this.attackCache[direction].xOffset - 5 + this.radius * (3 - frame * Math.cos(this.attackCache[direction].angle))
+    //this  is where we get transformed coordinates, drawY will be null if player is off screen
+        if (this.dead) {
+            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            return;
+        } else if (this.jumping && this.facingLeft) {
+            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.jumping && !this.facingLeft) {
+            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.movingLeft) {
+            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else if (this.movingRight) {
+            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        } else {
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+        }
+        if (this.attacking) {
+            this.currentAttackAnimation['animation'].drawFrame
+                (this.game.clockTick, this.ctx, this.x + this.currentAttackAnimation.xOffset,
+                    drawY + this.currentAttackAnimation.yOffset);
+        }
     }
 
     isSupported() {
