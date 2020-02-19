@@ -28,7 +28,7 @@ const GLOOP_SHEET_PATHS_ORANGE = {'turning':"./Sprites/Usables/gloop(orange)/glo
     'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png"};
 const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE,
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
-const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
+const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
