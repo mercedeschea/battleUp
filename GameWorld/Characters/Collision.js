@@ -16,23 +16,25 @@ function isCharacterColliding(PlayerCharacter) {
 
     for (const platform of pc.placeformManager.placeformsCurrent) {
         let equation = platform.equation;
-        let aboveLine = platform.ABOVEequation;
+        let aboveLine = platform.aboveEquation;
         if (platform.type === 'center') {
             if (isCircleCollidingWithHorizontalLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithHoriz = true;
                 console.log("colliding with horiz");
-                pc.y = pc.game.mapHeight - aboveLine.yValue;
+                pc.y = whereShouldMyCharacterBeHoriz(platform.aboveEquation, pc);
             }
         } else if (platform.type === 'left') {
             if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithLeftSlope = true;
+                pc.y = whereShouldMyCharacterBeSloped(platform.aboveEquation, pc, PlayerCircleInfo);
             }
         } else {
             if(isCircleCollidingWithSlopedLine(PlayerCircleInfo, equation, pc)) {
                 pc.colliding = true;
                 pc.collidingWithRightSlope = true;
+                pc.y = whereShouldMyCharacterBeSloped(platform.aboveEquation, pc, PlayerCircleInfo);
             }
         }
     }
@@ -46,8 +48,17 @@ function isCharacterColliding(PlayerCharacter) {
     }
 }
 
+function whereShouldMyCharacterBeHoriz(aboveLine, pc) {
+    // we just want to say put the y at the above line y
+    return pc.game.mapHeight - aboveLine.yValue;
+}
 
-
+function whereShouldMyCharacterBeSloped(aboveLine, pc, CircleInfo) {
+    // y = mx + b
+    // use x to find y
+    // wow it's the 5th grade!
+    return pc.game.mapHeight - (aboveLine.mSlope * CircleInfo.cartesianX + aboveLine.bOffset);
+}
 
 function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " / " */
     let slope = 1;
@@ -86,12 +97,21 @@ function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
         xRight: platform.x + 119
     };
 }
-function convertHorizontalPlatformToEquationABOVE(platform, gameWorldHeight) {
+function convertHorizontalEquationToAboveEquation(equation) {
     return {
-        yValue: gameWorldHeight - platform.y + 68, // 50 magic number rn
-        xLeft: platform.x, 
-        xRight: platform.x + 119
+        yValue: equation.yValue + 68, // height of gloop sprite
+        xLeft: equation.xLeft, 
+        xRight: equation.xRight
     };
+}
+function convertSlopedEquationToAboveEquation(equation) {
+    return {
+        mSlope: equation.mSlope,
+        bOffset: equation.bOffset + 68,////////
+        xLeft: equation.xLeft,
+        xRight: equation.xRight,
+        yValue: equation.yValue
+    }
 }
 
 

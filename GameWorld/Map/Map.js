@@ -84,12 +84,15 @@ class Floor {
         // Collision
         if (type == 'center') {
             this.equation = convertHorizontalPlatformToEquation(this, MAP_HEIGHT);
-            this.ABOVEequation = convertHorizontalPlatformToEquationABOVE(this, MAP_HEIGHT);
+            this.aboveEquation = convertHorizontalEquationToAboveEquation(this.equation);
         }
-        else if (type == 'right')
+        else if (type == 'right') {
             this.equation = convertRightSlopedPlatformToEquation(this, MAP_HEIGHT)
-        else 
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
+        } else { 
             this.equation = convertLeftSlopedPlatformToEquation(this, MAP_HEIGHT);
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
+        }
     }
     draw() {
         let drawY = this.cameraTransform(-40);
