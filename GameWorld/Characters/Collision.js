@@ -22,7 +22,7 @@ function isCharacterColliding(PlayerCharacter) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
-            // console.log(result);
+            console.log(result);
         }
         // if (result === 'fromBelow') {
         //     if (platform.type === 'left' || platform.type === 'right') 
@@ -239,7 +239,7 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     let aboveEdge = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
     let aboveMiddle = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
     let belowEdge = CircleInfo.cartesianY < contactYTopEdge;
-    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) < contactY;
+    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) < contactY;//I think this should be contactYTopEdge but I'll try it later.
         // console.log("12f3YESYEYESYESYESYESYSEYSEYSS")git ;
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);

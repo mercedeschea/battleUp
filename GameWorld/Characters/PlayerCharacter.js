@@ -51,7 +51,6 @@ function PlayerCharacterAMDownloads(AM) {
         AM.queueDownload(GLOOP_SHEET_PATHS_ORANGE[key]);
     }
     AM.queueDownload(DRILL_PROTO);
-    AM.queueDownload(GLOOP_DEAD);
 }
 
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
@@ -102,7 +101,7 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
-        this.deadAnimation = this.jumpRightAnimation;
+        this.deadAnimation = new Animation(AM.getAsset(gloopSheetPath.dead), 0, 0, 64, 68, 1, 1, false, true);
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -236,8 +235,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        if (this.game.jump) { //glitch jumpppsss
-        // if (this.game.jump && !this.jumping && this.isSupported()) {
+        // if (this.game.jump) { //glitch jumpppsss
+        if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);

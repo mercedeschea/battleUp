@@ -72,7 +72,7 @@ class SceneManager {
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);//we don't have game.mapHeight until here
         this.game.addEntity(this.background, 'general');
         genWalls(this.game, AM);
-        this.game.floor = new Floor(this.game, AM);
+        this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
         this.game.addEntity(this.game.floor, 'general');
         let startCoordinates = genGenforms(10, this.game, AM, this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
@@ -159,8 +159,8 @@ class StartScreen {
         // this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
         //     this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
         //     this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
-        let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
-        this.game.addEntity(startButton, 'general'); 
+        // let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
+        // this.game.addEntity(startButton, 'general'); 
         this.floor.draw();
         // this.game.addEntity(this.floor);
         // this.game.addEntity(this.startButton); 
