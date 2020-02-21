@@ -14,7 +14,7 @@ const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
 const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
 const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
 const GLOOP_DEAD = "./Sprites/Usables/gloopDead.png";
-const DRILL_PROTO = "./Sprites/Usables/tools/drillPrototype.png"
+const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
@@ -68,6 +68,7 @@ class PlayerCharacter extends Entity {
         this.floorTimer = 0;
         this.dead = false;
         this.currentPlatform = null;
+        this.cookies = 0;
     }
     
     setupAnimations() {
@@ -153,9 +154,6 @@ class PlayerCharacter extends Entity {
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumpLeftAnimation.elapsedTime = 0;
             }
-            this.fallSpeed = 100;
-        } else {
-            this.fallSpeed = 75;
         }
         if (!this.jumping && !this.isSupported()) {
             this.y += this.fallSpeed * this.game.clockTick;
@@ -173,7 +171,7 @@ class PlayerCharacter extends Entity {
             this.facingLeft = false;
         }
         if (this.movingLeft) {
-            if (true) {
+            if (this.x > 0) {
                 // const platformSlope = this.currentPlatform.equation.mSlope;
                 // const platformB = this.currentPlatform.equation.gameB;
                 if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
@@ -184,37 +182,29 @@ class PlayerCharacter extends Entity {
                     this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
                     // console.log(platformSlope, platformB);
                     this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else if (!(this.collidingTopLeft)) {
+                } else if (!(this.collidingTopLeft) && !(this.collidingBotLeft && this.collidingTop)) {
                     this.x -= this.game.clockTick * PLAYER_SPEED;
                 }
-
-            } else {
-                this.x -= this.game.clockTick * PLAYER_SPEED;
             }
             
         } else if (this.movingRight) {
-            if (this.x < 1200 - 115) {  // stops character at the right border
-                if (true) {
-                    // const platformSlope = this.currentPlatform.equation.mSlope;
-                    // const platformB = this.currentPlatform.equation.gameB;
-                    if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // console.log(platformSlope, platformB);
-                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
-                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // console.log(platformSlope, platformB);
-                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
-                    } else if (!(this.collidingTopRight)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED;
-                    }
-
-                } else {
+            if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
+                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
+                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
+                } else if (!(this.collidingTopRight) && !(this.collidingBotRight && this.collidingTop)) {
                     this.x += this.game.clockTick * PLAYER_SPEED;
                 }
-                
+            
                 
             }
         }
@@ -318,7 +308,7 @@ class PlayerCharacter extends Entity {
                 this.placeformManager.placeformsCurrent.splice(i, 1);
             }
         }
-        
+        this.placeformManager.placeformsCurrent.filter((platform) => {platform.removeFromWorld === false});
 
     }
 
@@ -366,6 +356,10 @@ class PlayerCharacter extends Entity {
 
     checkCollisions() {
         isCharacterColliding(this);
+    }
+
+    collectCookie() {
+        console.log(++this.cookies);
     }
 
 }

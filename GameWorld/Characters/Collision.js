@@ -18,7 +18,7 @@ function isCharacterColliding(PlayerCharacter) {
     let attackEquation;
     if(pc.attacking)
         attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
-    for (const platform of pc.placeformManager.placeformsCurrent) {
+    for (const platform of pc.game.entities.placeforms) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
@@ -37,7 +37,7 @@ function isCharacterColliding(PlayerCharacter) {
                 platform.removeFromWorld = true;
         }
     }
-    for (const platform of genForms) {
+    for (const platform of pc.game.entities.genforms) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result)
             pc[result] = true;
@@ -50,6 +50,15 @@ function isCharacterColliding(PlayerCharacter) {
         //     pc.collidingAbove = true;
         // }
            
+    }
+
+    for (const cookie of pc.game.entities.cookies) {
+        let result = isCircleCollidingWithCircle(PlayerCircleInfo, cookie.equation);
+        // console.log(cookie, result);
+        if (result) {
+            pc.collectCookie();
+            cookie.removeFromWorld = true;
+        }
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
@@ -204,6 +213,8 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     // lineYMax = Math.max(lineYLeft, lineYRight);
     let centerOffset = Math.sqrt(2)/2 * CircleInfo.radius * LineInfo.mSlope;
     let contactY = calcYFromX(LineInfo, CircleInfo.cartesianX + centerOffset);
+    let contactYTopEdge = calcYFromX(LineInfo, CircleInfo.cartesianX - centerOffset);
+
     // let platformThicknessCorrect = LineInfo.mSlope < 0 ? PLATFORM_HEIGHT : PLATFORM_HEIGHT * -1;
     let platformThicknessCorrect = PLATFORM_HEIGHT * LineInfo.mSlope;
     let answer = quadraticFormula(a, b, c);
@@ -219,12 +230,16 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     && LineInfo.xLeft - CircleInfo.cartesianX > 0;
     let clippingRight = CircleInfo.cartesianX - LineInfo.xRight + platformThicknessCorrect < CircleInfo.radius
     && CircleInfo.cartesianX  - LineInfo.xRight > 0;
+    // let clippingLeftTop = LineInfo.xLeft - CircleInfo.cartesianX + PLATFORM_HEIGHT <  CircleInfo.radius
+    // && LineInfo.xLeft - CircleInfo.cartesianX > 0;
+    // let clippingRightTop = CircleInfo.cartesianX - LineInfo.xRight + PLATFORM_HEIGHT < CircleInfo.radius
+    // && CircleInfo.cartesianX  - LineInfo.xRight > 0;
     //handle cases where player is at the top or bottom of a platform
     let rightAngled = LineInfo.mSlope === 1 ? true : false;
     let aboveEdge = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
     let aboveMiddle = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
-    let belowEdge = CircleInfo.cartesianY < contactY;
-    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) < contactY + platformThicknessCorrect;
+    let belowEdge = CircleInfo.cartesianY < contactYTopEdge;
+    let belowMiddle = CircleInfo.cartesianY + Math.abs(centerOffset) < contactY;
         // console.log("12f3YESYEYESYESYESYESYSEYSEYSS")git ;
         // console.log("12f3", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("12f3", CircleInfo.cartesianX <= LineInfo.xRight);
@@ -237,7 +252,7 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     } else {
         if((centerCollide && aboveMiddle) || (clippingRight && aboveEdge))
             return 'collidingBotLeft';
-        else if ((centerCollide && belowMiddle) || ((clippingLeft) && belowEdge))
+        else if ((centerCollide && belowMiddle) || (clippingLeft && belowEdge))
             return 'collidingTopRight';
     }
     return false;
@@ -267,13 +282,13 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         // console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
+    } else if ((CircleInfo.cartesianX + CircleInfo.radius >= LineInfo.xLeft) && (CircleInfo.cartesianX - CircleInfo.radius <= LineInfo.xRight) && (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
         // console.log("YESYEYESYESYESYESYSEYSEYSS");
         // console.log("1", CircleInfo.cartesianX >= LineInfo.xLeft);
         // console.log("2", CircleInfo.cartesianX <= LineInfo.xRight);
         // console.log("3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
         return 'colliding';
-    } else if ((CircleInfo.cartesianX >= LineInfo.xLeft) && (CircleInfo.cartesianX <= LineInfo.xRight) && (CircleInfo.cartesianY + CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
+    } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && (CircleInfo.cartesianY + CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
         return 'collidingTop';
     }
 }
@@ -305,12 +320,14 @@ function isPointOnLine(LineInfo, x, y) {
 }
 
 function isCircleCollidingWithCircle(PlayerCircleInfo, OtherCircleInfo) {
-    var dx = PlayerCircleInfo.cartesianX - OtherCircleInfo.cartesianY;
-    var dy = PlayerCircleInfo.cartesianY - OtherCircleInfo.cartesianY;
-    var distance = Math.sqrt(dx * dx + dy * dy);
+    console.log(PlayerCircleInfo, OtherCircleInfo);
+    let dx = PlayerCircleInfo.cartesianX - OtherCircleInfo.cartesianX;
+    let dy = PlayerCircleInfo.cartesianY - OtherCircleInfo.cartesianY;
+    let distance = Math.sqrt(dx * dx + dy * dy);
     if(distance < PlayerCircleInfo.radius + OtherCircleInfo.radius){
            return true;
     }
+    return false;
 }
 
 

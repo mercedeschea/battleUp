@@ -34,7 +34,7 @@ class PlaceformManager {
                 this.placeformsCurrent.push(placeformPlaced);
             }
         }
-        this.game.addEntity(placeformPlaced);
+        this.game.addEntity(placeformPlaced, 'placeforms');
         // console.log(this.placeformsCurrent);
     }
     // placeformsDraw() {
