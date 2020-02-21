@@ -92,7 +92,7 @@ class PlayerCharacter extends Entity {
         this.floorTimer = 0;
         this.dead = false;
         this.currentPlatform = null;
-
+        this.cookies = 0;
     }
     
     setupAnimations(gloopSheetPath) {
@@ -101,7 +101,7 @@ class PlayerCharacter extends Entity {
         this.lookForwardAnimation = new Animation(AM.getAsset(gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
         this.jumpLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
-        this.deadAnimation = this.jumpRightAnimation;
+        this.deadAnimation = new Animation(AM.getAsset(gloopSheetPath.dead), 0, 0, 64, 68, 1, 1, false, true);
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -178,9 +178,6 @@ class PlayerCharacter extends Entity {
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumpLeftAnimation.elapsedTime = 0;
             }
-            this.fallSpeed = 100;
-        } else {
-            this.fallSpeed = 75;
         }
         if (!this.jumping && !this.isSupported()) {
             this.y += this.fallSpeed * this.game.clockTick;
@@ -198,7 +195,7 @@ class PlayerCharacter extends Entity {
             this.facingLeft = false;
         }
         if (this.movingLeft) {
-            if (true) {
+            if (this.x > 0) {
                 // const platformSlope = this.currentPlatform.equation.mSlope;
                 // const platformB = this.currentPlatform.equation.gameB;
                 if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
@@ -209,37 +206,29 @@ class PlayerCharacter extends Entity {
                     this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
                     // console.log(platformSlope, platformB);
                     this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else if (!(this.collidingTopLeft)) {
+                } else if (!(this.collidingTopLeft) && !(this.collidingBotLeft && this.collidingTop)) {
                     this.x -= this.game.clockTick * PLAYER_SPEED;
                 }
-
-            } else {
-                this.x -= this.game.clockTick * PLAYER_SPEED;
             }
             
         } else if (this.movingRight) {
-            if (this.x < 1200 - 115) {  // stops character at the right border
-                if (true) {
-                    // const platformSlope = this.currentPlatform.equation.mSlope;
-                    // const platformB = this.currentPlatform.equation.gameB;
-                    if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // console.log(platformSlope, platformB);
-                        // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
-                        this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // console.log(platformSlope, platformB);
-                        this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                        // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
-                    } else if (!(this.collidingTopRight)) {
-                        this.x += this.game.clockTick * PLAYER_SPEED;
-                    }
-
-                } else {
+            if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
+                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
+                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
+                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // console.log(platformSlope, platformB);
+                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
+                    // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
+                } else if (!(this.collidingTopRight) && !(this.collidingBotRight && this.collidingTop)) {
                     this.x += this.game.clockTick * PLAYER_SPEED;
                 }
-                
+            
                 
             }
         }
@@ -343,7 +332,7 @@ class PlayerCharacter extends Entity {
                 this.placeformManager.placeformsCurrent.splice(i, 1);
             }
         }
-        
+        this.placeformManager.placeformsCurrent.filter((platform) => {platform.removeFromWorld === false});
 
     }
 
@@ -391,6 +380,10 @@ class PlayerCharacter extends Entity {
 
     checkCollisions() {
         isCharacterColliding(this);
+    }
+
+    collectCookie() {
+        console.log(++this.cookies);
     }
 
 }

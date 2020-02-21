@@ -3,7 +3,7 @@ const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
 const STARTSCREEN_PATH = './Sprites/Usables/lvl1/background.png';
 const STARTSCREEN_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
-
+const COOKIE_COUNT_SIZE_X = 150;
 class SceneManager {
     constructor(gameEngine, musicManager) {
         // this.scenes = [];
@@ -23,14 +23,7 @@ class SceneManager {
     startScene() {
         this.game.scene = 'start';
         this.game.over = false;
-        this.game.entities = [];
-        if (this.game.camera) {
-            this.game.camera = null;
-        }
-        
-        for (var i = this.game.entities.length - 1; i >= 0; --i) {
-            this.game.entities[i].removeFromWorld = true;
-        }
+        this.game.clearAllEntities();
 
         // console.log('start scene entities: ', this.game.entities);
         
@@ -41,17 +34,17 @@ class SceneManager {
         this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
 
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
-        this.game.addEntity(this.startScreen);
+        this.game.addEntity(this.startScreen, 'general');
         this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
-        this.game.addEntity(this.startButton);
+        this.game.addEntity(this.startButton, 'general');
 
         
 
 
-        this.game.addEntity(this.greenGloop);
-        this.game.addEntity(this.startScreen.purpleGloop);
-        this.game.addEntity(this.startScreen.orangeGloop);
-        this.game.addEntity(this.startScreen.blueGloop);
+        this.game.addEntity(this.greenGloop, 'general');
+        this.game.addEntity(this.startScreen.purpleGloop, 'general');
+        this.game.addEntity(this.startScreen.orangeGloop, 'general');
+        this.game.addEntity(this.startScreen.blueGloop, 'general');
         // console.log(this.startScreen.greenGloop.x);
         // console.log(this.startScreen.greenGloop.y);
         // console.log(this.game.camera);
@@ -64,7 +57,7 @@ class SceneManager {
 
     gameScene() {
         this.game.scene = 'game';   
-        this.game.entities.splice(0, this.game.entities.length);
+        this.game.clearAllEntities();
         // for (var i = this.game.entities.length - 1; i >= 0; --i) {
         //     this.game.entities[i].removeFromWorld = true;
         // }
@@ -77,18 +70,21 @@ class SceneManager {
         //let musicManager = new MusicManager(document.getElementById("soundTrack"));
         // console.log(this.game.surfaceHeight);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);//we don't have game.mapHeight until here
-        this.game.addEntity(this.background);
+        this.game.addEntity(this.background, 'general');
         genWalls(this.game, AM);
         this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
-        this.game.addEntity(this.game.floor);
+        this.game.addEntity(this.game.floor, 'general');
         let startCoordinates = genGenforms(10, this.game, AM, this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
         this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);    
-        this.game.addEntity(this.playerCharacter); 
+        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
+        // genCookies(100, this.game, AM, 0, this.game.mapHeight);
+        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
+        this.game.addEntity(testCookie, 'cookies');    
+        this.game.addEntity(this.playerCharacter, 'general'); 
         this.game.draw();
         let score = new Score(this.game, AM, this.playerCharacter);
-        this.game.addEntity(score);
+        this.game.addEntity(score, 'general');
             
         // console.log('start scene entities after game scene draw: ', this.game.entities);
         // for (var i = 0; i < this.game.entities.length; i++) {
@@ -99,15 +95,11 @@ class SceneManager {
     gameOverScene() {
         // this.game.entities = [];
         this.game.scene = 'gameOver';
-        this.game.entities = [];
-        // console.log(this.playerCharacter);
-        for (var i = this.game.entities.length - 1; i >= 0; --i) {
-            this.game.entities[i].removeFromWorld = true;
-        }
-        // console.log('gameOver scene entities: ', this.game.entities)
+        this.game.clearAllEntities();
+        console.log('gameOver scene entities: ', this.game.entities)
         
         this.gameOver = new GameOver(this.game, AM);
-        this.game.addEntity(this.gameOver);
+        this.game.addEntity(this.gameOver, 'general');
         this.gameOver.draw();
         // console.log('game scene entities after draw: ', this.game.entities)
         this.game.started = false;
@@ -130,7 +122,7 @@ class GameOver {
                                 this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
         // this.game.ctx.
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
-        this.game.addEntity(startButton); 
+        this.game.addEntity(startButton, 'general'); 
     }
 }
 
@@ -164,6 +156,11 @@ class StartScreen {
     }
     draw() {
         this.background.draw();
+        // this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+        //     this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
+        //     this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
+        // let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
+        // this.game.addEntity(startButton, 'general'); 
         this.floor.draw();
         // this.game.addEntity(this.floor);
         // this.game.addEntity(this.startButton); 
@@ -221,6 +218,9 @@ class Score {
         this.game = game;
         this.scoreTimer = new Timer();
         this.displayScore = 0;
+        this.displayCookie = new Cookie(AM.getAsset(COOKIE_PATH), 
+        this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
+        this.displayCookie.animation = null;
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
         this.maxY = 0;
@@ -236,6 +236,9 @@ class Score {
             this.game.ctx.fillStyle = "#D4AF37";
             //console.log(this.playerY);
             this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+            console.log(this.displayCookie);
+            this.displayCookie.draw();
+            this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
         }
         
         

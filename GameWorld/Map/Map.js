@@ -1,4 +1,5 @@
 const genForms = [];
+const cookies = [];
 const PROTO_PATHS = {'center':'./Sprites/prototypes/horizontal.png',
 'left':'./Sprites/prototypes/backslash.png', 'right':'./Sprites/prototypes/forward.png', 'vertical':'./Sprites/prototypes/horizontal.png'};
 const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
@@ -8,14 +9,16 @@ const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
 const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
+const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
 const MAP_FILE_NAME = "test.txt";
+const COOKIE_RADIUS = 21;
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
 const FLOOR_HEIGHT = 30;
 const COL_COUNT = 10;
 const HOR_BLOCK_SIZE = 85;
 const VERT_BLOCK_SIZE = 85;
-const MAPPING = {'.':'none', '\\':'left', '/':'right', '-':'center', '_':'center', '|':'vertical'};
+const MAPPING = {'\\':'left', '/':'right', '-':'center', '_':'center', '|':'vertical', 'c':'cookie'};
 
 // this file now controls all map assets
 class Background {
@@ -77,6 +80,36 @@ class Floor {
     update() {}
 }
 
+class Cookie extends Entity {
+    self = this;
+    constructor(spriteSheet, destX, destY, game) {
+        super(self, game, destX, destY);
+        this.spriteSheet = spriteSheet;
+        this.scale = .3;
+        this.animation = new Animation(spriteSheet, 0, 0, 130, 134, .1, 5, true, false);
+        this.radius = this.animation.frameHeight * this.scale / 2;
+        let gwCoords = convertCharacterToGameWorldCoords(destX, destY);
+        let cartCoords = convertToCartesianCoords(gwCoords.gameWorldX, gwCoords.gameWorldY, game.mapHeight);
+        this.equation = {
+            radius:this.radius,
+            cartesianX: cartCoords.cartesianX,
+            cartesianY: cartCoords.cartesianY
+        };
+    }
+    update(){}
+    draw(){
+        let drawY = this.y;
+        if(this.game.camera) {
+            drawY = this.cameraTransform(-40);
+        }
+        if(this.animation)
+            this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, this.scale);
+        //draw for the display cookie
+        else
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, 130, 134, 
+                this.x, this.y, this.scale * 130, this.scale * 134);
+    }
+}
 
  //Type should be a string, 'center', 'left' or 'right depending on the desired platform 
  //this is now the class for both genforms and placeforms
@@ -119,34 +152,64 @@ class Floor {
         }
     }
 }
+
+function genCookies(numberOfCoins, game, AM, startY, end) {
+    generatedCoordinates = randomlyDistributeItems(numberOfCoins, game, startY, end);
+    const xCoords = generatedCoordinates.xCoords;
+    const yCoords = generatedCoordinates.yCoords;
+    const cookieSpriteSheet = AM.getAsset(COOKIE_PATH);
+    let i;
+    for (i = 0; i < xCoords.length; i++) {
+        let curCookie = new Cookie(cookieSpriteSheet, xCoords[i], yCoords[i], game);
+        // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+        game.addEntity(curCookie, 'cookies');
+    }
+    // console.log(cookies);
+}
+
 //this function randomly generates genforms in groups per canvas height of the map
 //starting from startY(highest point, lowest value gw coords)
 //and going down to endY(lowest point, highest gw coords)
 function genGenforms (numOfGenForms, game, AM, startY, endY) {
     // console.log("form width correction", formWidth);
     genForms.splice(0, genForms.length);
-    const xCoordinatesGenforms = [];
-    const yCoordinatesGenforms = [];
-    let lowestGenformCoords = {x:0, y:0};
+    const generatedCoordinates = randomlyDistributeItems(numOfGenForms, game, startY, endY);
+    const xCoords = generatedCoordinates.xCoords;
+    const yCoords = generatedCoordinates.yCoords;
+    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
+    let i;
+    for (i = 0; i < xCoords.length; i++) {
+        let curGenform = new Platform(genformSpriteSheet, 'center', xCoords[i], yCoords[i], 1, game);
+        // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
+        game.addEntity(curGenform, 'genforms');
+    }
+    return generatedCoordinates.lowest;
+}
+//randomly generates coordinates
+//starting from startY(highest point, lowest value gw coords)
+//and going down to endY(lowest point, highest gw coords)
+function randomlyDistributeItems(numOfItems, game, startY, endY) {
+    const xCoordinates = [];
+    const yCoordinates = [];
+    let lowestCoords = {x:0, y:0};
     const minHorizontalSeperation = PLATFORM_WIDTH;
     const minVerticalSeperation = Math.floor(game.surfaceHeight/10);
-    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     let x, y;
     let tryLimit = 20;
-    numCanvasesInLevel = Math.floor(endY/game.surfaceHeight);
+    numCanvasesInLevel = Math.floor((endY - startY)/game.surfaceHeight);
     let xFound;
     let yFound;
     let yOffset = startY;
     let j;
-    for (j = 0; j <= numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
-        let startIndex = xCoordinatesGenforms.length;
-        for (var i = 0; i < numOfGenForms/numCanvasesInLevel; i++) {
+    for (j = 0; j < numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
+        let startIndex = xCoordinates.length;
+        for (var i = 0; i < numOfItems/numCanvasesInLevel; i++) {
             xFound = false;
             yFound = false;
             x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
             y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
             for (let i = 0; i < tryLimit; i++) {
-                if (rejectCoordinate(x, xCoordinatesGenforms, minHorizontalSeperation, startIndex)) {
+                if (rejectCoordinate(x, xCoordinates, minHorizontalSeperation, startIndex)) {
                     x = getRandomInt(game.surfaceWidth - minHorizontalSeperation);
                 } else {
                     xFound = true;
@@ -154,28 +217,24 @@ function genGenforms (numOfGenForms, game, AM, startY, endY) {
                 }
             }
             for (let i = 0; i < tryLimit; i++) {
-                if (rejectCoordinate(y, yCoordinatesGenforms, minVerticalSeperation, startIndex)) {
+                if (rejectCoordinate(y, yCoordinates, minVerticalSeperation, startIndex)) {
                     y = getRandomInt(game.surfaceHeight - minVerticalSeperation) + j * game.surfaceHeight + yOffset;
                 } else {
-                    if (y > lowestGenformCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
-                        lowestGenformCoords = {x:x, y:y};
+                    if (y > lowestCoords.y && y < endY - PLATFORM_HEIGHT - FLOOR_HEIGHT) { //this finds our spawn point for gloop
+                        lowestCoords = {x:x, y:y};
                     }
                     yFound = true;
                     break;
                 }    
             }
             if(xFound && yFound) {
-                xCoordinatesGenforms.push(x);
-                yCoordinatesGenforms.push(y);
-                let curGenform = new Platform(genformSpriteSheet, 'center', x, y, 1, game);
-                // curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
-                genForms.push(curGenform);
-                game.addEntity(curGenform);
+                xCoordinates.push(x);
+                yCoordinates.push(y);
             }
             
         }
     }
-    return lowestGenformCoords;
+    return {xCoords:xCoordinates, yCoords:yCoordinates, lowest:lowestCoords};
 }
 
 function genLevel0Exit(game, AM, startY) {
@@ -190,15 +249,13 @@ function lineOfGenForms (game, AM, startY) {
     for (let i = 0; i < drawXPoint; i++) {
         let curGenform = new Platform(genformSpriteSheet, 'center', i * PLATFORM_WIDTH, startY, 1, game);
         curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
-        genForms.push(curGenform);
-        game.addEntity(curGenform);
+        game.addEntity(curGenform, 'genforms');
     }
     drawXPoint = 2 * game.surfaceWidth/PLATFORM_WIDTH/3;
     for (let i = drawXPoint; i < game.surfaceWidth/PLATFORM_WIDTH; i++) {
         let curGenform = new Platform(genformSpriteSheet, 'center', i * PLATFORM_WIDTH, startY, 1, game);
         curGenform.animation = new Animation(AM.getAsset(FLASHFORM), 0, 0, 118.75, 16, .1, 4, true, false);
-        genForms.push(curGenform);
-        game.addEntity(curGenform);
+        game.addEntity(curGenform, 'genforms');
     }
 
 }
@@ -206,38 +263,46 @@ function lineOfGenForms (game, AM, startY) {
 function buildMapFromFile (game, AM, startY, fileName) {
     const mapInfo = AM.getServerAsset(fileName);
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
-    
+    const cookieSpriteSheet = AM.getAsset(COOKIE_PATH);
     if (!mapInfo) {
         // console.log("error with map file");
         return;
     }
     let bottomRow = mapInfo.length - 1;
     let i;
+    let validTypes = Object.values(MAPPING);
     for (i = bottomRow; i >= 0; i--) {
         for (let j = 0; j < COL_COUNT; j++ ) {
             let type = MAPPING[mapInfo[i][j]];
-            let validTypes = Object.keys(PROTO_PATHS);
             let checkMembership = (member) => member == type; 
             // console.log(type, validTypes, type in validTypes);
             if (validTypes.some(checkMembership)){ //lol this is dumb but I don't know why the right way doesn't work
             // if (type != 'none') {
                 let xCoord;
                 let yCoord; 
-                if (mapInfo[i][j] === '_') {
-                    xCoord = j * HOR_BLOCK_SIZE;
-                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE + VERT_BLOCK_SIZE - PLATFORM_HEIGHT;
-                } else if (mapInfo[i][j]  === '/' || mapInfo[i][j] === '\\') {
-                    xCoord = j * HOR_BLOCK_SIZE;
-                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
-                } else {
-                    xCoord = j * HOR_BLOCK_SIZE;
-                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                if (type === 'cookie') {
+                    xCoord = j * HOR_BLOCK_SIZE + HOR_BLOCK_SIZE/2 - COOKIE_RADIUS;
+                    yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE - VERT_BLOCK_SIZE/2 - COOKIE_RADIUS;
+                    let curCookie = new Cookie(cookieSpriteSheet, xCoord, yCoord, game);
+                    game.addEntity(curCookie, 'cookies');
                 }
-                let curGenform = new Platform(genformSpriteSheet, type, xCoord, yCoord, 1, game);
-                // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
-                genForms.push(curGenform);
-                game.addEntity(curGenform);   
-                // console.log(curGenform);
+                else {
+                    if (mapInfo[i][j] === '_') {
+                        xCoord = j * HOR_BLOCK_SIZE;
+                        yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE + VERT_BLOCK_SIZE - PLATFORM_HEIGHT;
+                    } else if (mapInfo[i][j]  === '/' || mapInfo[i][j] === '\\') {
+                        xCoord = j * HOR_BLOCK_SIZE;
+                        yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                    } else {
+                        xCoord = j * HOR_BLOCK_SIZE;
+                        yCoord = startY - (bottomRow - i) * VERT_BLOCK_SIZE;
+                    }
+                    let curGenform = new Platform(genformSpriteSheet, type, xCoord, yCoord, 1, game);
+                    // curGenform.animation = new Animation(AM.getAsset(PROTO_PATHS[type]), 0, 0, 128, 128, .1, 1, true, false);
+                    game.addEntity(curGenform, 'genforms');   
+                    // console.log(curGenform);
+
+                }
             }
         }
     }
@@ -252,12 +317,12 @@ function genWalls (game, AM) {
     let xRight = game.surfaceWidth - firstWallSection.animation.frameWidth + 2;
     firstWallSection.x = xLeft;
     firstWallSection.y = destY;
-    game.addEntity(firstWallSection);
-    game.addEntity(new Wall(wallSheet, game, xRight, destY));
+    game.addEntity(firstWallSection, 'general');
+    game.addEntity(new Wall(wallSheet, game, xRight, destY), 'general');
 
     for (;destY > -firstWallSection.height; destY -= (firstWallSection.height)) {
-        game.addEntity(new Wall(wallSheet, game, xLeft, destY));
-        game.addEntity(new Wall(wallSheet, game, xRight, destY));
+        game.addEntity(new Wall(wallSheet, game, xLeft, destY), 'general');
+        game.addEntity(new Wall(wallSheet, game, xRight, destY), 'general');
     }
     return destY + firstWallSection.height;
 }
@@ -289,6 +354,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
+    AM.queueDownload(COOKIE_PATH);
     AM.queueDownload(STARTSCREEN_PATH);
     AM.queueDownload(STARTSCREEN_FLOOR);
 }

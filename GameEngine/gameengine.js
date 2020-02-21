@@ -18,7 +18,7 @@ const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 class GameEngine {
     constructor(musicManager) {
         this.gamepads = {};
-        this.entities = [];
+        this.entities = {general:[], genforms:[], placeforms:[], cookies:[]};
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
@@ -193,9 +193,15 @@ class GameEngine {
     //     playerCharacter.y = lowestGenformCoords[1] - 64;
     //     this.playerCharacter = 
     // }
-    addEntity(entity) {
+    clearAllEntities() {
+        const entityTypes = Object.keys(this.entities);
+        for (const type of entityTypes) {
+            this.entities[type].splice(0,this.entities[type].length);
+        }
+    }
+    addEntity(entity, type) {
         console.log('added entity');
-        this.entities.push(entity);
+        this.entities[type].push(entity);
         this.moveRight = null;
         this.moveLeft = null;
     }
@@ -205,8 +211,12 @@ class GameEngine {
         }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
-        for (var i = 0; i < this.entities.length; i++) {
-            this.entities[i].draw();
+        let entityTypes = Object.keys(this.entities);
+        console.log(entityTypes);
+        for (const type of entityTypes) {
+            for (var i = 0; i < this.entities[type].length; i++) {
+                this.entities[type][i].draw();
+            }
         }
         this.ctx.restore();
     }
@@ -214,16 +224,26 @@ class GameEngine {
         // if (this.gamepads[0]) {
         //     this.controllerStatus(this.gamepads[0]);
         // }
-        var entitiesCount = this.entities.length;
-        for (var i = 0; i < entitiesCount; i++) {
-            var entity = this.entities[i];
-            if (!entity.removeFromWorld) {
-                entity.update();
+        const entityTypes = Object.keys(this.entities);
+        for (const  type of entityTypes) {
+            const typeCount = this.entities[type].length;
+            for (var i = 0; i < typeCount; i++) {
+                var entity = this.entities[type][i];
+                if (!entity.removeFromWorld) {
+                    entity.update();
+                }
             }
         }
-        for (var i = this.entities.length - 1; i >= 0; --i) {
-            if (this.entities[i].removeFromWorld) {
-                this.entities.splice(i, 1);
+        
+        // cookies.filter((cookie) => {
+        //     console.log(cookie);
+        //     cookie.removeFromWorld === false;
+        // });
+        for (const  type of entityTypes) {
+            for (var i = this.entities[type].length - 1; i >= 0; --i) {
+                if (this.entities[type][i].removeFromWorld) {
+                    this.entities[type].splice(i, 1);
+                }
             }
         }
         if (this.over) {
