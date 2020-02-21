@@ -22,7 +22,7 @@ function isCharacterColliding(PlayerCharacter) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
-            console.log(result);
+            // console.log(result);
         }
         // if (result === 'fromBelow') {
         //     if (platform.type === 'left' || platform.type === 'right') 

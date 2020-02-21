@@ -56,8 +56,8 @@ class Wall extends Entity{
 }
 
 class Floor {
-    constructor(game, AM) {
-        this.spriteSheet = AM.getAsset(FLOOR_PATH);
+    constructor(game, AM, spriteSheet) {
+        this.spriteSheet = spriteSheet;
         this.game = game;
         this.flashing = false;
         this.flashTime = 3;
@@ -265,7 +265,7 @@ function buildMapFromFile (game, AM, startY, fileName) {
     const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
     const cookieSpriteSheet = AM.getAsset(COOKIE_PATH);
     if (!mapInfo) {
-        console.log("error with map file");
+        // console.log("error with map file");
         return;
     }
     let bottomRow = mapInfo.length - 1;
@@ -355,6 +355,8 @@ function MapAMDownloads(AM) {
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
     AM.queueDownload(COOKIE_PATH);
+    AM.queueDownload(STARTSCREEN_PATH);
+    AM.queueDownload(STARTSCREEN_FLOOR);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

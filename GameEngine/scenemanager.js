@@ -1,5 +1,7 @@
 const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
+const STARTSCREEN_PATH = './Sprites/Usables/lvl1/background.png';
+const STARTSCREEN_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 class SceneManager {
@@ -23,17 +25,33 @@ class SceneManager {
         this.game.over = false;
         this.game.clearAllEntities();
 
-        // for (var i = this.game.entities.length - 1; i >= 0; --i) {
-        //     this.game.entities[i].removeFromWorld = true;
-        // }
         // console.log('start scene entities: ', this.game.entities);
         
-        this.startScreen = new StartScreen(this.game, AM);
-        // console.log(this.game.scene);
+
+        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
+        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE);
+        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
+
+        this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.addEntity(this.startScreen, 'general');
-        let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
-        this.game.addEntity(startButton, 'general');
+        this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
+        this.game.addEntity(this.startButton, 'general');
+
+        
+
+
+        this.game.addEntity(this.greenGloop, 'general');
+        this.game.addEntity(this.startScreen.purpleGloop, 'general');
+        this.game.addEntity(this.startScreen.orangeGloop, 'general');
+        this.game.addEntity(this.startScreen.blueGloop, 'general');
+        // console.log(this.startScreen.greenGloop.x);
+        // console.log(this.startScreen.greenGloop.y);
+        // console.log(this.game.camera);
+
+
         this.game.draw();
+
         // console.log('start scene entities after start scene draw: ', this.game.entities);
     }
 
@@ -43,14 +61,14 @@ class SceneManager {
         // for (var i = this.game.entities.length - 1; i >= 0; --i) {
         //     this.game.entities[i].removeFromWorld = true;
         // }
-        console.log('game scene entities: ', this.game.entities)
-        console.log(this.game.scene);
+        // console.log('game scene entities: ', this.game.entities)
+        // console.log(this.game.scene);
         this.background = new Background(this.game, AM, BACKGROUND_PATH);
         this.game.mapHeight = this.background.spritesheet.height;
 
-        this.playerCharacter = new PlayerCharacter(this.game, AM);
+        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         //let musicManager = new MusicManager(document.getElementById("soundTrack"));
-        console.log(this.game.surfaceHeight);
+        // console.log(this.game.surfaceHeight);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);//we don't have game.mapHeight until here
         this.game.addEntity(this.background, 'general');
         genWalls(this.game, AM);
@@ -83,7 +101,7 @@ class SceneManager {
         this.gameOver = new GameOver(this.game, AM);
         this.game.addEntity(this.gameOver, 'general');
         this.gameOver.draw();
-        console.log('game scene entities after draw: ', this.game.entities)
+        // console.log('game scene entities after draw: ', this.game.entities)
         this.game.started = false;
     }
 }
@@ -102,18 +120,40 @@ class GameOver {
         this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                                 this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
                                 this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
+        // this.game.ctx.
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
         this.game.addEntity(startButton, 'general'); 
     }
 }
 
 class StartScreen {
-    constructor(gameEngine, AM) {
+    constructor(gameEngine, AM, greenGloop, purpleGloop, orangeGloop, blueGloop) {
         this.game = gameEngine;
-        this.background = new Background(this.game, AM, GAMEOVER_PATH);
+        this.background = new Background(this.game, AM, STARTSCREEN_PATH);
+        this.floor = new Floor(this.game, AM, AM.getAsset(STARTSCREEN_FLOOR));
+        // this.startButton = new StartButton()
+
+        this.greenGloop = greenGloop;
+        this.purpleGloop = purpleGloop;
+        this.orangeGloop = orangeGloop;
+        this.blueGloop = blueGloop;
+
+        this.gloopY = this.game.surfaceHeight - 123;
+        this.greenGloop.x = this.game.surfaceWidth/3;
+        this.purpleGloop.x = this.game.surfaceWidth/3 + 100;
+        this.orangeGloop.x = this.game.surfaceWidth/3 + 200;
+        this.blueGloop.x = this.game.surfaceWidth/3 + 300;
+        // this.greenGloop.y = this.game.surfaceHeight - 55 * 2;
+        this.greenGloop.y = this.gloopY;
+        this.purpleGloop.y = this.gloopY;
+        this.orangeGloop.y = this.gloopY;
+        this.blueGloop.y = this.gloopY;
+        // console.log(this.greenGloop.y);
 
     }
-    update() {}
+    update() {
+        this.greenGloop.jumping = true;
+    }
     draw() {
         this.background.draw();
         // this.game.ctx.drawImage(this.spritesheet, 0, 0, this.spriteWidth, this.spriteHeight, 
@@ -121,6 +161,20 @@ class StartScreen {
         //     this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
         this.game.addEntity(startButton, 'general'); 
+        this.floor.draw();
+        // this.game.addEntity(this.floor);
+        // this.game.addEntity(this.startButton); 
+        // this.game.addEntity(this.greenGloop);
+        // this.game.addEntity(this.purpleGloop);
+        // this.game.addEntity(this.orangeGloop);
+        // this.game.addEntity(this.blueGloop);
+        
+        // this.greenGloop.draw();
+        
+        // this.greenGloop.draw(this.game.ctx);
+        // this.purpleGloop.draw(this.game.ctx);
+        // this.orangeGloop.draw(this.game.ctx);
+        // this.blueGloop.draw(this.game.ctx);
     }
 }
 
@@ -179,7 +233,7 @@ class Score {
                 this.spriteSheet.width/5, this.spriteSheet.height/5);
             //this.game.ctx.font("Press Start 2P");
             this.game.ctx.font = ("20px Times New Roman");
-            this.game.ctx.fillStyle = "gold";
+            this.game.ctx.fillStyle = "#D4AF37";
             //console.log(this.playerY);
             this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
             console.log(this.displayCookie);
@@ -205,6 +259,3 @@ class Score {
     loop() { 
     }
 }
-
-
-

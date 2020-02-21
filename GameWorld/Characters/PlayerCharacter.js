@@ -1,19 +1,33 @@
-const GLOOP_SHEET_PATHS_GREEN = {'turning':"./Sprites/Usables/glopTurn(green).png",
-'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
-'hopRight':"./Sprites/Usables/glopHopRight(green).png",
-'lookForward':"./Sprites/Usables/gloop(green).png",
-'turning':"./Sprites/Usables/glopTurn(green).png"};
-const GLOOP_SHEET_PATHS_PURPLE = {'turning':"./Sprites/Usables/glopTurn(purple).png",
-'hopLeft':"./Sprites/Usables/glopHopLeft(green).png",
-'hopRight':"./Sprites/Usables/glopHopRight(green).png",
-'lookForward':"./Sprites/Usables/gloop(green).png",
-'turning':"./Sprites/Usables/glopTurn(green).png"};
-const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE};
-const GLOOP_TURNING = "./Sprites/Usables/glopTurn(green).png";
-const GLOOP_HOP_LEFT = "./Sprites/Usables/glopHopLeft(green).png";
-const GLOOP_HOP_RIGHT = "./Sprites/Usables/glopHopRight(green).png";
-const GLOOP_LOOK_FORWARD = "./Sprites/Usables/gloop(green).png";
-const GLOOP_DEAD = "./Sprites/Usables/gloopDead.png";
+const GLOOP_SHEET_PATHS_GREEN = {'turning':"./Sprites/Usables/gloop(green)/gloopTurn.png",
+    'hopLeft':"./Sprites/Usables/gloop(green)/gloopHopLeft.png",
+    'hopRight':"./Sprites/Usables/gloop(green)/gloopHopRight.png",
+    'sad':"./Sprites/Usables/gloop(green)/gloopFloor.png",
+    'dead':"./Sprites/Usables/gloop(green)/gloopDead.png",
+    'lookForward':"./Sprites/Usables/gloop(green)/gloop.png",
+    'turning':"./Sprites/Usables/gloop(green)/gloopTurn.png"};
+const GLOOP_SHEET_PATHS_PURPLE = {'turning':"./Sprites/Usables/gloop(purple)/gloopTurn.png",
+    'hopLeft':"./Sprites/Usables/gloop(purple)/gloopHopLeft.png",
+    'hopRight':"./Sprites/Usables/gloop(purple)/gloopHopRight.png",
+    'sad':"./Sprites/Usables/gloop(purple)/gloopFloor.png",
+    'dead':"./Sprites/Usables/gloop(purple)/gloopDead.png",
+    'lookForward':"./Sprites/Usables/gloop(purple)/gloop.png",
+    'turning':"./Sprites/Usables/gloop(purple)/gloopTurn.png"};
+const GLOOP_SHEET_PATHS_BLUE = {'turning':"./Sprites/Usables/gloop(blue)/gloopTurn.png",
+    'hopLeft':"./Sprites/Usables/gloop(blue)/gloopHopLeft.png",
+    'hopRight':"./Sprites/Usables/gloop(blue)/gloopHopRight.png",
+    'sad':"./Sprites/Usables/gloop(blue)/gloopFloor.png",
+    'dead':"./Sprites/Usables/gloop(blue)/gloopDead.png",
+    'lookForward':"./Sprites/Usables/gloop(blue)/gloop.png",
+    'turning':"./Sprites/Usables/gloop(blue)/gloopTurn.png"};
+const GLOOP_SHEET_PATHS_ORANGE = {'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png",
+    'hopLeft':"./Sprites/Usables/gloop(orange)/gloopHopLeft.png",
+    'hopRight':"./Sprites/Usables/gloop(orange)/gloopHopRight.png",
+    'sad':"./Sprites/Usables/gloop(orange)/gloopFloor.png",
+    'dead':"./Sprites/Usables/gloop(orange)/gloopDead.png",
+    'lookForward':"./Sprites/Usables/gloop(orange)/gloop.png",
+    'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png"};
+const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE,
+                           'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
 const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 4;
 const PLAYER_RADIUS = 32;
@@ -24,10 +38,18 @@ const PLAYER_SPEED = 200;
 const GOD_MODE = false;
 
 function PlayerCharacterAMDownloads(AM) {
-    AM.queueDownload(GLOOP_HOP_LEFT);
-    AM.queueDownload(GLOOP_HOP_RIGHT);
-    AM.queueDownload(GLOOP_LOOK_FORWARD);
-    AM.queueDownload(GLOOP_TURNING);
+    for (const key of Object.keys(GLOOP_SHEET_PATHS_GREEN)) {
+        AM.queueDownload(GLOOP_SHEET_PATHS_GREEN[key]);
+    }
+    for (const key of Object.keys(GLOOP_SHEET_PATHS_PURPLE)) {
+        AM.queueDownload(GLOOP_SHEET_PATHS_PURPLE[key]);
+    }
+    for (const key of Object.keys(GLOOP_SHEET_PATHS_BLUE)) {
+        AM.queueDownload(GLOOP_SHEET_PATHS_BLUE[key]);
+    }
+    for (const key of Object.keys(GLOOP_SHEET_PATHS_ORANGE)) {
+        AM.queueDownload(GLOOP_SHEET_PATHS_ORANGE[key]);
+    }
     AM.queueDownload(DRILL_PROTO);
     AM.queueDownload(GLOOP_DEAD);
 }
@@ -35,12 +57,14 @@ function PlayerCharacterAMDownloads(AM) {
  /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
 NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
-    constructor(game, AM) {
+    constructor(game, AM, gloopSheetPath) {
         super(self, game, 0, 0);
 
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+        this.gloopSheetPath = gloopSheetPath;
+        // console.log(this.gloopSheetPath);
 
         //Collision
         this.wasColliding = false; 
@@ -51,7 +75,8 @@ class PlayerCharacter extends Entity {
         this.collidingBotRight = false;
         this.collidingTop = false;
         this.radius = 32;
-        this.setupAnimations();
+        // console.log(this.gloopSheetPath);
+        this.setupAnimations(gloopSheetPath);
 
         // Movement
         this.facingLeft = false;
@@ -71,13 +96,13 @@ class PlayerCharacter extends Entity {
         this.cookies = 0;
     }
     
-    setupAnimations() {
-        this.moveLeftAnimation = new Animation(AM.getAsset(GLOOP_HOP_LEFT), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.moveRightAnimation = new Animation(AM.getAsset(GLOOP_HOP_RIGHT), 0, 0, 64, 68, 0.15, 4, true, true);
-        this.lookForwardAnimation = new Animation(AM.getAsset(GLOOP_LOOK_FORWARD), 0, 0, 64, 68, 1, 1, true, true);
-        this.jumpLeftAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 65, 0, 64, 64, 1, 1, false, true);
-        this.jumpRightAnimation = new Animation(AM.getAsset(GLOOP_TURNING), 193, 0, 64, 64, 1, 1, false, true);
-        this.deadAnimation = new Animation(AM.getAsset(GLOOP_DEAD) ,0, 0, 64, 64, 1, 1, false, true);
+    setupAnimations(gloopSheetPath) {
+        this.moveLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.hopLeft), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.moveRightAnimation = new Animation(AM.getAsset(gloopSheetPath.hopRight), 0, 0, 64, 68, 0.15, 4, true, true);
+        this.lookForwardAnimation = new Animation(AM.getAsset(gloopSheetPath.lookForward), 0, 0, 64, 68, 1, 1, true, true);
+        this.jumpLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
+        this.jumpRightAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
+        this.deadAnimation = this.jumpRightAnimation;
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         this.attackCache = this.buildAttackCache();
@@ -149,7 +174,7 @@ class PlayerCharacter extends Entity {
         }
         if (this.collidingTop || this.collidingTopLeft || this.collidingTopRight) {
             if (this.jumping) {
-                console.log('here');
+                // console.log('here');
                 this.jumping = false;
                 this.jumpRightAnimation.elapsedTime = 0;
                 this.jumpLeftAnimation.elapsedTime = 0;
@@ -363,6 +388,3 @@ class PlayerCharacter extends Entity {
     }
 
 }
-
-
-
