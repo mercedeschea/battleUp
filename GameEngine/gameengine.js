@@ -19,6 +19,7 @@ class GameEngine {
     constructor(musicManager) {
         this.gamepads = {};
         this.entities = {general:[], genforms:[], placeforms:[], cookies:[]};
+        this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
@@ -38,6 +39,7 @@ class GameEngine {
         this.over = false;
         this.scene = null;
         this.musicManager = musicManager;
+        this.selectGloop = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -45,9 +47,9 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
-        //console.log(this.timer.gameTime);
         console.log('game initialized');
     }
+
     //initializes camera, in its own method because the background must be loaded first to determine map height
     initCamera(playerCharacter, startY) {
         if (!this.camera)
@@ -55,6 +57,7 @@ class GameEngine {
         else
             this.camera.totalDrawOffset = startY;
     }
+
     start(startY) {
         console.log("starting game");
         var that = this;
@@ -64,6 +67,7 @@ class GameEngine {
             requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
     }
+
     // scangamepads() {
     //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
     //     for (var i = 0; i < gamepads.length; i++) {
@@ -121,6 +125,7 @@ class GameEngine {
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
+            // if (that.mouse.x = )
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
@@ -193,18 +198,40 @@ class GameEngine {
     //     playerCharacter.y = lowestGenformCoords[1] - 64;
     //     this.playerCharacter = 
     // }
+
     clearAllEntities() {
         const entityTypes = Object.keys(this.entities);
+        console.log('before clearing', this.entities);
         for (const type of entityTypes) {
             this.entities[type].splice(0,this.entities[type].length);
         }
+        console.log('after clearing', this.entities);
+        const gloopsTypes = Object.keys(this.gloops);
+        console.log(gloopsTypes);
+
+        for (const gloop of gloopsTypes) {
+            gloopsTypes[gloop] = null;
+        }
+        console.log('console log', this.gloops);
+        this.gloops = [];
+        console.log('gloops list: ', this.gloops)
+  
     }
+
     addEntity(entity, type) {
         console.log('added entity');
         this.entities[type].push(entity);
         this.moveRight = null;
         this.moveLeft = null;
     }
+
+    addGloops(gloop, color) {
+        console.log('added gloop');
+        this.gloops[color] = gloop;
+        console.log(this.gloops);
+        // console.log(this.gloops[color])
+    }
+
     draw() {
         if (this.camera) {
             this.camera.update();
@@ -212,15 +239,31 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         let entityTypes = Object.keys(this.entities);
-        console.log(entityTypes);
+        // console.log(entityTypes);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
                 this.entities[type][i].draw();
             }
         }
+        let gloopTypes = Object.keys(this.gloops);
+        for (const gloop of gloopTypes) {
+            if (gloop) {
+                this.gloops[gloop].draw();
+            }
+            
+        }
         this.ctx.restore();
     }
+
     update() {
+        let gloopTypes = Object.keys(this.gloops);
+        for (const gloop of gloopTypes) {
+            var gloopEntity = this.gloops[gloop];
+            if (gloopEntity && !gloopEntity.removeFromWorld) {
+                gloopEntity.update();
+            }
+        }
+
         // if (this.gamepads[0]) {
         //     this.controllerStatus(this.gamepads[0]);
         // }
@@ -252,6 +295,7 @@ class GameEngine {
         }
         // console.log(this.timer.gameTime);
     }
+
     loop() {
         if (!this.started) {
             return;
@@ -273,6 +317,7 @@ class Timer {
         this.maxStep = 0.05;
         this.wallLastTimestamp = 0;
     }
+
     tick() {
         var wallCurrent = Date.now();
         var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
@@ -290,8 +335,8 @@ class Entity {
         this.y = y;
         this.removeFromWorld = false;
     }
-    update() {
-    }
+    update() {}
+
     draw() {
         if (this.game.showOutlines && this.radius) {
             this.game.ctx.beginPath();
@@ -301,6 +346,7 @@ class Entity {
             this.game.ctx.closePath();
         }
     }
+
     //calculates where to draw entity relative to the current camera and returns the offset y coordinate
     //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
     cameraTransform(removalTolerance, parallaxFactor) {
@@ -337,11 +383,13 @@ class MusicManager {
         this.currentMusic = music;
         this.activated = false;
     }
+
     update() {
         //if the player has interacted with the dom, play the music
         if(this.musicManager.activated)
             this.musicManager.currentMusic.play();
     }
+
     playPause() {
         if(!this.currentMusic.paused) {
             console.log('here');
@@ -351,7 +399,6 @@ class MusicManager {
             this.currentMusic.play();
             this.activated = true;
         }
-
     }
 }
 
