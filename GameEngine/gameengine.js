@@ -9,7 +9,7 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 50;
+const SCROLL_SPEED = 20;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000000000;
 const SCROLL_POINT = 100;
