@@ -104,8 +104,6 @@ class GameEngine {
                 that.showButton = false;
                 that.mouseDown = true;
                 that.draw();
-                // console.log('mouse down')
-                // console.log('mouse down in game engine: ' + that.mouseDown);
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
@@ -121,11 +119,9 @@ class GameEngine {
             else {
                 that.musicManager.playPause();
             }
-            //console.log('mouse up');
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
-            // if (that.mouse.x = )
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
@@ -229,7 +225,6 @@ class GameEngine {
         console.log('added gloop');
         this.gloops[color] = gloop;
         console.log(this.gloops);
-        // console.log(this.gloops[color])
     }
 
     draw() {
@@ -239,7 +234,6 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         let entityTypes = Object.keys(this.entities);
-        // console.log(entityTypes);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
                 this.entities[type][i].draw();
@@ -291,9 +285,7 @@ class GameEngine {
         }
         if (this.over) {
             SCENE_MANAGER.gameOverScene(); 
-            // console.log('game is over');
         }
-        // console.log(this.timer.gameTime);
     }
 
     loop() {
@@ -417,17 +409,12 @@ class Camera {
     draw() {}
     update() {
         //if the player is at the top of the canvas
-        // console.log(this);
-        // console.log(this.playerCharacter.y - this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
-            this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
+            this.advanceTime = .5; //set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
-            // console.log(this.game.clockTick, 'a tick with this value');
-            // console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
-            // console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;

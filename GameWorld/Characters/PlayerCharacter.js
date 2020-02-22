@@ -383,7 +383,6 @@ class PlayerCharacter extends Entity {
     }
 
     collectCookie() {
-        console.log(++this.cookies);
     }
 
 }

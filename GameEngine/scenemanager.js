@@ -60,7 +60,6 @@ class SceneManager {
         this.game.addEntity(this.gameplayScene, 'general');
 
         genWalls(this.game, AM);
-
         
         this.game.addEntity(this.game.floor, 'general');
 
@@ -68,8 +67,7 @@ class SceneManager {
                                 this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
         this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        // for ez scrolling this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
-        console.log(this.playerCharacter.y);
+        // for ez scrolling -> this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
         genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
         
         this.game.addEntity(testCookie, 'cookies');    
@@ -105,15 +103,10 @@ class GameScene {
     }
 
     update() {
-        // console.log(this.game.surfaceHeight);
-        // console.log(this.game.mapHeight);
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight + 100) && this.background.name === 'level0') {
-            // if (this.background.name === 'level0') {
                 this.background = new Background(this.game, AM, STARTSCREEN_PATH, 'levell');
                 this.game.mapHeight = this.background.spriteSheet.height;
                 this.game.camera.totalDrawOffest = this.game.mapHeight - this.game.camera.surfaceHeight;
-            // }
-            console.log(this.game.gloops['orangeGloop'].y);
         }
     }
 
@@ -193,7 +186,6 @@ class StartButton {
     }
     
     draw() {
-        //console.log('mouse down game engine in draw: ' + this.game.mouseDown)
         if (!this.game.mouseDown) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
@@ -226,7 +218,6 @@ class Score {
     }
 
     draw() {
-        //console.log(this.game.mouseReleased);
         if (this.game.mouseReleased) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0,
                 this.spriteSheet.width/5, this.spriteSheet.height/5);

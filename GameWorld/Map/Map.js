@@ -34,7 +34,6 @@ class Background {
     }
     update() {
         this.srcY -= this.game.camera.currentDrawOffset * .9;
-        // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
 
@@ -49,7 +48,6 @@ class Wall extends Entity{
     draw() {
         let drawY = this.cameraTransform(-40);
         if (drawY) {
-            // this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
             this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY);
         }
     }
