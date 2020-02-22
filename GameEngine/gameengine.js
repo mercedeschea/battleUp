@@ -38,7 +38,8 @@ class GameEngine {
         this.floor = null;
         this.active = true;
         this.over = false;
-        this.scene = null;
+        this.scene = null;//string used in control flow
+        this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
         this.selectGloop = null;
     }
@@ -114,6 +115,7 @@ class GameEngine {
             that.mouseReleased = true;
             if (that.scene === 'start' && !that.started) {
                 that.active = true;
+                console.log('starting');
                 SCENE_MANAGER.gameScene();
                 that.start();
             } else  if (that.scene == 'gameOver' && that.over){
@@ -201,23 +203,31 @@ class GameEngine {
     //     playerCharacter.y = lowestGenformCoords[1] - 64;
     //     this.playerCharacter = 
     // }
-
+    //game must be off for this to work
     clearAllEntities() {
         const entityTypes = Object.keys(this.entities);
-        console.log('before clearing', this.entities);
+        // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
             this.entities[type].splice(0,this.entities[type].length);
         }
-        console.log('after clearing', this.entities);
+        // console.log('after clearing', this.entities);
         const gloopsTypes = Object.keys(this.gloops);
-        console.log(gloopsTypes);
 
         for (const gloop of gloopsTypes) {
-            gloopsTypes[gloop] = null;
+            delete this.gloops[gloop];
         }
-        console.log('console log', this.gloops);
-        this.gloops = [];
-        console.log('gloops list: ', this.gloops)
+  
+    }
+
+
+    clearAllButGloopActive() {
+        const entityTypes = Object.keys(this.entities);
+        // console.log('before clearing', this.entities);
+        for (const type of entityTypes) {
+            for (const ent of this.entities[type]) {
+                ent.removeFromWorld = true;
+            }
+        }
   
     }
 
@@ -228,10 +238,8 @@ class GameEngine {
         this.moveLeft = null;
     }
 
-    addGloops(gloop, color) {
-        console.log('added gloop');
+    addGloop(gloop, color) {
         this.gloops[color] = gloop;
-        console.log(this.gloops);
         // console.log(this.gloops[color])
     }
 
@@ -241,6 +249,9 @@ class GameEngine {
         }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
+        // console.log(this.sceneObj);
+        if (this.sceneObj)
+            this.sceneObj.draw();
         let entityTypes = Object.keys(this.entities);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
@@ -258,6 +269,7 @@ class GameEngine {
     }
 
     update() {
+        this.sceneObj.update();
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
             var gloopEntity = this.gloops[gloop];

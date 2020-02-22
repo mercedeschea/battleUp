@@ -1,7 +1,7 @@
 const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
-const STARTSCREEN_PATH = './Sprites/Usables/lvl1/background.png';
-const STARTSCREEN_FLOOR = './Sprites/Usables/lvl1/floor.png';
+const LEVEL1_PATH = './Sprites/Usables/lvl1/background.png';
+const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 
@@ -13,7 +13,7 @@ class SceneManager {
         this.background = null;
         this.musicManager = MUSIC_MANAGER;
     }
-
+    
     // clears entities on screen, switches to start screen
     startScene() {
         this.game.scene = 'start';
@@ -27,15 +27,15 @@ class SceneManager {
         this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
 
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
+        this.game.sceneObj = this.startScreen;
         this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
 
-        this.game.addEntity(this.startScreen, 'general');
         this.game.addEntity(this.startButton, 'general');
 
-        this.game.addGloops(this.greenGloop, 'greenGloop');
-        this.game.addGloops(this.purpleGloop, 'purpleGloop');
-        this.game.addGloops(this.orangeGloop, 'orangeGloop');
-        this.game.addGloops(this.blueGloop, 'blueGloop');
+        this.game.addGloop(this.greenGloop, 'greenGloop');
+        this.game.addGloop(this.purpleGloop, 'purpleGloop');
+        this.game.addGloop(this.orangeGloop, 'orangeGloop');
+        this.game.addGloop(this.blueGloop, 'blueGloop');
 
         this.game.draw();
 
@@ -44,39 +44,14 @@ class SceneManager {
     gameScene() {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
-    
-        this.background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
-        this.gameplayScene = new GameScene(this.game, AM, this.background);
+        let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
+        this.gameplayScene = new GameScene(this.game, AM, background);
+        this.game.mapHeight = background.spriteSheet.height;
+        this.game.sceneObj = this.gameplayScene;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
-        this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
-        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
-                            this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
-        let score = new Score(this.game, AM, this.playerCharacter);
-
-        this.game.mapHeight = this.background.spriteSheet.height;
-
-        // we don't have game.mapHeight until here
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
-        this.game.addEntity(this.gameplayScene, 'general');
-
-        genWalls(this.game, AM);
-
-        
-        this.game.addEntity(this.game.floor, 'general');
-
-        let startCoordinates = genGenforms(10, this.game, AM, 
-                                this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
-        this.playerCharacter.x = startCoordinates.x;
-        // this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
-        console.log(this.playerCharacter.y);
-        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
-        
-        this.game.addEntity(testCookie, 'cookies');    
-        this.game.addGloops(this.playerCharacter, 'orangeGloop'); 
-        this.game.addEntity(score, 'general');
-        this.game.draw();
-        
+        this.gameplayScene.level0(this.playerCharacter);
+        console.log(this.game.gloops);
     }
 
     // clears entities on screen, switches to end scene
@@ -86,9 +61,9 @@ class SceneManager {
         this.game.clearAllEntities();
 
         this.gameOver = new GameOver(this.game, AM);
+        this.game.sceneObj = this.gameOver;
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
 
-        this.game.addEntity(this.gameOver, 'general');
         this.game.addEntity(startButton, 'general');
 
         this.gameOver.draw();
@@ -102,22 +77,62 @@ class GameScene {
     constructor(gameEngine, AM, background) {
         this.game = gameEngine;
         this.background = background;
+        this.score = null;
     }
 
     update() {
         // console.log(this.game.surfaceHeight);
         // console.log(this.game.mapHeight);
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight + 100) && this.background.name === 'level0') {
-            // if (this.background.name === 'level0') {
-                this.background = new Background(this.game, AM, STARTSCREEN_PATH, 'levell');
-                this.game.mapHeight = this.background.spriteSheet.height;
-                this.game.camera.totalDrawOffest = this.game.mapHeight - this.game.camera.surfaceHeight;
-            // }
+            this.level1(this.playerCharacter);
             console.log(this.game.gloops['orangeGloop'].y);
         }
     }
 
+    level0(activeGloop) {
+        this.playerCharacter = activeGloop;
+        this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
+        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
+                            this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
+        this.score = new Score(this.game, AM, this.playerCharacter);
+        
+        this.game.addEntity(this.game.floor, 'general');
+
+        let startCoordinates = genGenforms(10, this.game, AM, 
+                                this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
+        this.playerCharacter.x = startCoordinates.x;
+        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        // this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
+        // console.log(this.playerCharacter.y);
+        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
+        
+        this.game.addEntity(testCookie, 'cookies');    
+        this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
+        this.game.addEntity(this.score, 'general');
+    }
+
+
+    level1(activeGloop) {
+        this.game.clearAllButGloopActive();
+        this.playerCharacter = activeGloop;
+        this.background = new Background(this.game, AM, LEVEL1_PATH, 'levell');
+        this.game.floor = new Floor(this.game, AM, AM.getAsset(LEVEL1_FLOOR));
+        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
+                            this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
+                            this.game.mapHeight = this.background.spriteSheet.height;
+                            this.game.camera.totalDrawOffest = this.game.mapHeight - this.game.camera.surfaceHeight;
+        this.game.mapHeight = this.background.spriteSheet.height;
+
+        this.game.addEntity(this.game.floor, 'general');
+        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
+        
+        this.game.addEntity(testCookie, 'cookies');    
+        this.game.addEntity(this.score, 'general');
+    }
+    
+
     draw() {
+        // console.log(this.background.name, 'background');
         this.background.draw();
     }
 }
@@ -144,8 +159,8 @@ class GameOver {
 class StartScreen {
     constructor(gameEngine, AM, greenGloop, purpleGloop, orangeGloop, blueGloop) {
         this.game = gameEngine;
-        this.background = new Background(this.game, AM, STARTSCREEN_PATH, 'start screen');
-        this.floor = new Floor(this.game, AM, AM.getAsset(STARTSCREEN_FLOOR));
+        this.background = new Background(this.game, AM, LEVEL1_PATH, 'start screen');
+        this.floor = new Floor(this.game, AM, AM.getAsset(LEVEL1_FLOOR));
 
         this.greenGloop = greenGloop;
         this.purpleGloop = purpleGloop;

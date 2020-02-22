@@ -356,8 +356,8 @@ function MapAMDownloads(AM) {
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
     AM.queueDownload(COOKIE_PATH);
-    AM.queueDownload(STARTSCREEN_PATH);
-    AM.queueDownload(STARTSCREEN_FLOOR);
+    AM.queueDownload(LEVEL1_PATH);
+    AM.queueDownload(LEVEL1_FLOOR);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

@@ -36,6 +36,7 @@ const Y_CENTER = 36.5;
 const PLAYER_SPEED = 200;
 const SUPER_ATTACK_HEIGHT = 500;
 const DRILL_LENGTH = 47;
+const COOKIES_FOR_SUPER = 3;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -136,7 +137,6 @@ class PlayerCharacter extends Entity {
             let spinFrames = 3;
             for (let k = 0; k < spinFrames; k++) {
                 let curAngle = angle + (Math.PI/12) * k;
-                console.log(curAngle);
                 superRotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), curAngle, 63 * 2, 0, 63, 47, 1));
                 superCache[directions[j]].xOffset.push(xO + Math.cos(curAngle) * this.radius * 4);
                 superCache[directions[j]].yOffset.push(yO + Math.sin(curAngle) * this.radius * 4);
@@ -176,6 +176,7 @@ class PlayerCharacter extends Entity {
         this.currentPlatform = null;
         this.checkCollisions();
         if (this.dead) {
+            // console.log(this.y);
             if (this.game.active) {
                 this.game.active = false;
                 this.jumpY = this.y;
@@ -184,7 +185,7 @@ class PlayerCharacter extends Entity {
             if (this.deadAnimation.isDone()) {
                 this.game.over = true;
             }
-            this.calcJump(this.deadAnimation);
+            this.calcJump(this.deadAnimation, 100);
             return;
         }
         if (this.isSupported() && !this.wasColliding) {
@@ -335,8 +336,8 @@ class PlayerCharacter extends Entity {
             }
                 
             
-        } else if (this.game.attackSuper) {
-            this.cookies = 3;
+        } else if (this.game.attackSuper && this.cookies >= COOKIES_FOR_SUPER) {
+            this.cookies -= COOKIES_FOR_SUPER;
             this.superAttacking = 1;
         }
         if (this.attacking) {
@@ -386,6 +387,7 @@ class PlayerCharacter extends Entity {
         }
     //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (this.dead) {
+            // console.log(this.deadAnimation);
             this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
             return;
         } else if (this.jumping && this.facingLeft) {
