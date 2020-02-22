@@ -67,8 +67,8 @@ class SceneManager {
         let startCoordinates = genGenforms(10, this.game, AM, 
                                 this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
-        // this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
+        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        // for ez scrolling this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
         console.log(this.playerCharacter.y);
         genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
         

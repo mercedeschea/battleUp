@@ -22,7 +22,7 @@ function isCharacterColliding(PlayerCharacter) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
-            console.log(result);
+            // console.log(result);
         }
         // if (result === 'fromBelow') {
         //     if (platform.type === 'left' || platform.type === 'right') 
@@ -320,7 +320,7 @@ function isPointOnLine(LineInfo, x, y) {
 }
 
 function isCircleCollidingWithCircle(PlayerCircleInfo, OtherCircleInfo) {
-    console.log(PlayerCircleInfo, OtherCircleInfo);
+    // console.log(PlayerCircleInfo, OtherCircleInfo);
     let dx = PlayerCircleInfo.cartesianX - OtherCircleInfo.cartesianX;
     let dy = PlayerCircleInfo.cartesianY - OtherCircleInfo.cartesianY;
     let distance = Math.sqrt(dx * dx + dy * dy);
