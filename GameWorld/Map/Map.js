@@ -22,13 +22,14 @@ const MAPPING = {'\\':'left', '/':'right', '-':'center', '_':'center', '|':'vert
 
 // this file now controls all map assets
 class Background {
-    constructor(game, AM, spriteSheet) {
-        this.spritesheet = AM.getAsset(spriteSheet);
+    constructor(game, AM, spriteSheet, name) {
+        this.spriteSheet = AM.getAsset(spriteSheet);
         this.game = game;
-        this.srcY = this.spritesheet.height - this.game.surfaceHeight;
+        this.srcY = this.spriteSheet.height - this.game.surfaceHeight;
+        this.name = name;
     }
     draw() {
-        this.game.ctx.drawImage(this.spritesheet, 0, this.srcY, this.game.surfaceWidth, this.game.surfaceHeight,
+        this.game.ctx.drawImage(this.spriteSheet, 0, this.srcY, this.game.surfaceWidth, this.game.surfaceHeight,
             0, 0, this.game.surfaceWidth, this.game.surfaceHeight);
     }
     update() {
