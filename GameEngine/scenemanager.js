@@ -2,6 +2,7 @@ const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
 const LEVEL1_PATH = './Sprites/Usables/lvl1/background.png';
 const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
+const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 
@@ -91,7 +92,7 @@ class GameScene {
 
     level0(activeGloop) {
         this.playerCharacter = activeGloop;
-        this.game.floor = new Floor(this.game, AM, AM.getAsset(FLOOR_PATH));
+        this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
                             this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
         this.score = new Score(this.game, AM, this.playerCharacter);
@@ -115,8 +116,8 @@ class GameScene {
     level1(activeGloop) {
         this.game.clearAllButGloopActive();
         this.playerCharacter = activeGloop;
-        this.background = new Background(this.game, AM, LEVEL1_PATH, 'levell');
-        this.game.floor = new Floor(this.game, AM, AM.getAsset(LEVEL1_FLOOR));
+        this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
+        this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
                             this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
                             this.game.mapHeight = this.background.spriteSheet.height;
@@ -124,7 +125,7 @@ class GameScene {
         this.game.mapHeight = this.background.spriteSheet.height;
 
         this.game.addEntity(this.game.floor, 'general');
-        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
+        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 3, LEVEL1_MAP_FILE_NAME);
         
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addEntity(this.score, 'general');
@@ -160,7 +161,7 @@ class StartScreen {
     constructor(gameEngine, AM, greenGloop, purpleGloop, orangeGloop, blueGloop) {
         this.game = gameEngine;
         this.background = new Background(this.game, AM, LEVEL1_PATH, 'start screen');
-        this.floor = new Floor(this.game, AM, AM.getAsset(LEVEL1_FLOOR));
+        this.floor = new Floor(this.game, AM.getAsset(LEVEL1_FLOOR_FLASH), AM.getAsset(LEVEL1_FLOOR));
 
         this.greenGloop = greenGloop;
         this.purpleGloop = purpleGloop;

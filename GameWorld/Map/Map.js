@@ -11,6 +11,7 @@ const MUSIC_PATH = "./Music/Alien_One.wav";
 const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
 const MAP_FILE_NAME = "test.txt";
+const LEVEL1_MAP_FILE_NAME = "test3.txt";
 const COOKIE_RADIUS = 21;
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
@@ -57,17 +58,19 @@ class Wall extends Entity{
 }
 
 class Floor {
-    constructor(game, AM, spriteSheet) {
+    constructor(game, flashSheet, spriteSheet) {
         this.spriteSheet = spriteSheet;
         this.game = game;
         this.flashing = false;
         this.flashTime = 3;
-        let flashSheet = AM.getAsset(FLOOR_FLASH_PATH);
-        this.animationFlash = new Animation(flashSheet, 0, 
-            0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
+        this.flashSheet = flashSheet;
+        if (flashSheet) {
+            this.animationFlash = new Animation(flashSheet, 0, 
+                0, flashSheet.width/2, flashSheet.height, .2, 2, true, false);
+        }
     }
     draw() {
-        if (this.flashing && this.flashTime > 0) {
+        if (this.animationFlash && this.flashing && this.flashTime > 0) {
             this.flashTime -= this.game.clockTick;
             this.animationFlash.drawFrame(this.game.clockTick, this.game.ctx, 0, 
                 this.game.surfaceHeight - FLOOR_HEIGHT);
@@ -349,6 +352,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(PILLAR_PATH);
     AM.queueDownload(FLASHFORM);
     AM.queueServerDownload(MAP_FILE_NAME);
+    AM.queueServerDownload(LEVEL1_MAP_FILE_NAME);
     for (const key of Object.keys(PROTO_PATHS)) {
         AM.queueDownload(PROTO_PATHS[key]);
     }
@@ -358,6 +362,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(COOKIE_PATH);
     AM.queueDownload(LEVEL1_PATH);
     AM.queueDownload(LEVEL1_FLOOR);
+    AM.queueDownload(LEVEL1_FLOOR_FLASH);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
