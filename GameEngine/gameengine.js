@@ -29,6 +29,7 @@ class GameEngine {
         this.up = false;
         this.jump = false;
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
         this.started = false;
@@ -82,7 +83,7 @@ class GameEngine {
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
-            'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
+            'attackLeft':'KeyR', 'attackRight':'Tab', 'attackSuper':'KeyF', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         window.addEventListener("gamepadconnected", function (e) {
@@ -138,7 +139,9 @@ class GameEngine {
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
             if (e.code === keyArr['placeFlat'])
-                that.placeFlat = true;   
+                that.placeFlat = true;
+            if (e.code === keyArr['attackSuper'])
+                that.attackSuper = true;  
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
             if (e.code === keyArr['pause'])
@@ -212,7 +215,6 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
         let entityTypes = Object.keys(this.entities);
-        console.log(entityTypes);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
                 this.entities[type][i].draw();
@@ -261,6 +263,7 @@ class GameEngine {
         this.draw();
         this.jump = false; // jump and placements only happen once
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
     }

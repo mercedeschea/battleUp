@@ -46,7 +46,7 @@ class Animation {
         var offset = vindex === 0 ? this.startX : 0;
         if (this.rotatedCache) {
             ctx.drawImage(this.rotatedCache[index], locX, locY);
-        } else {
+        } else if (this.spriteSheet) {
             ctx.drawImage(this.spriteSheet,
                 index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
                 this.frameWidth, this.frameHeight,

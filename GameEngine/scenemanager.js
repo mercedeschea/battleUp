@@ -236,7 +236,7 @@ class Score {
             this.game.ctx.fillStyle = "#D4AF37";
             //console.log(this.playerY);
             this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
-            console.log(this.displayCookie);
+            // console.log(this.displayCookie);
             this.displayCookie.draw();
             this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
         }
