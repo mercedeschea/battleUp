@@ -18,7 +18,7 @@ const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 class GameEngine {
     constructor(musicManager) {
         this.gamepads = {};
-        this.entities = {general:[], genforms:[], placeforms:[], cookies:[]};
+        this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
@@ -306,7 +306,11 @@ class GameEngine {
             }
         }
         if (this.over) {
-            SCENE_MANAGER.gameOverScene(); 
+            console.log(this.sceneObj);
+            if(this.sceneObj)
+                SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
+            else 
+                SCENE_MANAGER.gameOverScene(); 
             // console.log('game is over');
         }
         // console.log(this.timer.gameTime);

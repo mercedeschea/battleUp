@@ -186,7 +186,10 @@ class PlayerCharacter extends Entity {
             if (this.deadAnimation.isDone()) {
                 this.game.over = true;
             }
-            this.calcJump(this.deadAnimation, 100);
+            if (this.game.floor)
+                this.calcJump(this.deadAnimation, 100);
+            else
+                this.calcJump(this.deadAnimation, 100 + FLOOR_HEIGHT);
             return;
         }
         if (this.isSupported() && !this.wasColliding) {
@@ -261,8 +264,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        if (this.game.jump) { //glitch jumpppsss
-        // if (this.game.jump && !this.jumping && this.isSupported()) {
+        // if (this.game.jump) { //glitch jumpppsss
+        if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);

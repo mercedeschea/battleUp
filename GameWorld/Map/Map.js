@@ -364,6 +364,8 @@ function MapAMDownloads(AM) {
     AM.queueDownload(LEVEL1_PATH);
     AM.queueDownload(LEVEL1_FLOOR);
     AM.queueDownload(LEVEL1_FLOOR_FLASH);
+    AM.queueDownload(KRIMTROK_SHEET);
+    AM.queueDownload(BUBBLE_SHEET);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
