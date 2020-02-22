@@ -360,6 +360,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
     AM.queueDownload(COOKIE_PATH);
+    AM.queueDownload(START_PATH);
     AM.queueDownload(LEVEL1_PATH);
     AM.queueDownload(LEVEL1_FLOOR);
     AM.queueDownload(LEVEL1_FLOOR_FLASH);

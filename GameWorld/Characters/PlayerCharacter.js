@@ -97,6 +97,7 @@ class PlayerCharacter extends Entity {
         this.dead = false;
         this.currentPlatform = null;
         this.cookies = 0;
+        this.totalCookies = 0;
     }
     
     setupAnimations(gloopSheetPath) {
@@ -260,8 +261,8 @@ class PlayerCharacter extends Entity {
 
 
 
-        // if (this.game.jump) { //glitch jumpppsss
-        if (this.game.jump && !this.jumping && this.isSupported()) {
+        if (this.game.jump) { //glitch jumpppsss
+        // if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
             // console.log('jumping', this.y);
@@ -445,6 +446,7 @@ class PlayerCharacter extends Entity {
 
     collectCookie() {
         ++this.cookies;
+        ++this.totalCookies;
     }
 
 }

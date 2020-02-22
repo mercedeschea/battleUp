@@ -1,6 +1,7 @@
 const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
-const LEVEL1_PATH = './Sprites/Usables/lvl1/background.png';
+const START_PATH = './Sprites/Usables/lvl1/background.png';
+const LEVEL1_PATH = './Sprites/Usables/lvl1/backgroundAppended.png';
 const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
@@ -52,7 +53,6 @@ class SceneManager {
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene.level0(this.playerCharacter);
-        console.log(this.game.gloops);
     }
 
     // clears entities on screen, switches to end scene
@@ -84,6 +84,8 @@ class GameScene {
     update() {
         // console.log(this.game.surfaceHeight);
         // console.log(this.game.mapHeight);
+        this.score.update();
+        this.background.update();
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight + 100) && this.background.name === 'level0') {
             this.level1(this.playerCharacter);
             console.log(this.game.gloops['orangeGloop'].y);
@@ -95,46 +97,49 @@ class GameScene {
         this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
                             this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
-        this.score = new Score(this.game, AM, this.playerCharacter);
         
         this.game.addEntity(this.game.floor, 'general');
 
         let startCoordinates = genGenforms(10, this.game, AM, 
                                 this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         this.playerCharacter.x = startCoordinates.x;
-        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
+        // this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        this.playerCharacter.y = this.game.surfaceHeight - 200//+ 200;
         // console.log(this.playerCharacter.y);
         genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
-        
+        this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
-        this.game.addEntity(this.score, 'general');
+        // this.game.addEntity(this.score, 'general');
     }
 
 
     level1(activeGloop) {
-        this.game.clearAllButGloopActive();
+        console.log(this.game.clearAllButGloop);
+        this.game.clearAllButGloop();
         this.playerCharacter = activeGloop;
         this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
         this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
                             this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
                             this.game.mapHeight = this.background.spriteSheet.height;
-                            this.game.camera.totalDrawOffest = this.game.mapHeight - this.game.camera.surfaceHeight;
+                            this.game.camera.totalDrawOffset = this.game.mapHeight - this.game.camera.surfaceHeight;
         this.game.mapHeight = this.background.spriteSheet.height;
-
-        this.game.addEntity(this.game.floor, 'general');
+        this.game.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
+        // this.game.addEntity(this.game.floor, 'general');
         buildMapFromFile(this.game, AM, this.game.surfaceHeight * 3, LEVEL1_MAP_FILE_NAME);
         
         this.game.addEntity(testCookie, 'cookies');    
-        this.game.addEntity(this.score, 'general');
+        // console.log(this.score);
+        // this.game.addEntity(this.score, 'general');
+        // console.log(this.game.entities.general);
     }
     
 
     draw() {
         // console.log(this.background.name, 'background');
         this.background.draw();
+        this.score.draw();
     }
 }
 
@@ -160,8 +165,8 @@ class GameOver {
 class StartScreen {
     constructor(gameEngine, AM, greenGloop, purpleGloop, orangeGloop, blueGloop) {
         this.game = gameEngine;
-        this.background = new Background(this.game, AM, LEVEL1_PATH, 'start screen');
-        this.floor = new Floor(this.game, AM.getAsset(LEVEL1_FLOOR_FLASH), AM.getAsset(LEVEL1_FLOOR));
+        this.background = new Background(this.game, AM, START_PATH, 'start screen');
+        this.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
 
         this.greenGloop = greenGloop;
         this.purpleGloop = purpleGloop;
@@ -238,6 +243,7 @@ class Score {
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
         this.maxY = 0;
+        this.lastCookieCount = 0;
         this.startY = this.game.mapHeight - this.playerCharacter.y;
     }
 
@@ -261,8 +267,19 @@ class Score {
         if (this.currentY > this.maxY) {
             this.maxY = this.currentY;
         }
-        this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
+        if (this.playerCharacter.totalCookies > this.lastCookieCount) {
+            this.maxY += this.playerCharacter.totalCookies * 50;
+            this.lastCookieCount = this.playerCharacter.totalCookies;
+        }
+
+        // this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y)* 100)/100);
+        // console.log(this.currentY);
     }
 
     loop() {}
+
 }
+
+// class Krimtrok extends Entity {
+//     constructor(destX, destY, )
+// }

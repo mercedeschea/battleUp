@@ -85,6 +85,8 @@ function isCharacterColliding(PlayerCharacter) {
             pc.floorTimer -= pc.game.clockTick;
         }
 
+    } else if (pc.cameraTransform() > pc.game.surfaceHeight) {
+        pc.dead = true;
     } else {
         pc.floorTimer = 0;
     }

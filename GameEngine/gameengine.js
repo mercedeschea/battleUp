@@ -11,7 +11,7 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 100000000000;
+const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
@@ -205,6 +205,7 @@ class GameEngine {
     // }
     //game must be off for this to work
     clearAllEntities() {
+        console.log('this is called');
         const entityTypes = Object.keys(this.entities);
         // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
@@ -220,12 +221,13 @@ class GameEngine {
     }
 
 
-    clearAllButGloopActive() {
+    clearAllButGloop() {
         const entityTypes = Object.keys(this.entities);
         // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
             for (const ent of this.entities[type]) {
                 ent.removeFromWorld = true;
+                console.log(ent);
             }
         }
   
