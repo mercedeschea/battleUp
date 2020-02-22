@@ -1,0 +1,17 @@
+20200221 15:34 patch notes
+
+Summary:
+
+Added Krimtrok head
+Added Speech bubble
+
+
+assets added:
+
+Usables/Misc/krimtrokHead.png
+Usables/Misc/speechBubble.png
+
+
+
+
+
