@@ -88,10 +88,10 @@ class Floor {
         }
         else if (type == 'right') {
             this.equation = convertRightSlopedPlatformToEquation(this, MAP_HEIGHT)
-            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
+            this.aboveEquation = convertRightEquationToAboveEquation(this.equation);
         } else { 
             this.equation = convertLeftSlopedPlatformToEquation(this, MAP_HEIGHT);
-            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
+            this.aboveEquation = convertLeftEquationToAboveEquation(this.equation);
         }
     }
     draw() {
