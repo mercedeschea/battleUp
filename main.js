@@ -46,7 +46,7 @@ class Animation {
         var offset = vindex === 0 ? this.startX : 0;
         if (this.rotatedCache) {
             ctx.drawImage(this.rotatedCache[index], locX, locY);
-        } else {
+        } else if (this.spriteSheet) {
             ctx.drawImage(this.spriteSheet,
                 index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
                 this.frameWidth, this.frameHeight,
@@ -75,32 +75,6 @@ AM.downloadAll(function () {
     let gameEngine = new GameEngine(MUSIC_MANAGER);
     gameEngine.init(ctx);
     SCENE_MANAGER.game = gameEngine;
-    // console.log(gameEngine);
-    // console.log(sceneManager);
     SCENE_MANAGER.startScene();
-    // SCENE_MANAGER.gameSceneSetup();
-    // sceneManager.gameOverScene();
-    // console.log(sceneManager);
-    // let background = new Background(gameEngine, AM);
-    // let mapHeight = background.spritesheet.height;
-    // let playerCharacter = new PlayerCharacter(gameEngine, AM);
-    // let musicManager = new MusicManager(document.getElementById("soundTrack"));
-    // gameEngine.initCamera(mapHeight, musicManager, playerCharacter);//we don't have game.mapHeight until here
-
-    // gameEngine.addEntity(background);
-    // genWalls(gameEngine, AM);
-    // gameEngine.floor = new Floor(gameEngine, AM);
-    // gameEngine.addEntity(gameEngine.floor);
-    // genGenforms(20, gameEngine, AM, mapHeight);
-    // playerCharacter.x = lowestGenformCoords[0];
-    // playerCharacter.y = lowestGenformCoords[1] - 64;
-    
-    // gameEngine.addEntity(playerCharacter); 
-    
-    // let startButton = new StartButton(gameEngine, AM);
-    // gameEngine.addEntity(startButton); 
-    // gameEngine.draw();
-    // let score = new Score(gameEngine, AM, playerCharacter);
-    // gameEngine.addEntity(score);
     console.log("All Done!");
 });

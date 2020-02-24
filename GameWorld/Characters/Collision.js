@@ -10,6 +10,9 @@ function isCharacterColliding(PlayerCharacter) {
         cartesianX: PlayerCartCords.cartesianX,
         cartesianY: PlayerCartCords.cartesianY
     }
+    if(pc.superAttacking > 0) {
+        PlayerCircleInfo.radius += DRILL_LENGTH;
+    }
     let mapHeight = pc.game.mapHeight;
     // The player character cirlce now has its cartesian x and y locations stored in PlayerCircleInfo.
 
@@ -22,7 +25,9 @@ function isCharacterColliding(PlayerCharacter) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
-            console.log(result);
+            if (pc.superAttacking > 0)
+                platform.removeFromWorld = true;
+            // console.log(result);
         }
         // if (result === 'fromBelow') {
         //     if (platform.type === 'left' || platform.type === 'right') 
@@ -39,8 +44,11 @@ function isCharacterColliding(PlayerCharacter) {
     }
     for (const platform of pc.game.entities.genforms) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
-        if (result)
+        if (result){
             pc[result] = true;
+            if (pc.superAttacking > 0)
+                platform.removeFromWorld = true;
+        }
         // let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         // if (result === 'fromAbove') {
         //     pc.colliding = true;
@@ -62,7 +70,8 @@ function isCharacterColliding(PlayerCharacter) {
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
-    if (pc.game.floor && pcDistanceFromFloor <= 0) {
+    console.log(pc.game.sceneObj.background.name);
+    if (pc.game.floor && pcDistanceFromFloor <= 0 && pc.game.sceneObj.background.name !== 'level1') {
         pc.y += pcDistanceFromFloor;
         pc.colliding = true;
         // console.log(pc.floorTimer, "a floor timer");
@@ -76,6 +85,8 @@ function isCharacterColliding(PlayerCharacter) {
             pc.floorTimer -= pc.game.clockTick;
         }
 
+    } else if (pc.cameraTransform() > pc.game.surfaceHeight) {
+        pc.dead = true;
     } else {
         pc.floorTimer = 0;
     }
@@ -320,7 +331,7 @@ function isPointOnLine(LineInfo, x, y) {
 }
 
 function isCircleCollidingWithCircle(PlayerCircleInfo, OtherCircleInfo) {
-    console.log(PlayerCircleInfo, OtherCircleInfo);
+    // console.log(PlayerCircleInfo, OtherCircleInfo);
     let dx = PlayerCircleInfo.cartesianX - OtherCircleInfo.cartesianX;
     let dy = PlayerCircleInfo.cartesianY - OtherCircleInfo.cartesianY;
     let distance = Math.sqrt(dx * dx + dy * dy);

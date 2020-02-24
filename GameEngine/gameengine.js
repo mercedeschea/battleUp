@@ -11,14 +11,15 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 100000000000;
+const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor(musicManager) {
         this.gamepads = {};
-        this.entities = {general:[], genforms:[], placeforms:[], cookies:[]};
+        this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
+        this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
@@ -29,6 +30,7 @@ class GameEngine {
         this.up = false;
         this.jump = false;
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
         this.started = false;
@@ -36,8 +38,10 @@ class GameEngine {
         this.floor = null;
         this.active = true;
         this.over = false;
-        this.scene = null;
+        this.scene = null;//string used in control flow
+        this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
+        this.selectGloop = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -45,9 +49,9 @@ class GameEngine {
         this.surfaceHeight = this.ctx.canvas.height;
         this.startInput();
         this.timer = new Timer();
-        //console.log(this.timer.gameTime);
         console.log('game initialized');
     }
+
     //initializes camera, in its own method because the background must be loaded first to determine map height
     initCamera(playerCharacter, startY) {
         if (!this.camera)
@@ -55,6 +59,7 @@ class GameEngine {
         else
             this.camera.totalDrawOffset = startY;
     }
+
     start(startY) {
         console.log("starting game");
         var that = this;
@@ -64,6 +69,7 @@ class GameEngine {
             requestAnimFrame(gameLoop, that.ctx.canvas);
         })();
     }
+
     // scangamepads() {
     //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
     //     for (var i = 0; i < gamepads.length; i++) {
@@ -82,7 +88,7 @@ class GameEngine {
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
-            'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
+            'attackLeft':'KeyR', 'attackRight':'Tab', 'attackSuper':'KeyF', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         window.addEventListener("gamepadconnected", function (e) {
@@ -109,6 +115,7 @@ class GameEngine {
             that.mouseReleased = true;
             if (that.scene === 'start' && !that.started) {
                 that.active = true;
+                console.log('starting');
                 SCENE_MANAGER.gameScene();
                 that.start();
             } else  if (that.scene == 'gameOver' && that.over){
@@ -121,6 +128,7 @@ class GameEngine {
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
+            // if (that.mouse.x = )
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
@@ -138,7 +146,9 @@ class GameEngine {
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
             if (e.code === keyArr['placeFlat'])
-                that.placeFlat = true;   
+                that.placeFlat = true;
+            if (e.code === keyArr['attackSuper'])
+                that.attackSuper = true;  
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
             if (e.code === keyArr['pause'])
@@ -193,34 +203,83 @@ class GameEngine {
     //     playerCharacter.y = lowestGenformCoords[1] - 64;
     //     this.playerCharacter = 
     // }
+    //game must be off for this to work
     clearAllEntities() {
+        console.log('this is called');
         const entityTypes = Object.keys(this.entities);
+        // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
             this.entities[type].splice(0,this.entities[type].length);
         }
+        // console.log('after clearing', this.entities);
+        const gloopsTypes = Object.keys(this.gloops);
+
+        for (const gloop of gloopsTypes) {
+            delete this.gloops[gloop];
+        }
+  
     }
+
+
+    clearAllButGloop() {
+        const entityTypes = Object.keys(this.entities);
+        // console.log('before clearing', this.entities);
+        for (const type of entityTypes) {
+            for (const ent of this.entities[type]) {
+                ent.removeFromWorld = true;
+                console.log(ent);
+            }
+        }
+  
+    }
+
     addEntity(entity, type) {
         console.log('added entity');
         this.entities[type].push(entity);
         this.moveRight = null;
         this.moveLeft = null;
     }
+
+    addGloop(gloop, color) {
+        this.gloops[color] = gloop;
+        // console.log(this.gloops[color])
+    }
+
     draw() {
         if (this.camera) {
             this.camera.update();
         }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
+        // console.log(this.sceneObj);
+        if (this.sceneObj)
+            this.sceneObj.draw();
         let entityTypes = Object.keys(this.entities);
-        console.log(entityTypes);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
                 this.entities[type][i].draw();
             }
         }
+        let gloopTypes = Object.keys(this.gloops);
+        for (const gloop of gloopTypes) {
+            if (gloop) {
+                this.gloops[gloop].draw();
+            }
+            
+        }
         this.ctx.restore();
     }
+
     update() {
+        this.sceneObj.update();
+        let gloopTypes = Object.keys(this.gloops);
+        for (const gloop of gloopTypes) {
+            var gloopEntity = this.gloops[gloop];
+            if (gloopEntity && !gloopEntity.removeFromWorld) {
+                gloopEntity.update();
+            }
+        }
+
         // if (this.gamepads[0]) {
         //     this.controllerStatus(this.gamepads[0]);
         // }
@@ -247,11 +306,16 @@ class GameEngine {
             }
         }
         if (this.over) {
-            SCENE_MANAGER.gameOverScene(); 
+            console.log(this.sceneObj);
+            if(this.sceneObj)
+                SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
+            else 
+                SCENE_MANAGER.gameOverScene(); 
             // console.log('game is over');
         }
         // console.log(this.timer.gameTime);
     }
+
     loop() {
         if (!this.started) {
             return;
@@ -261,6 +325,7 @@ class GameEngine {
         this.draw();
         this.jump = false; // jump and placements only happen once
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
     }
@@ -273,6 +338,7 @@ class Timer {
         this.maxStep = 0.05;
         this.wallLastTimestamp = 0;
     }
+
     tick() {
         var wallCurrent = Date.now();
         var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
@@ -290,8 +356,8 @@ class Entity {
         this.y = y;
         this.removeFromWorld = false;
     }
-    update() {
-    }
+    update() {}
+
     draw() {
         if (this.game.showOutlines && this.radius) {
             this.game.ctx.beginPath();
@@ -301,6 +367,7 @@ class Entity {
             this.game.ctx.closePath();
         }
     }
+
     //calculates where to draw entity relative to the current camera and returns the offset y coordinate
     //if the entity is more than removalTolerance pixels off the screen, the entity is deleted;
     cameraTransform(removalTolerance, parallaxFactor) {
@@ -337,11 +404,13 @@ class MusicManager {
         this.currentMusic = music;
         this.activated = false;
     }
+
     update() {
         //if the player has interacted with the dom, play the music
         if(this.musicManager.activated)
             this.musicManager.currentMusic.play();
     }
+
     playPause() {
         if(!this.currentMusic.paused) {
             console.log('here');
@@ -351,7 +420,6 @@ class MusicManager {
             this.currentMusic.play();
             this.activated = true;
         }
-
     }
 }
 
