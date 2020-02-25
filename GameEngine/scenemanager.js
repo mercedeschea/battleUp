@@ -98,7 +98,7 @@ class GameScene {
         }
         // console.log(this.game.camera.totalDrawOffset);
         // console.log(this.background.name);
-        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight) && this.background.name === 'level1') {
+        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level1') {
             console.log('won');
             this.score.win = true;
             this.game.over = true;
@@ -109,17 +109,21 @@ class GameScene {
     {
         this.playerCharacter = activeGloop;
         this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
-        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  150, 
-                            this.game.mapHeight - this.playerCharacter.radius * 4 - FLOOR_HEIGHT, this.game);
-        
+        let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  this.playerCharacter.radius * 14, 
+                            this.game.mapHeight - this.playerCharacter.radius * 5 - FLOOR_HEIGHT, this.game);
         this.game.addEntity(this.game.floor, 'general');
-
-        let startCoordinates = genGenforms(10, this.game, AM, 
+        let startX = this.playerCharacter.radius * 8;
+        let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
+        let startform = new Platform(AM.getAsset(GENFORM_PATH), 'center', startX, startY, 1, this.game);
+        this.game.addEntity(startform, 'genforms');
+        genGenforms(10, this.game, AM, 
             this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         
-        this.playerCharacter.x = startCoordinates.x;
-        // this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        this.playerCharacter.x = startX + this.playerCharacter.radius;
+        this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+
+
         // console.log(this.playerCharacter.y);
         genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
         this.score = new Score(this.game, AM, this.playerCharacter);
@@ -131,14 +135,22 @@ class GameScene {
 
 
     level1(activeGloop) {
-        console.log(this.game.clearAllButGloop);
+        // console.log(this.game.clearAllButGloop);
         this.game.clearAllButGloop();
         this.playerCharacter = activeGloop;
         this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
         this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
         this.game.mapHeight = this.background.spriteSheet.height;
         console.log('mapheight could be a problem', this.game.mapHeight);
+        let oldPCY = this.playerCharacter.y;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        if (this.playerCharacter.superAttacking) {
+            //should we stop super attack on level transition?
+            // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
+            this.playerCharacter.stopSuperAttack();
+        }
+        this.playerCharacter.endJump();
+
         for (let i = -1; i < 2; i++) {
             this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATH), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');

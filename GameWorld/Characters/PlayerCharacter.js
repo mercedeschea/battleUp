@@ -276,15 +276,11 @@ class PlayerCharacter extends Entity {
         if (this.jumping) {
             let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
             if (this.jumpLeftAnimation.isDone()) {
-                this.jumpLeftAnimation.elapsedTime = 0;
-                this.jumpRightAnimation.elapsedTime = 0;
-                this.jumping = false;
+                this.endJump();
             }
 
             if (this.jumpRightAnimation.isDone()) {
-                this.jumpLeftAnimation.elapsedTime = 0;
-                this.jumpRightAnimation.elapsedTime = 0;
-                this.jumping = false;
+                this.endJump();
             }
 
             if (this.jumpLeftAnimation.elapsedTime > this.jumpRightAnimation.elapsedTime) {
@@ -383,6 +379,12 @@ class PlayerCharacter extends Entity {
         this.y = this.jumpY - this.height;
     }
 
+    endJump() {
+        this.jumpLeftAnimation.elapsedTime = 0;
+        this.jumpRightAnimation.elapsedTime = 0;
+        this.jumping = false;
+    }
+
     draw(ctx) {
         let drawY;
         if (this.game.camera) {
@@ -412,7 +414,7 @@ class PlayerCharacter extends Entity {
                     drawY + this.currentAttackAnimation.yOffset);
         }
         if (this.superAttacking === 1) {
-            this.superAttackY = this.y;
+            this.superAttackY = this.y - SUPER_ATTACK_HEIGHT;
             Object.keys(this.attackCache).forEach((direction) => {
                 let xO = this.attackCache[direction].xOffset;
                 let yO = this.attackCache[direction].yOffset;
@@ -432,12 +434,19 @@ class PlayerCharacter extends Entity {
                 let xO = this.superAttackCache[direction].xOffset[currentFrame];
                 let yO = this.superAttackCache[direction].yOffset[currentFrame];
                 this.superAttackCache[direction].animation.drawFrame(this.game.clockTick, this.ctx, this.x+xO, drawY+yO);
-                if (this.y < this.superAttackY - SUPER_ATTACK_HEIGHT) {
+                if (this.y < this.superAttackY) {
                     this.superAttacking = 0;
                     this.superAttackCache[direction].animation.elapsedTime = 0;
                 }
             });
         }
+    }
+
+    stopSuperAttack () {
+        Object.keys(this.superAttackCache).forEach((direction) => {
+            this.superAttacking = 0;
+            this.superAttackCache[direction].animation.elapsedTime = 0;
+        });
     }
 
     isSupported() {
