@@ -205,7 +205,7 @@ function randomlyDistributeItems(numOfItems, game, startY, endY) {
     let yFound;
     let yOffset = startY;
     let j;
-    for (j = 0; j < numCanvasesInLevel; j++) { //<= is a quick hack should be fixed later
+    for (j = 0; j < numCanvasesInLevel; j++) {
         let startIndex = xCoordinates.length;
         for (var i = 0; i < numOfItems/numCanvasesInLevel; i++) {
             xFound = false;

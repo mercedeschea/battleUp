@@ -227,14 +227,14 @@ class GameEngine {
         for (const type of entityTypes) {
             for (const ent of this.entities[type]) {
                 ent.removeFromWorld = true;
-                console.log(ent);
+                // console.log(ent);
             }
         }
   
     }
 
     addEntity(entity, type) {
-        console.log('added entity');
+        // console.log('added entity');
         this.entities[type].push(entity);
         this.moveRight = null;
         this.moveLeft = null;

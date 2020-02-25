@@ -8,6 +8,7 @@ const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
+const LEVEL1_HEIGHT = 4248;
 
 class SceneManager {
     constructor(gameEngine, musicManager) {
@@ -95,9 +96,9 @@ class GameScene {
                 this.level1(this.playerCharacter);
                 // console.log(this.game.gloops['orangeGloop'].y);
         }
-        console.log(this.game.camera.totalDrawOffset);
-        console.log(this.background.name);
-        if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight) && this.background.name === 'level1') {
+        // console.log(this.game.camera.totalDrawOffset);
+        // console.log(this.background.name);
+        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight) && this.background.name === 'level1') {
             console.log('won');
             this.score.win = true;
             this.game.over = true;
@@ -114,10 +115,11 @@ class GameScene {
         this.game.addEntity(this.game.floor, 'general');
 
         let startCoordinates = genGenforms(10, this.game, AM, 
-                                this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
+            this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
+        
         this.playerCharacter.x = startCoordinates.x;
-        this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        // this.playerCharacter.y = startCoordinates.y - this.playerCharacter.radius * 2;
+        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
         // console.log(this.playerCharacter.y);
         genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
         this.score = new Score(this.game, AM, this.playerCharacter);
@@ -135,6 +137,7 @@ class GameScene {
         this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
         this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
         this.game.mapHeight = this.background.spriteSheet.height;
+        console.log('mapheight could be a problem', this.game.mapHeight);
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
         for (let i = -1; i < 2; i++) {
             this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATH), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,

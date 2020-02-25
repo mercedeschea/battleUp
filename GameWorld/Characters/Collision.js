@@ -70,7 +70,7 @@ function isCharacterColliding(PlayerCharacter) {
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
-    console.log(pc.game.sceneObj.background.name);
+    // console.log(pc.game.sceneObj.background.name);
     if (pc.game.floor && pcDistanceFromFloor <= 0 && pc.game.sceneObj.background.name !== 'level1') {
         pc.y += pcDistanceFromFloor;
         pc.colliding = true;
