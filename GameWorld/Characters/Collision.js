@@ -65,6 +65,7 @@ function isCharacterColliding(PlayerCharacter) {
         // console.log(cookie, result);
         if (result) {
             pc.collectCookie();
+            new Audio("./Music/cookie2.wav").play();
             cookie.removeFromWorld = true;
         }
     }

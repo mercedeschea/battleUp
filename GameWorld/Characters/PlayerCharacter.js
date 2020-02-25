@@ -268,6 +268,7 @@ class PlayerCharacter extends Entity {
         if (this.game.jump && !this.jumping && this.isSupported()) {
             this.jumping = true;
             this.jumpY = this.y;
+            new Audio("./Music/jump.wav").play();
             // console.log('jumping', this.y);
             // console.log('colliding', this.colliding)
         }
