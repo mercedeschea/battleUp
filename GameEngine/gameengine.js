@@ -11,14 +11,14 @@ window.requestAnimFrame = (function () {
 //change this to change scroll speed
 const SCROLL_SPEED = 20;
 //change this to change time before map starts scrolling.
-const SCROLL_DELAY = 100000000000;
+const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor(musicManager) {
         this.gamepads = {};
-        this.entities = {general:[], genforms:[], placeforms:[], cookies:[]};
+        this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
@@ -30,6 +30,7 @@ class GameEngine {
         this.up = false;
         this.jump = false;
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
         this.started = false;
@@ -37,7 +38,8 @@ class GameEngine {
         this.floor = null;
         this.active = true;
         this.over = false;
-        this.scene = null;
+        this.scene = null;//string used in control flow
+        this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
         this.selectGloop = null;
     }
@@ -86,7 +88,7 @@ class GameEngine {
         const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
-            'attackLeft':'KeyR', 'attackRight':'Tab', 'pause':'KeyP'};
+            'attackLeft':'KeyR', 'attackRight':'Tab', 'attackSuper':'KeyF', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         window.addEventListener("gamepadconnected", function (e) {
@@ -111,6 +113,7 @@ class GameEngine {
             that.mouseReleased = true;
             if (that.scene === 'start' && !that.started) {
                 that.active = true;
+                console.log('starting');
                 SCENE_MANAGER.gameScene();
                 that.start();
             } else  if (that.scene == 'gameOver' && that.over){
@@ -139,7 +142,9 @@ class GameEngine {
             if (e.code === keyArr['placeAngled'])
                 that.placeAngled = true;
             if (e.code === keyArr['placeFlat'])
-                that.placeFlat = true;   
+                that.placeFlat = true;
+            if (e.code === keyArr['attackSuper'])
+                that.attackSuper = true;  
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
             if (e.code === keyArr['pause'])
@@ -194,37 +199,46 @@ class GameEngine {
     //     playerCharacter.y = lowestGenformCoords[1] - 64;
     //     this.playerCharacter = 
     // }
-
+    //game must be off for this to work
     clearAllEntities() {
+        console.log('this is called');
         const entityTypes = Object.keys(this.entities);
-        console.log('before clearing', this.entities);
+        // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
             this.entities[type].splice(0,this.entities[type].length);
         }
-        console.log('after clearing', this.entities);
+        // console.log('after clearing', this.entities);
         const gloopsTypes = Object.keys(this.gloops);
-        console.log(gloopsTypes);
 
         for (const gloop of gloopsTypes) {
-            gloopsTypes[gloop] = null;
+            delete this.gloops[gloop];
         }
-        console.log('console log', this.gloops);
-        this.gloops = [];
-        console.log('gloops list: ', this.gloops)
+  
+    }
+
+
+    clearAllButGloop() {
+        const entityTypes = Object.keys(this.entities);
+        // console.log('before clearing', this.entities);
+        for (const type of entityTypes) {
+            for (const ent of this.entities[type]) {
+                ent.removeFromWorld = true;
+                // console.log(ent);
+            }
+        }
   
     }
 
     addEntity(entity, type) {
-        console.log('added entity');
+        // console.log('added entity');
         this.entities[type].push(entity);
         this.moveRight = null;
         this.moveLeft = null;
     }
 
-    addGloops(gloop, color) {
-        console.log('added gloop');
+    addGloop(gloop, color) {
         this.gloops[color] = gloop;
-        console.log(this.gloops);
+        // console.log(this.gloops[color])
     }
 
     draw() {
@@ -233,6 +247,9 @@ class GameEngine {
         }
         this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
         this.ctx.save();
+        // console.log(this.sceneObj);
+        if (this.sceneObj)
+            this.sceneObj.draw();
         let entityTypes = Object.keys(this.entities);
         for (const type of entityTypes) {
             for (var i = 0; i < this.entities[type].length; i++) {
@@ -250,6 +267,7 @@ class GameEngine {
     }
 
     update() {
+        this.sceneObj.update();
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
             var gloopEntity = this.gloops[gloop];
@@ -284,7 +302,12 @@ class GameEngine {
             }
         }
         if (this.over) {
-            SCENE_MANAGER.gameOverScene(); 
+            // console.log(this.sceneObj);
+            if(this.sceneObj)
+                SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
+            else 
+                SCENE_MANAGER.gameOverScene(); 
+            // console.log('game is over');
         }
     }
 
@@ -297,6 +320,7 @@ class GameEngine {
         this.draw();
         this.jump = false; // jump and placements only happen once
         this.attack = false;
+        this.attackSuper = false;
         this.placeAngled = false;
         this.placeFlat = false;
     }

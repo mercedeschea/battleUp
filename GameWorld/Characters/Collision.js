@@ -10,6 +10,9 @@ function isCharacterColliding(PlayerCharacter) {
         cartesianX: PlayerCartCords.cartesianX,
         cartesianY: PlayerCartCords.cartesianY
     }
+    if(pc.superAttacking > 0) {
+        PlayerCircleInfo.radius += DRILL_LENGTH;
+    }
     let mapHeight = pc.game.mapHeight;
     // The player character cirlce now has its cartesian x and y locations stored in PlayerCircleInfo.
 
@@ -22,6 +25,8 @@ function isCharacterColliding(PlayerCharacter) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         if (result) {
             pc[result] = true;
+            if (pc.superAttacking > 0)
+                platform.removeFromWorld = true;
             // console.log(result);
         }
         // if (result === 'fromBelow') {
@@ -39,8 +44,11 @@ function isCharacterColliding(PlayerCharacter) {
     }
     for (const platform of pc.game.entities.genforms) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
-        if (result)
+        if (result){
             pc[result] = true;
+            if (pc.superAttacking > 0)
+                platform.removeFromWorld = true;
+        }
         // let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         // if (result === 'fromAbove') {
         //     pc.colliding = true;
@@ -57,12 +65,14 @@ function isCharacterColliding(PlayerCharacter) {
         // console.log(cookie, result);
         if (result) {
             pc.collectCookie();
+            new Audio("./Music/cookie2.wav").play();
             cookie.removeFromWorld = true;
         }
     }
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
-    if (pc.game.floor && pcDistanceFromFloor <= 0) {
+    // console.log(pc.game.sceneObj.background.name);
+    if (pc.game.floor && pcDistanceFromFloor <= 0 && pc.game.sceneObj.background.name !== 'level1') {
         pc.y += pcDistanceFromFloor;
         pc.colliding = true;
         // console.log(pc.floorTimer, "a floor timer");
@@ -76,6 +86,8 @@ function isCharacterColliding(PlayerCharacter) {
             pc.floorTimer -= pc.game.clockTick;
         }
 
+    } else if (pc.cameraTransform() > pc.game.surfaceHeight) {
+        pc.dead = true;
     } else {
         pc.floorTimer = 0;
     }
@@ -153,12 +165,13 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     // console.log("platform.x", platform.x);
     // console.log("gameWorldHeight", gameWorldHeight);
     // console.log("platform real y", gameWorldHeight - (platform.y + 80));
+    let platformLength = 80;
     return {
         mSlope: slope,
-        gameB: platform.y + 80 - (slope * platform.x),
-        bOffset: (gameWorldHeight - (platform.y + 80) - (slope * platform.x)),
+        gameB: platform.y + platformLength - (slope * platform.x),
+        bOffset: (gameWorldHeight - (platform.y + platformLength) - (slope * platform.x)),
         xLeft: platform.x,
-        xRight: (platform.x + 80)
+        xRight: (platform.x + platformLength)
     }
 }
 
@@ -167,12 +180,13 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
     // y = mx + b
     // top left point of this platform is (this.x + 7, this.y) 
     // gameHeight - this.y = (-1) * (this.x + 7) + b 
+    let platformLength = 83;
     return {
         mSlope: slope,
         gameB: platform.y + (platform.x + 7),
         bOffset: (gameWorldHeight - platform.y) + (platform.x + 7),
         xLeft: platform.x,
-        xRight: platform.x + 83,
+        xRight: platform.x + platformLength,
         yValue: gameWorldHeight - platform.y - 30
     }
 }
@@ -226,14 +240,14 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     //check if player is entirely within the boundaries of the platform
     let centerCollide = CircleInfo.cartesianX >= LineInfo.xLeft 
     && CircleInfo.cartesianX <= LineInfo.xRight;
-    let clippingLeft = LineInfo.xLeft - CircleInfo.cartesianX <  CircleInfo.radius
+    let clippingLeft = LineInfo.xLeft - CircleInfo.cartesianX <  CircleInfo.radius * 1.5
+    && LineInfo.xLeft - CircleInfo.cartesianX > -CircleInfo.radius;
+    let clippingRight = CircleInfo.cartesianX - LineInfo.xRight < CircleInfo.radius * 1.5
+    && CircleInfo.cartesianX  - LineInfo.xRight > -CircleInfo.radius;
+    let clippingLeftTop = LineInfo.xLeft - CircleInfo.cartesianX <  CircleInfo.radius
     && LineInfo.xLeft - CircleInfo.cartesianX > 0;
-    let clippingRight = CircleInfo.cartesianX - LineInfo.xRight + platformThicknessCorrect < CircleInfo.radius
+    let clippingRightTop = CircleInfo.cartesianX - LineInfo.xRight + platformThicknessCorrect < CircleInfo.radius
     && CircleInfo.cartesianX  - LineInfo.xRight > 0;
-    // let clippingLeftTop = LineInfo.xLeft - CircleInfo.cartesianX + PLATFORM_HEIGHT <  CircleInfo.radius
-    // && LineInfo.xLeft - CircleInfo.cartesianX > 0;
-    // let clippingRightTop = CircleInfo.cartesianX - LineInfo.xRight + PLATFORM_HEIGHT < CircleInfo.radius
-    // && CircleInfo.cartesianX  - LineInfo.xRight > 0;
     //handle cases where player is at the top or bottom of a platform
     let rightAngled = LineInfo.mSlope === 1 ? true : false;
     let aboveEdge = CircleInfo.cartesianY >= contactY - platformThicknessCorrect;
@@ -247,12 +261,12 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     if (rightAngled) {
         if((centerCollide && aboveMiddle) || (clippingLeft && aboveEdge))
             return 'collidingBotRight';
-        else if ((centerCollide && belowMiddle) || ((clippingRight) && belowEdge))
+        else if ((centerCollide && belowMiddle) || ((clippingRightTop) && belowEdge))
             return 'collidingTopLeft';
     } else {
         if((centerCollide && aboveMiddle) || (clippingRight && aboveEdge))
             return 'collidingBotLeft';
-        else if ((centerCollide && belowMiddle) || (clippingLeft && belowEdge))
+        else if ((centerCollide && belowMiddle) || (clippingLeftTop && belowEdge))
             return 'collidingTopRight';
     }
     return false;
