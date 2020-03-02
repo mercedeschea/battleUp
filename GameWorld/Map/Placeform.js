@@ -59,8 +59,8 @@ class PlaceformManager {
     }
 
     clearPlaceforms() {
-        for (platform in this.placeformsCurrent) {
-            platform.removeFromWorld();
+        for (let i = 0; i < this.placeformsCurrent.length; i++) {
+            this.placeformsCurrent[i].removeFromWorld = true;
         }
     }
 }

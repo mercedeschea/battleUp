@@ -141,7 +141,8 @@ class PlayerCharacter extends Entity {
         this.placePlatforms();
 
         this.handleAttacking();
-        // console.log(this.placeformManager.placeformsCurrent);
+
+        this.clearOutPlaceforms();
     }
 
     calcJump(jumpAnimation, totalHeight) {
@@ -409,7 +410,6 @@ class PlayerCharacter extends Entity {
         if (this.superAttacking > 0) {
             this.y -= this.game.clockTick * PLAYER_SPEED * 2;
         }
-        this.clearOutPlaceforms();
     }
 
     clearOutPlaceforms() {
