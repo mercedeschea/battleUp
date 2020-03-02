@@ -476,4 +476,8 @@ class PlayerCharacter extends Entity {
         return {cache:cache, superCache:superCache};
     }
 
+    newScene() {
+        this.stopJumping();
+    }
+
 }

@@ -150,7 +150,7 @@ class GameScene {
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
             this.playerCharacter.stopSuperAttack();
         }
-        this.playerCharacter.stopJumping();
+        this.playerCharacter.newScene();
 
         for (let i = -1; i < 2; i++) {
             this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATH), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,

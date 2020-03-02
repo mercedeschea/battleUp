@@ -52,7 +52,6 @@ class PlaceformManager {
         // }
         // this.placeformsCurrent[type].push(placeformPlaced);
         if (this.placeformsCurrent.length >= PLACEFORM_LIMITS['center']) {
-            console.log("wow");
             this.placeformsCurrent[0].removeFromWorld = true;
         }
         this.placeformsCurrent.push(placeformPlaced);
