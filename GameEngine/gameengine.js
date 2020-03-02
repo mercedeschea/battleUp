@@ -9,7 +9,7 @@ window.requestAnimFrame = (function () {
             };
 })();
 //change this to change scroll speed
-const SCROLL_SPEED = 20;
+const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
@@ -106,6 +106,8 @@ class GameEngine {
                 that.showButton = false;
                 that.mouseDown = true;
                 that.draw();
+                // console.log('mouse down')
+                // console.log('mouse down in game engine: ' + that.mouseDown);
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
@@ -122,9 +124,11 @@ class GameEngine {
             else {
                 that.musicManager.playPause();
             }
+            //console.log('mouse up');
         }, false);
         this.ctx.canvas.addEventListener("", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
+            // if (that.mouse.x = )
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
@@ -302,13 +306,14 @@ class GameEngine {
             }
         }
         if (this.over) {
-            // console.log(this.sceneObj);
+            console.log(this.sceneObj);
             if(this.sceneObj)
                 SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
             else 
                 SCENE_MANAGER.gameOverScene(); 
             // console.log('game is over');
         }
+        // console.log(this.timer.gameTime);
     }
 
     loop() {
@@ -433,12 +438,17 @@ class Camera {
     draw() {}
     update() {
         //if the player is at the top of the canvas
+        // console.log(this);
+        // console.log(this.playerCharacter.y - this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
-            this.advanceTime = .5; //set to the amount of seconds you want to scroll the camera for
+            this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
+            // console.log(this.game.clockTick, 'a tick with this value');
+            // console.log(this.advanceTime);
             this.advanceTime -= this.game.clockTick;
+            // console.log(this.advanceTime);
         }
         else if(this.game.timer.gameTime > SCROLL_DELAY){
             this.currentDrawOffset = this.game.clockTick * this.speed;
