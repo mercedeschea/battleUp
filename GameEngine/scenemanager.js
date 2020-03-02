@@ -112,6 +112,7 @@ class GameScene {
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  this.playerCharacter.radius * 14, 
                             this.game.mapHeight - this.playerCharacter.radius * 5 - FLOOR_HEIGHT, this.game);
         this.game.addEntity(this.game.floor, 'general');
+        genWalls(this.game, AM);
         let startX = this.playerCharacter.radius * 8;
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
         let startform = new Platform(AM.getAsset(GENFORM_PATH), 'center', startX, startY, 1, this.game);
