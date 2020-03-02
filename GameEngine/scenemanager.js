@@ -8,6 +8,7 @@ const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
+const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
 const LEVEL1_HEIGHT = 4248;
 
 class SceneManager {
@@ -122,7 +123,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        //this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
 
 
         // console.log(this.playerCharacter.y);
@@ -206,6 +207,10 @@ class StartScreen {
         this.game = gameEngine;
         this.background = new Background(this.game, AM, START_PATH, 'start screen');
         this.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
+        this.spriteSheet = AM.getAsset(LOGO_ICON);
+        this.spriteWidth = this.spriteSheet.width;
+        this.spriteHeight = this.spriteSheet.height;
+        this.destX = this.game.surfaceWidth/2 - (this.spriteWidth/2);
 
         this.greenGloop = greenGloop;
         this.purpleGloop = purpleGloop;
@@ -233,11 +238,15 @@ class StartScreen {
 
     update() {
         this.greenGloop.jumping = true;
+        console.log(this.game.mouse.x);
     }
 
     draw() {
         this.background.draw();
         this.floor.draw();
+        // console.log(this.spriteHeight);
+        this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+            this.destX, this.game.surfaceHeight/6, this.spriteWidth, this.spriteHeight);
     }
 }
 
@@ -253,13 +262,13 @@ class StartButton {
     }
     
     draw() {
-        //console.log('mouse down game engine in draw: ' + this.game.mouseDown)
-        if (!this.game.mouseDown) {
+        // 70 is the y, so that the button fits in space of the floor
+        if (!this.game.mouseDown) { // default button animation
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
             this.showButton = false;
             this.removeFromWorld = true;
-        } if (this.game.mouseDown) {
+        } if (this.game.mouseDown) { // button press animation
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
             this.removeFromWorld = true;

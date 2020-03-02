@@ -294,15 +294,14 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
     let answer = quadraticFormula(a,b,c);
 
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
-        // console.log("no");
         return false;
-    } else if ((CircleInfo.cartesianX + CircleInfo.radius >= LineInfo.xLeft) && (CircleInfo.cartesianX - CircleInfo.radius <= LineInfo.xRight) && (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
-        // console.log("YESYEYESYESYESYESYSEYSEYSS");
-        // console.log("1", CircleInfo.cartesianX >= LineInfo.xLeft);
-        // console.log("2", CircleInfo.cartesianX <= LineInfo.xRight);
-        // console.log("3", (CircleInfo.cartesianY - 100) > LineInfo.yValue);
+    } else if ((CircleInfo.cartesianX + CircleInfo.radius >= LineInfo.xLeft) && 
+                (CircleInfo.cartesianX - CircleInfo.radius <= LineInfo.xRight) && 
+                (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
         return 'colliding';
-    } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && (CircleInfo.cartesianY + CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
+    } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && 
+                (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && 
+                (CircleInfo.cartesianY + CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
         return 'collidingTop';
     }
 }

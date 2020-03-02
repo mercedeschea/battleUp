@@ -35,7 +35,6 @@ class Background {
     }
     update() {
         this.srcY -= this.game.camera.currentDrawOffset * .9;
-        // if (this.srcY < 0) this.srcY = this.spritesheet.height - this.game.surfaceHeight;
     }
 };
 
@@ -50,7 +49,6 @@ class Wall extends Entity{
     draw() {
         let drawY = this.cameraTransform(-40);
         if (drawY) {
-            // this.game.ctx.drawImage(this.spriteSheet, this.x, drawY);
             this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY);
         }
     }
@@ -366,6 +364,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(LEVEL1_FLOOR_FLASH);
     AM.queueDownload(KRIMTROK_SHEET);
     AM.queueDownload(BUBBLE_SHEET);
+    AM.queueDownload(LOGO_ICON);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
