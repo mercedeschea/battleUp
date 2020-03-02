@@ -107,7 +107,7 @@ function convertHorizontalEquationToAboveEquation(equation) {
 function convertSlopedEquationToAboveEquation(equation) {
     return {
         mSlope: equation.mSlope,
-        bOffset: equation.bOffset + 68,////////
+        bOffset: equation.bOffset + 80,//68,////////
         xLeft: equation.xLeft,
         xRight: equation.xRight,
         yValue: equation.yValue
