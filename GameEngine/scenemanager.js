@@ -9,7 +9,6 @@ const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
-const LEVEL1_HEIGHT = 4248;
 
 class SceneManager {
     constructor(gameEngine, musicManager) {
