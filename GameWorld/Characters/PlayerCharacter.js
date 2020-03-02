@@ -337,14 +337,25 @@ class PlayerCharacter extends Entity {
     }
 
     placePlatforms() {
-        if (this.game.placeAngled && this.isSupported()) {
+        if (this.game.placeAngledLeft && this.isSupported()) {
             this.placed = true;
-            this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
+            this.placeformManager.placeformPlace(true, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else if (this.game.placeFlat && this.isSupported()) {
+        } else if (this.game.placeAngledRight && this.isSupported()) {
             this.placed = true;
-            this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
+            this.placeformManager.placeformPlace(false, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else if (this.game.placeFlatLeft && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(true, false, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else if (this.game.placeFlatRight && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(false, false, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        }
+        if (this.game.removePlatforms) {
+            this.placeformManager.clearPlaceforms();
         }
     }
 
@@ -398,12 +409,19 @@ class PlayerCharacter extends Entity {
         if (this.superAttacking > 0) {
             this.y -= this.game.clockTick * PLAYER_SPEED * 2;
         }
-        let placeformTypes = Object.keys(this.placeformManager.placeformsCurrent);
-        for (const key of placeformTypes) {
-            for (let i = 0; i < this.placeformManager.placeformsCurrent[key].length; i++) {
-                if (this.placeformManager.placeformsCurrent[key][i].removeFromWorld) {
-                    this.placeformManager.placeformsCurrent[key].splice(i, 1);
-                }
+        this.clearOutPlaceforms();
+    }
+
+    clearOutPlaceforms() {
+        // let placeformTypes = Object.keys(this.placeformManager.placeformsCurrent);
+        // for (const key of placeformTypes) {
+            // for (let i = 0; i < this.placeformManager.placeformsCurrent[key].length; i++) {
+                // if (this.placeformManager.placeformsCurrent[key][i].removeFromWorld) {
+                //     this.placeformManager.placeformsCurrent[key].splice(i, 1);
+                // }
+        for (let i = 0; i < this.placeformManager.placeformsCurrent.length; i++) {
+            if (this.placeformManager.placeformsCurrent[i].removeFromWorld) {
+                this.placeformManager.placeformsCurrent.splice(i, 1);
             }
         }
     }
