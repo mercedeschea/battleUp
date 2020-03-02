@@ -31,7 +31,9 @@ class GameEngine {
         this.jump = false;
         this.attack = false;
         this.attackSuper = false;
-        this.placeAngled = false;
+        this.placeAngledLeft = false;
+        this.placeAngledRight = false;
+        this.removePlatforms = false;
         this.placeFlat = false;
         this.started = false;
         this.clockTick = 0;
@@ -85,10 +87,10 @@ class GameEngine {
     // }
     startInput() {
         // this.scangamepads();
-        const keyArr = {'up':'KeyW', 'left':'KeyA', 'down':'KeyS', 'right':'KeyD', 
+        const keyArr = {'removePlatforms':'KeyF', 'up':'KeyW', /*'left':'KeyA',*/ 'down':'KeyS', /*'right':'KeyD',*/ 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
-            'altDown':'ArrowDown', 'placeFlat':'KeyE', 'placeAngled':'KeyQ', 'jump':'Space',
-            'attackLeft':'KeyR', 'attackRight':'Tab', 'attackSuper':'KeyF', 'pause':'KeyP'};
+            'altDown':'ArrowDown', 'placeFlatLeft':'KeyA', 'placeFlatRight':'KeyD', 'placeAngledLeft':'KeyQ', 'placeAngledRight':'KeyE', 'jump':'Space',
+            /*'attackLeft':'KeyR', 'attackRight':'Tab', */'attackSuper':'KeyR', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
         window.addEventListener("gamepadconnected", function (e) {
@@ -132,7 +134,7 @@ class GameEngine {
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
-                that.up = true;
+                that.jump = true;
             if ((e.code === keyArr['jump']) && that.active)
                 that.jump = true;
             if ((e.code === keyArr['left'] || e.code === keyArr['altLeft']) && that.active)
@@ -143,10 +145,16 @@ class GameEngine {
                 that.down = true;
             if ((e.code === keyArr['right'] || e.code === keyArr['altRight']) && that.active)
                 that.right = true;
-            if (e.code === keyArr['placeAngled'])
-                that.placeAngled = true;
-            if (e.code === keyArr['placeFlat'])
-                that.placeFlat = true;
+            if (e.code === keyArr['placeAngledLeft'])
+                that.placeAngledLeft = true;
+            if (e.code === keyArr['placeAngledRight'])
+                that.placeAngledRight = true;
+            if (e.code === keyArr['placeFlatLeft'])
+                that.placeFlatLeft = true;
+            if (e.code === keyArr['placeFlatRight'])
+                that.placeFlatRight = true;
+            if (e.code === keyArr['removePlatforms'])
+                that.removePlatforms = true;
             if (e.code === keyArr['attackSuper'])
                 that.attackSuper = true;  
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
@@ -326,8 +334,11 @@ class GameEngine {
         this.jump = false; // jump and placements only happen once
         this.attack = false;
         this.attackSuper = false;
-        this.placeAngled = false;
-        this.placeFlat = false;
+        this.placeAngledLeft = false;
+        this.placeAngledRight = false;
+        this.placeFlatLeft = false;
+        this.placeFlatRight = false;
+        this.removePlatforms = false;
     }
 
 }
