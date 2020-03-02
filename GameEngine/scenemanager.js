@@ -122,7 +122,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        //this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
 
 
         // console.log(this.playerCharacter.y);
@@ -243,7 +243,7 @@ class StartScreen {
     draw() {
         this.background.draw();
         this.floor.draw();
-        console.log(this.spriteHeight);
+        // console.log(this.spriteHeight);
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
             this.destX, this.game.surfaceHeight/6, this.spriteWidth, this.spriteHeight);
     }
