@@ -1,0 +1,17 @@
+20200302 15:55 patch notes
+
+Summary:
+genform 2 work
+
+Moved Files:
+Usables/lvl3/background.png -> Usables/lvl2/background.png
+
+assets added:
+
+Usables/lvl0/genform2.png (update)
+Usables/lvl1/genform2.png
+Usables/lvl2/genform2.png
+
+
+
+
