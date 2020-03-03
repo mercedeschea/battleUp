@@ -239,7 +239,7 @@ class StartScreen {
 
     update() {
         this.greenGloop.jumping = true;
-        console.log(this.game.mouse.x);
+        // console.log(this.game.mouse.x);
     }
 
     draw() {
