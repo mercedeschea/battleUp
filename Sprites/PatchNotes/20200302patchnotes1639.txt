@@ -1,0 +1,16 @@
+20200302 16:39 patch notes
+
+Summary:
+placeforms!
+
+assets added:
+
+Usables/gloop(blue)/placeform.png
+Usables/gloop(green)/placeform.png
+Usables/gloop(orange)/placeform.png
+Usables/gloop(purple)/placeform.png
+
+
+
+
+

@@ -1,7 +1,5 @@
 const genForms = [];
 const cookies = [];
-const PROTO_PATHS = {'center':'./Sprites/prototypes/horizontal.png',
-'left':'./Sprites/prototypes/backslash.png', 'right':'./Sprites/prototypes/forward.png', 'vertical':'./Sprites/prototypes/horizontal.png'};
 const GENFORM_PATH = './Sprites/Usables/lvl0/genform.png';
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/lvl0/placeform.png';//modify this line to view the different sprites
@@ -150,7 +148,8 @@ class Cookie extends Entity {
                 this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
                     width, height, this.x, drawY, 
                     width * this.scale, height * this.scale);
-                }
+
+            }
         }
         // let drawTestLeft = {x:this.equation.xLeft, 
         //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
@@ -348,12 +347,8 @@ function MapAMDownloads(AM) {
     AM.queueDownload(FLOOR_FLASH_PATH);
     // AM.queueDownload(MUSIC_PATH);
     AM.queueDownload(PILLAR_PATH);
-    AM.queueDownload(FLASHFORM);
     AM.queueServerDownload(MAP_FILE_NAME);
     AM.queueServerDownload(LEVEL1_MAP_FILE_NAME);
-    for (const key of Object.keys(PROTO_PATHS)) {
-        AM.queueDownload(PROTO_PATHS[key]);
-    }
     AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);

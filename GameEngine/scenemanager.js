@@ -9,6 +9,8 @@ const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
+const SCORE_FONT = "20px mainFont";
+const KT_FONT = "12px mainFont";
 
 class SceneManager {
     constructor(gameEngine, musicManager) {
@@ -122,12 +124,13 @@ class GameScene {
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
         let startform = new Platform(AM.getAsset(GENFORM_PATH), 'center', startX, startY, 1, this.game);
         this.game.addEntity(startform, 'genforms');
-        genGenforms(10, this.game, AM, 
-            this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
+        console.log(startform.equation);
+        // genGenforms(10, this.game, AM, 
+        //     this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        //this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
 
 
         // console.log(this.playerCharacter.y);
@@ -135,14 +138,13 @@ class GameScene {
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
-        this.game.addEntity(this.kT, 'general');
-        // this.game.addEntity(this.score, 'general');
+        this.game.addEntity(this.kT, 'top');
+        this.game.addEntity(this.score, 'top');
     }
 
 
     level1(activeGloop) {
-        // console.log(this.game.clearAllButGloop);
-        this.game.clearAllButGloop();
+        this.game.clearAllButGloopAndTop();
         this.playerCharacter = activeGloop;
         this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
         this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
@@ -176,8 +178,8 @@ class GameScene {
     draw() {
         // console.log(this.background.name, 'background');
         this.background.draw();
-        this.score.draw();
-        this.kT.draw();
+        // this.score.draw();
+        // this.kT.draw();
     }
 }
 
@@ -286,7 +288,7 @@ class StartButton {
 // player score based on max height and number of cookies
 class Score {
     constructor(game, AM, PlayerCharacter) {
-        this.spriteSheet = AM.getAsset(SCORE_TEXT);
+        // this.spriteSheet = AM.getAsset(SCORE_TEXT);
         this.game = game;
         this.scoreTimer = new Timer();
         this.displayScore = 0;
@@ -303,11 +305,13 @@ class Score {
     draw() {
         //console.log(this.game.mouseReleased);
         if (this.game.mouseReleased) {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-                this.spriteSheet.width/5, this.spriteSheet.height/5);
-            this.game.ctx.font = ("20px Times New Roman");
+            // this.game.ctx.drawImage(this.spriteSheet, 0, 0,
+            //     this.spriteSheet.width/5, this.spriteSheet.height/5);
+            // this.game.ctx.font = ("20px Times New Roman");
+            // console.log(AM.font);
+            this.game.ctx.font = SCORE_FONT;
             this.game.ctx.fillStyle = "#D4AF37";
-            this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+            this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
             this.displayCookie.draw();
             this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
         }
@@ -373,8 +377,8 @@ class Krimtrok extends Entity {
         let bubX = this.x + this.bubbleAnimation.frameWidth * .45;
         let bubY = this.y - this.bubbleAnimation.frameHeight * .65;
         this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
-        bubX, bubY, 1);
-        this.game.ctx.font = ("20px Times New Roman");
+        bubX, bubY, 1.5);
+        this.game.ctx.font = KT_FONT;
         this.game.ctx.fillStyle = "#D4AF37";
         let scoreString = "Score: " + score.maxY;
         let cookieString = "Cookies: " + score.lastCookieCount;
@@ -391,9 +395,9 @@ class Krimtrok extends Entity {
             let bubX = this.x + this.bubbleAnimation.frameWidth * .45;
             let bubY = this.y - this.bubbleAnimation.frameHeight * .65;
             this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
-                bubX, bubY, 1);
+                bubX, bubY, 1.5);
             
-            this.game.ctx.font = ("20px Times New Roman");
+            this.game.ctx.font = KT_FONT;
             this.game.ctx.fillStyle = "#D4AF37";
             let msg = this.message.split('\n');
             this.game.ctx.fillText(msg[0], bubX+5, bubY + 25);

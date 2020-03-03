@@ -1,7 +1,5 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
-const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
 
 
 class Animation {
@@ -66,7 +64,7 @@ class Animation {
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
-AM.queueDownload(SCORE_TEXT);
+// AM.queueDownload(SCORE_TEXT);
 
 
 AM.downloadAll(function () {
