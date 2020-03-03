@@ -125,7 +125,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
 
 
         // console.log(this.playerCharacter.y);
@@ -305,7 +305,7 @@ class Score {
             // console.log(AM.font);
             this.game.ctx.font = SCORE_FONT;
             this.game.ctx.fillStyle = "#D4AF37";
-            this.game.ctx.fillText("Score: " + this.maxY, this.spriteSheet.width/5 + 50, 20);
+            this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
             this.displayCookie.draw();
             this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
         }

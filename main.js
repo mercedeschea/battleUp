@@ -1,7 +1,5 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
-const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
 
 
 class Animation {
