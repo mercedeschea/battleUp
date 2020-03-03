@@ -66,7 +66,7 @@ class Animation {
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
-AM.queueDownload(SCORE_TEXT);
+// AM.queueDownload(SCORE_TEXT);
 
 
 AM.downloadAll(function () {

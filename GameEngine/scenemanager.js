@@ -152,7 +152,7 @@ class GameScene {
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
             this.playerCharacter.stopSuperAttack();
         }
-        this.playerCharacter.endJump();
+        this.playerCharacter.newScene();
 
         for (let i = -1; i < 2; i++) {
             this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATH), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
@@ -282,7 +282,7 @@ class StartButton {
 // player score based on max height and number of cookies
 class Score {
     constructor(game, AM, PlayerCharacter) {
-        this.spriteSheet = AM.getAsset(SCORE_TEXT);
+        // this.spriteSheet = AM.getAsset(SCORE_TEXT);
         this.game = game;
         this.scoreTimer = new Timer();
         this.displayScore = 0;
@@ -299,13 +299,13 @@ class Score {
     draw() {
         //console.log(this.game.mouseReleased);
         if (this.game.mouseReleased) {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-                this.spriteSheet.width/5, this.spriteSheet.height/5);
+            // this.game.ctx.drawImage(this.spriteSheet, 0, 0,
+            //     this.spriteSheet.width/5, this.spriteSheet.height/5);
             // this.game.ctx.font = ("20px Times New Roman");
             // console.log(AM.font);
             this.game.ctx.font = SCORE_FONT;
             this.game.ctx.fillStyle = "#D4AF37";
-            this.game.ctx.fillText(this.maxY, this.spriteSheet.width/5 + 50, 20);
+            this.game.ctx.fillText("Score: " + this.maxY, this.spriteSheet.width/5 + 50, 20);
             this.displayCookie.draw();
             this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
         }

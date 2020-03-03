@@ -2,7 +2,7 @@ const PLACEFORM_LIMITS = {'left':1, 'right':1, 'center':5};
 const PLACEFORM_OFFSET = 5;
 class PlaceformManager {
     constructor(game, AM, placeformLimit) {
-        this.placeformsCurrent = {'right':[], 'left':[], 'center':[]};
+        this.placeformsCurrent = []//{'right':[], 'left':[], 'center':[]};
         this.placeformLimit = placeformLimit;
         this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATH);
         this.game = game;
@@ -46,11 +46,21 @@ class PlaceformManager {
     //     }
     // }
     updateCurrentPlaceforms (placeformPlaced) {
-        let type = placeformPlaced.type;
-        if (this.placeformsCurrent[type].length >= PLACEFORM_LIMITS[type]) {
-            this.placeformsCurrent[type][0].removeFromWorld = true;
+        // let type = placeformPlaced.type;
+        // if (this.placeformsCurrent[type].length >= PLACEFORM_LIMITS[type]) {
+        //     this.placeformsCurrent[type][0].removeFromWorld = true;
+        // }
+        // this.placeformsCurrent[type].push(placeformPlaced);
+        if (this.placeformsCurrent.length >= PLACEFORM_LIMITS['center']) {
+            this.placeformsCurrent[0].removeFromWorld = true;
         }
-        this.placeformsCurrent[type].push(placeformPlaced);
+        this.placeformsCurrent.push(placeformPlaced);
+    }
+
+    clearPlaceforms() {
+        for (let i = 0; i < this.placeformsCurrent.length; i++) {
+            this.placeformsCurrent[i].removeFromWorld = true;
+        }
     }
 }
 

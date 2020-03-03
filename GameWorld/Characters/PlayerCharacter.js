@@ -1,25 +1,29 @@
-const GLOOP_SHEET_PATHS_GREEN = {'turning':"./Sprites/Usables/gloop(green)/gloopTurn.png",
+const GLOOP_SHEET_PATHS_GREEN = {
+    'turning':"./Sprites/Usables/gloop(green)/gloopTurn.png",
     'hopLeft':"./Sprites/Usables/gloop(green)/gloopHopLeft.png",
     'hopRight':"./Sprites/Usables/gloop(green)/gloopHopRight.png",
     'sad':"./Sprites/Usables/gloop(green)/gloopFloor.png",
     'dead':"./Sprites/Usables/gloop(green)/gloopDead.png",
     'lookForward':"./Sprites/Usables/gloop(green)/gloop.png",
     'turning':"./Sprites/Usables/gloop(green)/gloopTurn.png"};
-const GLOOP_SHEET_PATHS_PURPLE = {'turning':"./Sprites/Usables/gloop(purple)/gloopTurn.png",
+const GLOOP_SHEET_PATHS_PURPLE = {
+    'turning':"./Sprites/Usables/gloop(purple)/gloopTurn.png",
     'hopLeft':"./Sprites/Usables/gloop(purple)/gloopHopLeft.png",
     'hopRight':"./Sprites/Usables/gloop(purple)/gloopHopRight.png",
     'sad':"./Sprites/Usables/gloop(purple)/gloopFloor.png",
     'dead':"./Sprites/Usables/gloop(purple)/gloopDead.png",
     'lookForward':"./Sprites/Usables/gloop(purple)/gloop.png",
     'turning':"./Sprites/Usables/gloop(purple)/gloopTurn.png"};
-const GLOOP_SHEET_PATHS_BLUE = {'turning':"./Sprites/Usables/gloop(blue)/gloopTurn.png",
+const GLOOP_SHEET_PATHS_BLUE = {
+    'turning':"./Sprites/Usables/gloop(blue)/gloopTurn.png",
     'hopLeft':"./Sprites/Usables/gloop(blue)/gloopHopLeft.png",
     'hopRight':"./Sprites/Usables/gloop(blue)/gloopHopRight.png",
     'sad':"./Sprites/Usables/gloop(blue)/gloopFloor.png",
     'dead':"./Sprites/Usables/gloop(blue)/gloopDead.png",
     'lookForward':"./Sprites/Usables/gloop(blue)/gloop.png",
     'turning':"./Sprites/Usables/gloop(blue)/gloopTurn.png"};
-const GLOOP_SHEET_PATHS_ORANGE = {'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png",
+const GLOOP_SHEET_PATHS_ORANGE = {
+    'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png",
     'hopLeft':"./Sprites/Usables/gloop(orange)/gloopHopLeft.png",
     'hopRight':"./Sprites/Usables/gloop(orange)/gloopHopRight.png",
     'sad':"./Sprites/Usables/gloop(orange)/gloopFloor.png",
@@ -29,7 +33,7 @@ const GLOOP_SHEET_PATHS_ORANGE = {'turning':"./Sprites/Usables/gloop(orange)/glo
 const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE,
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
 const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
-const PLACEFORM_LIMIT = 4;
+const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 32;
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
@@ -56,8 +60,6 @@ function PlayerCharacterAMDownloads(AM) {
     AM.queueDownload(DRILL_PROTO);
 }
 
- /*     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
-NEW ANIMATION CLASS CONSTRUCTOR  */
 class PlayerCharacter extends Entity {
     constructor(game, AM, gloopSheetPath) {
         super(self, game, 0, 0);
@@ -66,7 +68,6 @@ class PlayerCharacter extends Entity {
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
         this.gloopSheetPath = gloopSheetPath;
-        // console.log(this.gloopSheetPath);
 
         //Collision
         this.wasColliding = false; 
@@ -77,13 +78,12 @@ class PlayerCharacter extends Entity {
         this.collidingBotRight = false;
         this.collidingTop = false;
         this.radius = 32;
-        // console.log(this.gloopSheetPath);
         this.setupAnimations(gloopSheetPath);
 
         // Movement
         this.facingLeft = false;
         this.facingRight = true;
-        // this.speed = 100;
+        this.speed = PLAYER_SPEED;
         this.fallSpeed = 200;
         this.jumping = false;
         this.jumpY = this.y;
@@ -116,258 +116,33 @@ class PlayerCharacter extends Entity {
 
     }
 
-    buildAttackCache(){
-        const cache = {};
-        const superCache = {};
-        let xO = -2 * this.radius;//offsets to center character
-        let yO = -2 * this.radius + 5;//manual adjustment for dead pixels(i think)
-        const directions = ['right', 'upRight', 'up', 'upLeft', 'left', 'downLeft', 'down', 'downRight'];
-        for (let j = 0; j < directions.length; j++) {
-            let rotatedImages = [];
-            let superRotatedImages = [];
-            let angle = -j * Math.PI/4;
-            let i;
-            let newCanvas;
-            for (i = 0; i < 3; i++) {
-                newCanvas = this.rotateAndCache(AM.getAsset(DRILL_PROTO), angle, 63 * i, 0, 63, 47, 1);
-                rotatedImages.push(newCanvas);
-            }
-            superCache[directions[j]] = {};
-            superCache[directions[j]].xOffset = [];
-            superCache[directions[j]].yOffset = [];
-            let spinFrames = 3;
-            for (let k = 0; k < spinFrames; k++) {
-                let curAngle = angle + (Math.PI/12) * k;
-                superRotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), curAngle, 63 * 2, 0, 63, 47, 1));
-                superCache[directions[j]].xOffset.push(xO + Math.cos(curAngle) * this.radius * 4);
-                superCache[directions[j]].yOffset.push(yO + Math.sin(curAngle) * this.radius * 4);
-            }
-            superCache[directions[j]].animation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, spinFrames, true, false, superRotatedImages);
-            superCache[directions[j]].angle = angle;
-            cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
-                0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
-            cache[directions[j]].angle = angle;
-            //calculates gloops edge
-            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
-            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
-            
-            //calculates the point of the end of the current attack animation frame
-            cache[directions[j]].xCalcAttack = (framesUntilDone) => {
-                return cache[directions[j]].xOffset - 5 + this.radius * (3 - framesUntilDone * Math.cos(angle))};
-            cache[directions[j]].yCalcAttack = (framesUntilDone) => {
-                return cache[directions[j]].yOffset - 5 + this.radius * (3 - framesUntilDone * Math.sin(angle))};
-                    
-        }
-        return {cache:cache, superCache:superCache};
-    }
-
-
     update() {
         super.update();
-        this.wasColliding = false;
-        if (this.isSupported()) {
-            this.wasColliding = true;
-        }
-        this.colliding = false;
-        this.collidingTop = false;
-        this.collidingTopRight = false;
-        this.collidingTopLeft = false;
-        this.collidingBotLeft = false;
-        this.collidingBotRight = false;
-        this.currentPlatform = null;
+
         this.checkCollisions();
-        if (this.dead) {
-            // console.log(this.y);
-            if (this.game.active) {
-                this.game.active = false;
-                this.jumpY = this.y;
-                this.deadAnimation.elapsedTime = 0;
-            }
-            if (this.deadAnimation.isDone()) {
-                this.game.over = true;
-            }
-            if (this.game.floor)
-                this.calcJump(this.deadAnimation, 100);
-            else
-                this.calcJump(this.deadAnimation, 100 + FLOOR_HEIGHT);
-            return;
+
+        this.handleDeath();
+        
+        if (this.isSupported() && !this.wasColliding && this.jumping) {
+            this.stopJumping();
         }
-        if (this.isSupported() && !this.wasColliding) {
-            if (this.jumping) {
-                this.jumping = false;
-                this.jumpRightAnimation.elapsedTime = 0;
-                this.jumpLeftAnimation.elapsedTime = 0;
-            }
-                
+        if ((this.collidingTop || this.collidingTopLeft || this.collidingTopRight) && this.jumping) {
+            this.stopJumping();
         }
-        if (this.collidingTop || this.collidingTopLeft || this.collidingTopRight) {
-            if (this.jumping) {
-                // console.log('here');
-                this.jumping = false;
-                this.jumpRightAnimation.elapsedTime = 0;
-                this.jumpLeftAnimation.elapsedTime = 0;
-            }
-        }
+        // gravity
         if (!this.jumping && !this.isSupported()) {
             this.y += this.fallSpeed * this.game.clockTick;
         }
-        this.movingLeft = false;
-        this.movingRight = false;
-        if (this.game.left) {
-            this.movingLeft = true;
-            this.facingLeft = true;
-            this.facingRight = false;
-        }
-        else if (this.game.right) {
-            this.movingRight = true;
-            this.facingRight = true;
-            this.facingLeft = false;
-        }
-        if (this.movingLeft) {
-            if (this.x > 0) {
-                // const platformSlope = this.currentPlatform.equation.mSlope;
-                // const platformB = this.currentPlatform.equation.gameB;
-                if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    // console.log(platformSlope, platformB);
-                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else  if (this.collidingBotRight && !(this.colliding)) {
-                    this.x -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    // console.log(platformSlope, platformB);
-                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else if (!(this.collidingTopLeft) && !(this.collidingBotLeft && this.collidingTop)) {
-                    this.x -= this.game.clockTick * PLAYER_SPEED;
-                }
-            }
-            
-        } else if (this.movingRight) {
-            if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
-                // const platformSlope = this.currentPlatform.equation.mSlope;
-                // const platformB = this.currentPlatform.equation.gameB;
-                if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
-                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    // console.log(platformSlope, platformB);
-                    // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
-                    this.y += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
-                    this.x += this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    // console.log(platformSlope, platformB);
-                    this.y -= this.game.clockTick * PLAYER_SPEED * Math.sqrt(2)/2;
-                    // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
-                } else if (!(this.collidingTopRight) && !(this.collidingBotRight && this.collidingTop)) {
-                    this.x += this.game.clockTick * PLAYER_SPEED;
-                }
-            
-                
-            }
-        }
 
+        this.handleLeftRightMovement();
+        
+        this.handleJumping();
+        
+        this.placePlatforms();
 
+        this.handleAttacking();
 
-        // if (this.game.jump) { //glitch jumpppsss
-        if (this.game.jump && !this.jumping && this.isSupported()) {
-            this.jumping = true;
-            this.jumpY = this.y;
-            new Audio("./Music/jump.wav").play();
-            // console.log('jumping', this.y);
-            // console.log('colliding', this.colliding)
-        }
-
-        if (this.jumping) {
-            let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
-            if (this.jumpLeftAnimation.isDone()) {
-                this.endJump();
-            }
-
-            if (this.jumpRightAnimation.isDone()) {
-                this.endJump();
-            }
-
-            if (this.jumpLeftAnimation.elapsedTime > this.jumpRightAnimation.elapsedTime) {
-                this.jumpRightAnimation.elapsedTime = this.jumpLeftAnimation.elapsedTime;
-            }
-
-            if (this.jumpRightAnimation.elapsedTime > this.jumpLeftAnimation.elapsedTime) {
-                this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
-            }
-            
-            this.calcJump(jumpAnimation, 100);
-        }
-
-        //do we want players to be able to double place?
-        // /__ has interesting blocking? or not I have bad spacial awareness
-        //written to favor angled because it seems like those are going to be more likely to be used
-        //also since jumping is going to disable platform placing do we want this before jump?
-        //thinking of when a player jumps and places simultaneously
-        if (this.game.placeAngled && this.isSupported()) {
-            this.placed = true;
-            this.placeformManager.placeformPlace(this.facingLeft, true, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        } else if (this.game.placeFlat && this.isSupported()) {
-            this.placed = true;
-            this.placeformManager.placeformPlace(this.facingLeft, false, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
-        }
-        if (this.attackDelay > 0)
-            this.attackDelay--;
-        // if (this.game.attack && this.attackDelay <= 0) {
-        //     this.attackDelay = 50;
-        //     this.attacking = true;
-        //     this.currentAttackAnimation = this.attackAnimation;
-        // }
-        if (this.game.attack && this.attackDelay <= 0) {
-            this.attackDelay = 50;
-            this.attacking = true;
-            if (this.game.up && this.game.right) {
-                this.currentAttackAnimation = this.attackCache.upRight;
-            } else if (this.game.up && this.game.left) {
-                this.currentAttackAnimation = this.attackCache.upLeft;
-            } else if (this.game.down && this.game.left) {
-                this.currentAttackAnimation = this.attackCache.downLeft;
-            } else if (this.game.down && this.game.right) {
-                this.currentAttackAnimation = this.attackCache.downRight;
-            } else if (this.game.up) {
-                this.currentAttackAnimation = this.attackCache.up;
-            } else if (this.game.down) {
-                this.currentAttackAnimation = this.attackCache.down;
-            } else if (this.game.left) {
-                this.currentAttackAnimation = this.attackCache.left;
-            } else if (this.game.right) {
-                this.currentAttackAnimation = this.attackCache.right;
-            }
-                
-            
-        } else if (this.game.attackSuper && this.cookies >= COOKIES_FOR_SUPER) {
-            this.cookies -= COOKIES_FOR_SUPER;
-            this.superAttacking = 1;
-        }
-        if (this.attacking) {
-            if (this.currentAttackAnimation.animation.isDone()) {
-                this.currentAttackAnimation.animation.elapsedTime = 0;
-                this.attacking = false;
-            }
-            // if (this.currentAttackAnimation === 
-            //     this.attackAnimation && this.currentAttackAnimation.isDone()) {
-            //     this.attackAnimation.elapsedTime = 0;
-            //     this.currentAttackAnimation = this.reverseAttackAnimation;
-            // } else if (this.currentAttackAnimation === 
-            //     this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
-            //     this.reverseAttackAnimation.elapsedTime = 0;
-            //     this.attacking = false;
-            // }
-        }
-        if (this.superAttacking > 0) {
-            this.y -= this.game.clockTick * PLAYER_SPEED * 2;
-        }
-        let placeformTypes = Object.keys(this.placeformManager.placeformsCurrent);
-        for (const key of placeformTypes) {
-            for (let i = 0; i < this.placeformManager.placeformsCurrent[key].length; i++) {
-                if (this.placeformManager.placeformsCurrent[key][i].removeFromWorld) {
-                    this.placeformManager.placeformsCurrent[key].splice(i, 1);
-                }
-            }
-        }
-        // console.log(this.placeformManager.placeformsCurrent);
+        this.clearOutPlaceforms();
     }
 
     calcJump(jumpAnimation, totalHeight) {
@@ -377,12 +152,6 @@ class PlayerCharacter extends Entity {
             jumpDistance = 1 - jumpDistance;
         this.height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
         this.y = this.jumpY - this.height;
-    }
-
-    endJump() {
-        this.jumpLeftAnimation.elapsedTime = 0;
-        this.jumpRightAnimation.elapsedTime = 0;
-        this.jumping = false;
     }
 
     draw(ctx) {
@@ -454,12 +223,261 @@ class PlayerCharacter extends Entity {
     }
 
     checkCollisions() {
+        this.wasColliding = false;
+        if (this.isSupported()) {
+            this.wasColliding = true;
+        }
+        this.colliding = false;
+        this.collidingTop = false;
+        this.collidingTopRight = false;
+        this.collidingTopLeft = false;
+        this.collidingBotLeft = false;
+        this.collidingBotRight = false;
+        this.currentPlatform = null;
+
         isCharacterColliding(this);
+    }
+
+    handleDeath() {
+        if (this.dead) {
+            // console.log(this.y);
+            if (this.game.active) {
+                this.game.active = false;
+                this.jumpY = this.y;
+                this.deadAnimation.elapsedTime = 0;
+            }
+            if (this.deadAnimation.isDone()) {
+                this.game.over = true;
+            }
+            if (this.game.floor)
+                this.calcJump(this.deadAnimation, 100);
+            else
+                this.calcJump(this.deadAnimation, 100 + FLOOR_HEIGHT);
+            return;
+        }
+    }
+
+    handleLeftRightMovement() {
+        this.movingLeft = false;
+        this.movingRight = false;
+        if (this.game.left) {
+            this.movingLeft = true;
+            this.facingLeft = true;
+            this.facingRight = false;
+        }
+        else if (this.game.right) {
+            this.movingRight = true;
+            this.facingRight = true;
+            this.facingLeft = false;
+        }
+        if (this.movingLeft) {
+            if (this.x > 0) {
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
+                    this.x -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                    this.y -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.colliding)) {
+                    this.x -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                    this.y += this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                } else if (!(this.collidingTopLeft) && !(this.collidingBotLeft && this.collidingTop)) {
+                    this.x -= this.game.clockTick * this.speed;
+                }
+            }
+            
+        } else if (this.movingRight) {
+            if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
+                // const platformSlope = this.currentPlatform.equation.mSlope;
+                // const platformB = this.currentPlatform.equation.gameB;
+                if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
+                    this.x += this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                    // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
+                    this.y += this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                } else  if (this.collidingBotRight && !(this.collidingTopRight || this.collidingTop)) {
+                    this.x += this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                    this.y -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
+                    // this.y = this.x * platformSlope + platformB + PLATFORM_HEIGHT + Math.sqrt(2)/2;
+                } else if (!(this.collidingTopRight) && !(this.collidingBotRight && this.collidingTop)) {
+                    this.x += this.game.clockTick * this.speed;
+                }
+            }
+        }
+    }
+
+    handleJumping() {
+        if (this.game.jump && !this.jumping && this.isSupported()) {
+            this.jumping = true;
+            this.jumpY = this.y;
+            new Audio("./Music/jump.wav").play();
+        }
+        if (this.jumping) {
+            let jumpAnimation = this.facingLeft ? this.jumpLeftAnimation : this.jumpRightAnimation;
+            if (this.jumpLeftAnimation.isDone()) {
+                this.stopJumping();
+            }
+
+            if (this.jumpRightAnimation.isDone()) {
+                this.stopJumping();
+            }
+
+            if (this.jumpLeftAnimation.elapsedTime > this.jumpRightAnimation.elapsedTime) {
+                this.jumpRightAnimation.elapsedTime = this.jumpLeftAnimation.elapsedTime;
+            }
+
+            if (this.jumpRightAnimation.elapsedTime > this.jumpLeftAnimation.elapsedTime) {
+                this.jumpLeftAnimation.elapsedTime = this.jumpRightAnimation.elapsedTime;
+            }
+            this.calcJump(jumpAnimation, 100);
+        }
+    }
+
+    stopJumping() {
+        this.jumping = false;
+        this.jumpRightAnimation.elapsedTime = 0;        
+        this.jumpLeftAnimation.elapsedTime = 0;        
+    }
+
+    placePlatforms() {
+        if (this.game.placeAngledLeft && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(true, true, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else if (this.game.placeAngledRight && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(false, true, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else if (this.game.placeFlatLeft && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(true, false, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        } else if (this.game.placeFlatRight && this.isSupported()) {
+            this.placed = true;
+            this.placeformManager.placeformPlace(false, false, this.x, this.y, 
+                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+        }
+        if (this.game.removePlatforms) {
+            this.placeformManager.clearPlaceforms();
+        }
+    }
+
+    handleAttacking() {
+        if (this.attackDelay > 0)
+            this.attackDelay--;
+        // if (this.game.attack && this.attackDelay <= 0) {
+        //     this.attackDelay = 50;
+        //     this.attacking = true;
+        //     this.currentAttackAnimation = this.attackAnimation;
+        // }
+        if (this.game.attack && this.attackDelay <= 0) {
+            this.attackDelay = 50;
+            this.attacking = true;
+            if (this.game.up && this.game.right) {
+                this.currentAttackAnimation = this.attackCache.upRight;
+            } else if (this.game.up && this.game.left) {
+                this.currentAttackAnimation = this.attackCache.upLeft;
+            } else if (this.game.down && this.game.left) {
+                this.currentAttackAnimation = this.attackCache.downLeft;
+            } else if (this.game.down && this.game.right) {
+                this.currentAttackAnimation = this.attackCache.downRight;
+            } else if (this.game.up) {
+                this.currentAttackAnimation = this.attackCache.up;
+            } else if (this.game.down) {
+                this.currentAttackAnimation = this.attackCache.down;
+            } else if (this.game.left) {
+                this.currentAttackAnimation = this.attackCache.left;
+            } else if (this.game.right) {
+                this.currentAttackAnimation = this.attackCache.right;
+            }
+        } else if (this.game.attackSuper && this.cookies >= COOKIES_FOR_SUPER) {
+            this.cookies -= COOKIES_FOR_SUPER;
+            this.superAttacking = 1;
+        }
+        if (this.attacking) {
+            if (this.currentAttackAnimation.animation.isDone()) {
+                this.currentAttackAnimation.animation.elapsedTime = 0;
+                this.attacking = false;
+            }
+            // if (this.currentAttackAnimation === 
+            //     this.attackAnimation && this.currentAttackAnimation.isDone()) {
+            //     this.attackAnimation.elapsedTime = 0;
+            //     this.currentAttackAnimation = this.reverseAttackAnimation;
+            // } else if (this.currentAttackAnimation === 
+            //     this.reverseAttackAnimation && this.currentAttackAnimation.isDone()) {
+            //     this.reverseAttackAnimation.elapsedTime = 0;
+            //     this.attacking = false;
+            // }
+        }
+        if (this.superAttacking > 0) {
+            this.y -= this.game.clockTick * PLAYER_SPEED * 2;
+        }
+    }
+
+    clearOutPlaceforms() {
+        // let placeformTypes = Object.keys(this.placeformManager.placeformsCurrent);
+        // for (const key of placeformTypes) {
+            // for (let i = 0; i < this.placeformManager.placeformsCurrent[key].length; i++) {
+                // if (this.placeformManager.placeformsCurrent[key][i].removeFromWorld) {
+                //     this.placeformManager.placeformsCurrent[key].splice(i, 1);
+                // }
+        for (let i = 0; i < this.placeformManager.placeformsCurrent.length; i++) {
+            if (this.placeformManager.placeformsCurrent[i].removeFromWorld) {
+                this.placeformManager.placeformsCurrent.splice(i, 1);
+            }
+        }
     }
 
     collectCookie() {
         ++this.cookies;
         ++this.totalCookies;
+    }
+
+    buildAttackCache(){
+        const cache = {};
+        const superCache = {};
+        let xO = -2 * this.radius;//offsets to center character
+        let yO = -2 * this.radius + 5;//manual adjustment for dead pixels(i think)
+        const directions = ['right', 'upRight', 'up', 'upLeft', 'left', 'downLeft', 'down', 'downRight'];
+        for (let j = 0; j < directions.length; j++) {
+            let rotatedImages = [];
+            let superRotatedImages = [];
+            let angle = -j * Math.PI/4;
+            let i;
+            let newCanvas;
+            for (i = 0; i < 3; i++) {
+                newCanvas = this.rotateAndCache(AM.getAsset(DRILL_PROTO), angle, 63 * i, 0, 63, 47, 1);
+                rotatedImages.push(newCanvas);
+            }
+            superCache[directions[j]] = {};
+            superCache[directions[j]].xOffset = [];
+            superCache[directions[j]].yOffset = [];
+            let spinFrames = 3;
+            for (let k = 0; k < spinFrames; k++) {
+                let curAngle = angle + (Math.PI/12) * k;
+                superRotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), curAngle, 63 * 2, 0, 63, 47, 1));
+                superCache[directions[j]].xOffset.push(xO + Math.cos(curAngle) * this.radius * 4);
+                superCache[directions[j]].yOffset.push(yO + Math.sin(curAngle) * this.radius * 4);
+            }
+            superCache[directions[j]].animation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, spinFrames, true, false, superRotatedImages);
+            superCache[directions[j]].angle = angle;
+            cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
+                0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
+            cache[directions[j]].angle = angle;
+            //calculates gloops edge
+            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
+            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
+            
+            //calculates the point of the end of the current attack animation frame
+            cache[directions[j]].xCalcAttack = (framesUntilDone) => {
+                return cache[directions[j]].xOffset - 5 + this.radius * (3 - framesUntilDone * Math.cos(angle))};
+            cache[directions[j]].yCalcAttack = (framesUntilDone) => {
+                return cache[directions[j]].yOffset - 5 + this.radius * (3 - framesUntilDone * Math.sin(angle))};
+                    
+        }
+        return {cache:cache, superCache:superCache};
+    }
+
+    newScene() {
+        this.stopJumping();
     }
 
 }

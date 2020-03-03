@@ -150,21 +150,19 @@ class Cookie extends Entity {
                 this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
                     width, height, this.x, drawY, 
                     width * this.scale, height * this.scale);
-                    //testing
-                    // let drawTestLeft = {x:this.equation.xLeft, 
-                    //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
-                    // let drawTestRight = {x:this.equation.xRight,
-                    //     y:-1 * (calcYFromX(this.equation, this.equation.xRight) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
-                    // this.game.ctx.beginPath();
-                    // this.game.ctx.lineWidth = 2;
-                    // this.game.ctx.strokeStyle = 'Red';
-                    // this.game.ctx.moveTo(drawTestLeft.x, drawTestLeft.y);
-                    // this.game.ctx.lineTo(drawTestRight.x, drawTestRight.y);
-                    // this.game.ctx.stroke();
 
             }
         }
-        
+        // let drawTestLeft = {x:this.equation.xLeft, 
+        //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
+        // let drawTestRight = {x:this.equation.xRight,
+        //     y:-1 * (calcYFromX(this.equation, this.equation.xRight) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
+        // this.game.ctx.beginPath();
+        // this.game.ctx.lineWidth = 2;
+        // this.game.ctx.strokeStyle = 'Red';
+        // this.game.ctx.moveTo(drawTestLeft.x, drawTestLeft.y);
+        // this.game.ctx.lineTo(drawTestRight.x, drawTestRight.y);
+        // this.game.ctx.stroke();
     }
 }
 
@@ -341,16 +339,6 @@ function genWalls (game, AM) {
     }
     return destY + firstWallSection.height;
 }
-
-
-// testing collision
-function testGenforms(game) {
-    const genformSpriteSheet = AM.getAsset(GENFORM_PATH);
-    game.addEntity(new Platform(genformSpriteSheet, 'center', 250, 314, 1, game.ctx));
-}
-
-
-
 
 //queues downloads for map assets
 function MapAMDownloads(AM) {
