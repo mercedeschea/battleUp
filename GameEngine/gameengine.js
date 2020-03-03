@@ -220,11 +220,14 @@ class GameEngine {
   
     }
 
-
-    clearAllButGloop() {
+    //clears all entities but Gloop and entities stored in the 'top' subarray
+    clearAllButGloopAndTop() {
         const entityTypes = Object.keys(this.entities);
         // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
+            if(type === 'top') {
+                continue;
+            }
             for (const ent of this.entities[type]) {
                 ent.removeFromWorld = true;
                 // console.log(ent);
