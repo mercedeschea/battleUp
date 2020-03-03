@@ -46,14 +46,19 @@ class SceneManager {
 
     }
 
-    gameScene() {
+    gameScene(selectedGloopPath) {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.mapHeight = background.spriteSheet.height;
         this.game.sceneObj = this.gameplayScene;
-        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        console.log('printing before new playercharacter');
+        console.log('selected gloop path should be green')
+        console.log(selectedGloopPath);
+        this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
+        console.log(this.playerCharacter);
+        //this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene.level0(this.playerCharacter);
     }
@@ -238,6 +243,7 @@ class StartScreen {
     update() {
         this.greenGloop.jumping = true;
         console.log(this.game.mouse.x);
+        console.log(this.game.mouse.y);
     }
 
     draw() {

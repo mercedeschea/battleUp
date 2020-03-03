@@ -44,6 +44,7 @@ class GameEngine {
         this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
         this.selectGloop = null;
+        this.mouse = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -118,9 +119,34 @@ class GameEngine {
             if (that.scene === 'start' && !that.started) {
                 that.active = true;
                 console.log('starting');
-                SCENE_MANAGER.gameScene();
+                console.log('printing selectGloop', that.selectGloop);
+                if (that.selectGloop === 'greenSelected') {
+                    console.log(that.selectGloop);
+                    console.log(GLOOP_SHEET_PATHS_GREEN);
+                    console.log('i printed gloop sheet path green')
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
+                }
+                if (that.selectGloop === 'purpleSelected') {
+                    console.log(that.selectGloop);
+                    console.log(GLOOP_SHEET_PATHS_PURPLE);
+                    console.log('i printed gloop sheet path green')
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
+                }
+                if (that.selectGloop === 'orangeSelected') {
+                    console.log(that.selectGloop);
+                    console.log(GLOOP_SHEET_PATHS_ORANGE);
+                    console.log('i printed gloop sheet path green')
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
+                }
+                if (that.selectGloop === 'blueSelected') {
+                    console.log(that.selectGloop);
+                    console.log(GLOOP_SHEET_PATHS_BLUE);
+                    console.log('i printed gloop sheet path green')
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
+                }
+                //SCENE_MANAGER.gameScene()
                 that.start();
-            } else  if (that.scene == 'gameOver' && that.over){
+            } else  if (that.scene === 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
             }
             else {
@@ -128,9 +154,43 @@ class GameEngine {
             }
             //console.log('mouse up');
         }, false);
-        this.ctx.canvas.addEventListener("", function (e) {
+        this.ctx.canvas.addEventListener("mousemove", function (e) {
+            // console.log(that.mouse);
             that.mouse = {x: e.clientX, y: e.clientY}
-            // if (that.mouse.x = )
+            if (that.scene === 'start' && 
+                that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
+                that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
+                that.mouse.y >= that.surfaceHeight - 123 &&
+                that.mouse.y < that.surfaceHeight -123 + 64) {
+                    that.selectGloop = 'greenSelected';
+                    console.log(that.selectGloop);
+            }
+            if (that.scene === 'start' && 
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 && 
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - 50 &&
+                that.mouse.y >= that.surfaceHeight - 123 &&
+                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                    that.selectGloop = 'purpleSelected';
+                    console.log(that.selectGloop);
+            }
+            if (that.scene === 'start' &&
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 &&
+                that.mouse.y >= that.surfaceHeight - 123 &&
+                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                    that.selectGloop = 'orangeSelected';
+                    console.log(that.selectGloop);
+            }
+            if (that.scene === 'start' &&
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 + 64 &&
+                that.mouse.y >= that.surfaceHeight - 123 &&
+                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                    that.selectGloop = 'blueSelected';
+                    console.log(that.selectGloop);
+            } //else {
+            //     that.selectGloop = 'null';
+            // }
         }, false);
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
