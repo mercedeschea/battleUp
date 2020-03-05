@@ -11,6 +11,8 @@ const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
 const SCORE_FONT = "20px mainFont";
 const KT_FONT = "12px mainFont";
+const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
+const ARROW_ICON = './Sprites/HUD/arrow.png';
 
 class SceneManager {
     constructor(gameEngine, musicManager) {
@@ -36,8 +38,10 @@ class SceneManager {
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.sceneObj = this.startScreen;
         this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
+        this.arrow = new Arrow(this.game);
 
         this.game.addEntity(this.startButton, 'general');
+        this.game.addEntity(this.arrow, 'general');
 
         this.game.addGloop(this.greenGloop, 'greenGloop');
         this.game.addGloop(this.purpleGloop, 'purpleGloop');
@@ -124,7 +128,7 @@ class GameScene {
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
         let startform = new Platform(AM.getAsset(GENFORM_PATH), 'center', startX, startY, 1, this.game);
         this.game.addEntity(startform, 'genforms');
-        console.log(startform.equation);
+        // console.log(startform.equation);
         // genGenforms(10, this.game, AM, 
         //     this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         
@@ -240,11 +244,14 @@ class StartScreen {
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;
         this.blueGloop.y = this.gloopY;
+        // console.log('greenX', this.greenGloop.x + this.greenGloop.radius, 
+        //             'purpleX', this.purpleGloop.x + this.greenGloop.radius, 
+        //             'orangeX', this.orangeGloop.x + this.greenGloop.radius, 
+        //             'blueX', this.blueGloop.x + this.greenGloop.radius);
+        // console.log('gloop y coord', this.gloopY);
     }
 
     update() {
-        this.greenGloop.jumping = true;
-        // console.log(this.game.mouse.x);
     }
 
     draw() {
@@ -269,7 +276,7 @@ class StartButton {
     
     draw() { // 70 is the y, so that the button fits in space of the floor
         // animates start button when pressed
-        if (this.game.mouseDown && this.game.mouseStart){
+        if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
             this.removeFromWorld;
@@ -282,6 +289,42 @@ class StartButton {
 
     update() {}
 }
+
+class Arrow {
+    constructor(game) {
+        this.game = game;
+        this.spriteSheet = AM.getAsset(ARROW_ICON);
+        this.spriteWidth = this.spriteSheet.width;
+        this.spriteHeight = this.spriteSheet.height;
+        console.log('arrow made');
+    }
+    update(){
+    }
+    draw(){
+        let destY = 525 - this.spriteHeight - 75;
+        console.log('im in arrow draw method', this.game.gloopColor);
+        if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+        }
+    }
+
+
+
+}
+
 
 // player score based on max height and number of cookies
 class Score {

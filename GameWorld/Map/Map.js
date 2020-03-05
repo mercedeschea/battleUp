@@ -360,6 +360,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(KRIMTROK_SHEET);
     AM.queueDownload(BUBBLE_SHEET);
     AM.queueDownload(LOGO_ICON);
+    AM.queueDownload(ARROW_ICON);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates
