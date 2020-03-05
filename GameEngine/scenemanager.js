@@ -55,11 +55,11 @@ class SceneManager {
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.mapHeight = background.spriteSheet.height;
         this.game.sceneObj = this.gameplayScene;
-        console.log('printing before new playercharacter');
-        console.log('selected gloop path should be green')
-        console.log(selectedGloopPath);
+        // console.log('printing before new playercharacter');
+        // console.log('selected gloop path should be green')
+        // console.log(selectedGloopPath);
         this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
-        console.log(this.playerCharacter);
+        // console.log(this.playerCharacter);
         //this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene.level0(this.playerCharacter);
@@ -268,17 +268,16 @@ class StartButton {
         this.destY = destY;
     }
     
-    draw() {
-        // 70 is the y, so that the button fits in space of the floor
-        if (!this.game.mouseDown) { // default button animation
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, 70, this.spriteHeight);
-            this.showButton = false;
-            this.removeFromWorld = true;
-        } if (this.game.mouseDown && this.game.mouseStart) { // button press animation
+    draw() { // 70 is the y, so that the button fits in space of the floor
+        // animates start button when pressed
+        if (this.game.mouseDown && this.game.mouseStart){
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
-            this.removeFromWorld = true;
+            this.removeFromWorld;
+        } // default start button
+        else {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+                                    this.destX, this.destY, 70, this.spriteHeight);
         }
     }
 

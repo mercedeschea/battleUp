@@ -47,6 +47,7 @@ class GameEngine {
         this.selectGloop = false;
         this.mouseStart = false;
         this.mouseDown = false;
+        this.showButton = true;
         this.mouse = null;
     }
     init(ctx) {
@@ -104,20 +105,7 @@ class GameEngine {
         window.addEventListener("gamepaddisconnected", function (e) {
             delete(that.gamepads[e.gamepad.index]);
         });
-        this.showButton = true;
-        this.mouseReleased = false;
-        this.ctx.canvas.addEventListener("mouseup", function (e) {
-            that.mouseDown = false;
-            that.mouseReleased = true;
-            console.log('im in mouseup and im printing selected gloop color', that.gloopColor);
-            if (that.gloopColor !== null) {
-                that.selectGloop = true;
-                console.log('selected glooop!')
-            }
-        }, false);
         this.ctx.canvas.addEventListener("click", function (e) {
-            // console.log(that.mouse);
-            console.log('gloopColor', that.gloopColor);
             that.mouse = {x: e.clientX, y: e.clientY}
             // mouse hover for green gloop
             if (that.scene === 'start' && 
@@ -151,14 +139,6 @@ class GameEngine {
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
                     that.gloopColor = 'blueSelected';
                     console.log(that.gloopColor);
-            } // mouse hover for start button
-            if (that.scene === 'start' &&
-                that.mouse.x >= 560 && that.mouse.x < 631 &&
-                that.mouse.y >= 614 && that.mouse.y < 646) {
-                    that.mouseStart = true;
-                    console.log('mouse over start button');
-                    console.log('mouse start', that.mouseStart);
-                    console.log('gloopColor state at start hover', that.gloopColor);
             } // gloop color null unless gloop is selected
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
                 that.active = true;
@@ -176,20 +156,32 @@ class GameEngine {
                 } else if (that.gloopColor === 'blueSelected') {
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
                 }
-                //SCENE_MANAGER.gameScene()
                 that.start();
-            } else  if (that.scene === 'gameOver' && that.over){
+            } else if (that.scene === 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
             }
         }, false);
+        this.ctx.canvas.addEventListener("mousemove", function (e) {
+            that.mouse = {x: e.clientX, y: e.clientY}
+            // used for mouse hover on start button
+            if (that.scene === 'start' &&
+                    that.mouse.x >= 560 && that.mouse.x < 631 &&
+                    that.mouse.y >= 614 && that.mouse.y < 646) {
+                        that.mouseStart = true;
+            }
+        }, false);
+        this.ctx.canvas.addEventListener("mouseup", function (e) {
+            that.mouseDown = false;
+            if (that.gloopColor !== null) {
+                that.selectGloop = true;
+                console.log('selected glooop!')
+            }
+        }, false);
         this.ctx.canvas.addEventListener("mousedown", function (e) {
+            that.mouse = {x: e.clientX, y: e.clientY}
             if (!that.started) {
-                that.showButton = false;
                 that.mouseDown = true;
-                that.draw();
-                console.log('mouse down')
-                // console.log('mouse down in game engine: ' + that.mouseDown);
-                
+                that.draw();      
             }
         }, false);
         
