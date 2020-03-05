@@ -43,7 +43,9 @@ class GameEngine {
         this.scene = null;//string used in control flow
         this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
-        this.selectGloop = null;
+        this.gloopColor = null;
+        this.selectGloop = false;
+        this.mouseStart = false;
         this.mouse = null;
     }
     init(ctx) {
@@ -104,44 +106,55 @@ class GameEngine {
         this.showButton = true;
         this.mouseDown = false;
         this.mouseReleased = false;
-        this.ctx.canvas.addEventListener("mousedown", function (e) {
-            if (!that.started) {
-                that.showButton = false;
-                that.mouseDown = true;
-                that.draw();
-                // console.log('mouse down')
-                // console.log('mouse down in game engine: ' + that.mouseDown);
-            }
-        }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
             that.mouseDown = false;
             that.mouseReleased = true;
-            if (that.scene === 'start' && !that.started) {
+            console.log('im in mouseup and im printing selected gloop color', that.gloopColor);
+            if (that.gloopColor !== null) {
+                that.selectGloop = true;
+                console.log('selected glooop!')
+            }
+            // if (that.gloopColor === 'greenSelected') {
+            //     console.log(that.gloopColor);
+            //     console.log(GLOOP_SHEET_PATHS_GREEN);
+            //     console.log('i printed gloop sheet path green')
+            //     that.selectGloop = true;
+            //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
+            // }
+            // if (that.gloopColor === 'purpleSelected') {
+            //     console.log(that.gloopColor);
+            //     console.log(GLOOP_SHEET_PATHS_PURPLE);
+            //     console.log('i printed gloop sheet path green')
+            //     that.selectGloop = true;
+            //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
+            // }
+            // if (that.gloopColor === 'orangeSelected') {
+            //     console.log(that.gloopColor);
+            //     console.log(GLOOP_SHEET_PATHS_ORANGE);
+            //     console.log('i printed gloop sheet path green')
+            //     that.selectGloop = true;
+            //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
+            // }
+            // if (that.gloopColor === 'blueSelected') {
+            //     console.log(that.gloopColor);
+            //     console.log(GLOOP_SHEET_PATHS_BLUE);
+            //     console.log('i printed gloop sheet path green')
+            //     that.selectGloop = true;
+            //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
+            // }
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
                 that.active = true;
                 console.log('starting');
-                console.log('printing selectGloop', that.selectGloop);
-                if (that.selectGloop === 'greenSelected') {
-                    console.log(that.selectGloop);
-                    console.log(GLOOP_SHEET_PATHS_GREEN);
-                    console.log('i printed gloop sheet path green')
+                console.log('printing gloopColor', that.gloopColor);
+                if (that.gloopColor === 'greenSelected') {
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
                 }
-                if (that.selectGloop === 'purpleSelected') {
-                    console.log(that.selectGloop);
-                    console.log(GLOOP_SHEET_PATHS_PURPLE);
-                    console.log('i printed gloop sheet path green')
+                else if (that.gloopColor === 'purpleSelected') {
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
                 }
-                if (that.selectGloop === 'orangeSelected') {
-                    console.log(that.selectGloop);
-                    console.log(GLOOP_SHEET_PATHS_ORANGE);
-                    console.log('i printed gloop sheet path green')
+                else if (that.gloopColor === 'orangeSelected') {
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
-                }
-                if (that.selectGloop === 'blueSelected') {
-                    console.log(that.selectGloop);
-                    console.log(GLOOP_SHEET_PATHS_BLUE);
-                    console.log('i printed gloop sheet path green')
+                } else if (that.gloopColor === 'blueSelected') {
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
                 }
                 //SCENE_MANAGER.gameScene()
@@ -154,44 +167,61 @@ class GameEngine {
             }
             //console.log('mouse up');
         }, false);
-        this.ctx.canvas.addEventListener("mousemove", function (e) {
+        this.ctx.canvas.addEventListener("click", function (e) {
             // console.log(that.mouse);
+            console.log(that.gloopColor);
             that.mouse = {x: e.clientX, y: e.clientY}
+            // mouse hover for green gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight -123 + 64) {
-                    that.selectGloop = 'greenSelected';
-                    console.log(that.selectGloop);
-            }
+                    that.gloopColor = 'greenSelected';
+                    console.log('im in mousemove and printing gloopcolor', that.gloopColor);
+            } // mouse hover for purple gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 && 
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - 50 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.selectGloop = 'purpleSelected';
-                    console.log(that.selectGloop);
-            }
+                    that.gloopColor = 'purpleSelected';
+                    console.log(that.gloopColor);
+            } // mouse hover for orange gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.selectGloop = 'orangeSelected';
-                    console.log(that.selectGloop);
-            }
+                    that.gloopColor = 'orangeSelected';
+                    console.log(that.gloopColor);
+            } // mouse hover for blue gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 + 64 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.selectGloop = 'blueSelected';
-                    console.log(that.selectGloop);
-            } //else {
-            //     that.selectGloop = 'null';
-            // }
+                    that.gloopColor = 'blueSelected';
+                    console.log(that.gloopColor);
+            } // mouse hover for start button
+            if (that.scene === 'start' &&
+                that.mouse.x >= 560 && that.mouse.x < 631 &&
+                that.mouse.y >= 614 && that.mouse.y < 646) {
+                    that.mouseStart = true;
+                    console.log('mouse over start button');
+            } // gloop color null unless gloop is selected
         }, false);
+        this.ctx.canvas.addEventListener("mousedown", function (e) {
+            if (!that.started) {
+                that.showButton = false;
+                that.mouseDown = true;
+                that.draw();
+                // console.log('mouse down')
+                // console.log('mouse down in game engine: ' + that.mouseDown);
+                
+            }
+        }, false);
+        
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.jump = true;
