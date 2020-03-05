@@ -9,16 +9,19 @@ const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
+const ARROW = './Sprites/HUD/arrow.png';
 const SCORE_FONT = "20px mainFont";
 const KT_FONT = "12px mainFont";
-
+const ADD_SCORE_EP = 'addscore/';
+const SCOREBOARD_EP = 'scoreboard/';
 class SceneManager {
-    constructor(gameEngine, musicManager) {
+    constructor(gameEngine) {
         this.gameSceneArr = [];
         this.game = gameEngine;
         this.playerCharacter = null;
         this.background = null;
         this.musicManager = MUSIC_MANAGER;
+        this.nameForm = document.getElementById("nameForm");
     }
     
     // clears entities on screen, switches to start screen
@@ -45,7 +48,7 @@ class SceneManager {
         this.game.addGloop(this.blueGloop, 'blueGloop');
 
         this.game.draw();
-
+        this.nameForm.style.display = 'none';
     }
 
     gameScene() {
@@ -75,7 +78,9 @@ class SceneManager {
         this.gameOver.draw();
 
         this.game.started = false;
+        this.nameForm.style.display = 'block';
     }
+
 }
 
 // game play scene
@@ -125,7 +130,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
 
         // console.log(this.playerCharacter.y);
@@ -147,6 +152,7 @@ class GameScene {
         console.log('mapheight could be a problem', this.game.mapHeight);
         let oldPCY = this.playerCharacter.y;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        // this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
         if (this.playerCharacter.superAttacking) {
             //should we stop super attack on level transition?
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
@@ -188,17 +194,98 @@ class GameOver {
         this.spriteWidth = this.spriteSheet.width;
         this.spriteHeight = this.spriteSheet.height;
         this.kT = new Krimtrok(this.game, AM);
+        this.scores = null;
+        this.nameForm = document.getElementById("nameForm");
+        let that = this;
+        this.nameForm.addEventListener( "submit", function ( event ) {
+            event.preventDefault();
+            that.sendScore();
+        });
     }
     update() {}
     draw(){
+        // this.game.ctx.font = KT_FONT;
+        // this.game.ctx.fillStyle = "#D4AF37";
         this.background.draw();
         if(this.score.win) {
-            this.kT.drawWin(this.score);
+            this.kT.drawWin(this.score, 0, this.game.surfaceHeight/8);
+            let drawX = this.game.surfaceWidth/2;
+            let drawY = this.game.surfaceHeight/8;
+            if (!this.scores) {
+                this.getScoreBoard();
+            } else {
+                console.log(this.scores);
+                this.game.ctx.fillStyle = "#D4AF37";
+                this.game.ctx.font = SCORE_FONT;
+                this.game.ctx.fillText("High Scores", drawX, drawY);
+                drawY += this.game.surfaceHeight/12;
+                this.game.ctx.font = KT_FONT;
+                for (const player of this.scores) {
+                    console.log('hello', player.username, player.mscore);
+                    this.game.ctx.fillText(player.username, drawX, drawY);
+                    drawX += this.game.surfaceWidth/4;
+                    this.game.ctx.fillText(player.mscore, drawX, drawY);
+                    drawX -= this.game.surfaceWidth/4;
+                    drawY += this.game.surfaceHeight/16;
+                }
+            }
         } else {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                 this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
                 this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
         } 
+    }
+    getScoreBoard() {
+        const XHR = new XMLHttpRequest();
+        const that = this;
+        XHR.addEventListener( "load", function(event) {
+            // alert( event.target.responseText );
+            console.log(this);
+            // let parsed = JSON.parse(this.reponseText);
+            // that.scores = parsed.data;
+            that.scores = this.response.data;
+            console.log(that.scores);
+            that.draw();
+        } );
+        XHR.addEventListener( "error", function( event ) {
+            alert( 'Oops! Something went wrong.' );
+        } );
+        XHR.open( "GET", BACKEND_URL + SCOREBOARD_EP );
+        XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        XHR.responseType = 'json';
+        //   The data sent is what the user provided in the form
+        XHR.send();
+        
+        // ...and take over its submit event.
+    }
+    sendScore() {
+        const XHR = new XMLHttpRequest();
+
+        // Bind the FormData object and the form element
+        const FD = new FormData( this.nameForm );
+        const that = this;
+        //Define what happens on successful data submission
+        XHR.addEventListener( "load", function(event) {
+            that.getScoreBoard();
+            that.nameForm.style.display = 'none';
+        } );
+
+        // Define what happens in case of error
+        XHR.addEventListener( "error", function( event ) {
+            alert( 'Oops! Something went wrong.' );
+        } );
+        // Set up our request
+        XHR.open( "POST", BACKEND_URL + ADD_SCORE_EP );
+        XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        const username = FD.get("playerName");
+        //   if (!username || !username.trim())
+        let JSONFD = JSON.stringify({username:username, score:that.score.maxY}); 
+        console.log(JSONFD);
+        let inputField = document.getElementById("playerName");
+        inputField.value = "";
+        //   The data sent is what the user provided in the form
+        XHR.send(JSONFD);
+        // ...and take over its submit event.
     }
 }
 
@@ -362,14 +449,14 @@ class Krimtrok extends Entity {
             this.x -= this.game.clockTick * this.speed;
         }
     }
-    drawWin(score) {
+    drawWin(score, x, y) {
         let sWidth = this.spriteSheet.width;
         let sHeight = this.spriteSheet.height;
-        this.x = this.game.surfaceWidth/3;
-        this.y = this.game.surfaceHeight/2;
+        this.x = x;
+        this.y = y + this.bubbleAnimation.frameHeight;
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, sWidth, sHeight, this.x, this.y, sWidth, sHeight);
         let bubX = this.x + this.bubbleAnimation.frameWidth * .45;
-        let bubY = this.y - this.bubbleAnimation.frameHeight * .65;
+        let bubY = this.y - this.bubbleAnimation.frameHeight;
         this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
         bubX, bubY, 1.5);
         this.game.ctx.font = KT_FONT;
