@@ -130,7 +130,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
 
         // console.log(this.playerCharacter.y);
@@ -152,7 +152,7 @@ class GameScene {
         console.log('mapheight could be a problem', this.game.mapHeight);
         let oldPCY = this.playerCharacter.y;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
-        this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
+        // this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
         if (this.playerCharacter.superAttacking) {
             //should we stop super attack on level transition?
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
