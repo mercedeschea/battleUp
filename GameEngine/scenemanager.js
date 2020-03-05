@@ -197,6 +197,7 @@ class GameOver {
         this.scores = null;
         this.nameForm = document.getElementById("nameForm");
         let that = this;
+        this.arrowSpriteSheet = AM.getAsset(ARROW);
         this.nameForm.addEventListener( "submit", function ( event ) {
             event.preventDefault();
             that.sendScore();
@@ -207,16 +208,20 @@ class GameOver {
         // this.game.ctx.font = KT_FONT;
         // this.game.ctx.fillStyle = "#D4AF37";
         this.background.draw();
-        if(this.score.win) {
-            this.kT.drawWin(this.score, 0, this.game.surfaceHeight/8);
+        // if(this.score.win) {
+            this.game.ctx.fillStyle = "#D4AF37";
+            this.game.ctx.font = SCORE_FONT;
+            if (!this.scoreSent) {
+                this.game.ctx.fillText("Enter your name below", 10, this.game.surfaceHeight - this.arrowSpriteSheet.height - 20);
+                this.game.ctx.drawImage(this.arrowSpriteSheet, 0, this.game.surfaceHeight - this.arrowSpriteSheet.height);
+            }
+            this.kT.drawGameOver(this.score, 0, this.game.surfaceHeight/16);
             let drawX = this.game.surfaceWidth/2;
-            let drawY = this.game.surfaceHeight/8;
+            let drawY = this.game.surfaceHeight/16;
             if (!this.scores) {
                 this.getScoreBoard();
             } else {
                 console.log(this.scores);
-                this.game.ctx.fillStyle = "#D4AF37";
-                this.game.ctx.font = SCORE_FONT;
                 this.game.ctx.fillText("High Scores", drawX, drawY);
                 drawY += this.game.surfaceHeight/12;
                 this.game.ctx.font = KT_FONT;
@@ -229,11 +234,11 @@ class GameOver {
                     drawY += this.game.surfaceHeight/16;
                 }
             }
-        } else {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
-                this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
-        } 
+        // } else {
+        //     this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+        //         this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
+        //         this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
+        // } 
     }
     getScoreBoard() {
         const XHR = new XMLHttpRequest();
@@ -266,6 +271,7 @@ class GameOver {
         const that = this;
         //Define what happens on successful data submission
         XHR.addEventListener( "load", function(event) {
+            that.scoreSent = true;
             that.getScoreBoard();
             that.nameForm.style.display = 'none';
         } );
@@ -449,7 +455,7 @@ class Krimtrok extends Entity {
             this.x -= this.game.clockTick * this.speed;
         }
     }
-    drawWin(score, x, y) {
+    drawGameOver(score, x, y) {
         let sWidth = this.spriteSheet.width;
         let sHeight = this.spriteSheet.height;
         this.x = x;
@@ -463,7 +469,11 @@ class Krimtrok extends Entity {
         this.game.ctx.fillStyle = "#D4AF37";
         let scoreString = "Score: " + score.maxY;
         let cookieString = "Cookies: " + score.lastCookieCount;
-        this.game.ctx.fillText('Acceptable Job', bubX+5, bubY + 25);
+        if(score.win) {
+            this.game.ctx.fillText('Acceptable Job', bubX+5, bubY + 25);
+        } else {
+            this.game.ctx.fillText('Do Better', bubX+5, bubY + 25);
+        }
         this.game.ctx.fillText(scoreString, bubX+5, bubY + 50);
         this.game.ctx.fillText(cookieString, bubX+5, bubY+ 75);
     }
