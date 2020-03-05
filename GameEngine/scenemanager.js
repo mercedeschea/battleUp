@@ -275,10 +275,7 @@ class StartButton {
                                     this.destX, this.destY, 70, this.spriteHeight);
             this.showButton = false;
             this.removeFromWorld = true;
-            console.log(this.game.surfaceWidth/2);
-            console.log(this.spriteWidth)
-            console.log(this.spriteHeight);
-        } if (this.game.mouseDown) { // button press animation
+        } if (this.game.mouseDown && this.game.mouseStart) { // button press animation
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
             this.removeFromWorld = true;
