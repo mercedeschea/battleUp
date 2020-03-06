@@ -46,6 +46,7 @@ class GameEngine {
         this.selectGloop = false;
         this.mouseStart = false;
         this.mouseDown = false;
+        this.click = false;
         this.mouse = null;
     }
     init(ctx) {
@@ -105,6 +106,8 @@ class GameEngine {
         });
         this.ctx.canvas.addEventListener("click", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
+            console.log(that.mouse);
+            that.click = true;
             // mouse hover for green gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
@@ -112,7 +115,7 @@ class GameEngine {
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight -123 + 64) {
                     that.gloopColor = 'greenSelected';
-                    SCENE_MANAGER.startScene.arrow.draw();
+                    that.mouseStart = false;
             } // mouse hover for purple gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 && 
@@ -120,6 +123,7 @@ class GameEngine {
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
                     that.gloopColor = 'purpleSelected';
+                    that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 &&
@@ -127,6 +131,7 @@ class GameEngine {
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
                     that.gloopColor = 'orangeSelected';
+                    that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 &&
@@ -134,23 +139,32 @@ class GameEngine {
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
                     that.gloopColor = 'blueSelected';
+                    that.mouseStart = false;
             } // gloop color null unless gloop is selected
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
                 that.active = true;
                 if (that.gloopColor === 'greenSelected') {
+                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
                 }
                 else if (that.gloopColor === 'purpleSelected') {
+                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
                 }
                 else if (that.gloopColor === 'orangeSelected') {
+                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
                 } else if (that.gloopColor === 'blueSelected') {
+                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
                 }
                 that.start();
-            } else if (that.scene === 'gameOver' && that.over){
+            } 
+            else if (that.scene === 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
+            }
+            if (!that.started) {
+                that.draw();      
             }
             console.log(that.gloopColor);
         }, false);
@@ -158,9 +172,9 @@ class GameEngine {
             that.mouse = {x: e.clientX, y: e.clientY}
             // used for mouse hover on start button
             if (that.scene === 'start' &&
-                    that.mouse.x >= 560 && that.mouse.x < 631 &&
-                    that.mouse.y >= 614 && that.mouse.y < 646) {
-                        that.mouseStart = true;
+                that.mouse.x >= 560 && that.mouse.x < 631 &&
+                that.mouse.y >= 614 && that.mouse.y < 646) {
+                    that.mouseStart = true;
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
@@ -174,7 +188,7 @@ class GameEngine {
             // that.mouse = {x: e.clientX, y: e.clientY}
             if (!that.started) {
                 that.mouseDown = true;
-                that.draw();      
+                that.draw();   
             }
         }, false);
         

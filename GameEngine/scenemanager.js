@@ -13,6 +13,7 @@ const SCORE_FONT = "20px mainFont";
 const KT_FONT = "12px mainFont";
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 const ARROW_ICON = './Sprites/HUD/arrow.png';
+const FONT_COLOR = '#F1C40F';
 
 class SceneManager {
     constructor(gameEngine, musicManager) {
@@ -244,11 +245,6 @@ class StartScreen {
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;
         this.blueGloop.y = this.gloopY;
-        // console.log('greenX', this.greenGloop.x + this.greenGloop.radius, 
-        //             'purpleX', this.purpleGloop.x + this.greenGloop.radius, 
-        //             'orangeX', this.orangeGloop.x + this.greenGloop.radius, 
-        //             'blueX', this.blueGloop.x + this.greenGloop.radius);
-        // console.log('gloop y coord', this.gloopY);
     }
 
     update() {
@@ -260,6 +256,9 @@ class StartScreen {
         // console.log(this.spriteHeight);
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
             this.destX, this.game.surfaceHeight/6, this.spriteWidth, this.spriteHeight);
+        this.game.ctx.font = SCORE_FONT;
+        this.game.ctx.fillStyle = FONT_COLOR;
+        this.game.ctx.fillText("Select a gloop and press start to play!", this.game.surfaceWidth/6, this.game.surfaceHeight/2);
     }
 }
 
@@ -301,26 +300,25 @@ class Arrow {
     update(){
     }
     draw(){
-        let destY = 525 - this.spriteHeight - 75;
-        console.log('im in arrow draw method', this.game.gloopColor);
+        let destY = 525 - this.spriteHeight;
+        // console.log('im in arrow draw method', this.game.gloopColor);
         if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight ,
+                339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+                503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+                667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight);
+                831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
     }
-
 
 
 }
@@ -345,13 +343,13 @@ class Score {
 
     draw() {
         //console.log(this.game.mouseReleased);
-        if (this.game.mouseReleased) {
+        if (this.game.scene === 'game start') {
             // this.game.ctx.drawImage(this.spriteSheet, 0, 0,
             //     this.spriteSheet.width/5, this.spriteSheet.height/5);
             // this.game.ctx.font = ("20px Times New Roman");
             // console.log(AM.font);
             this.game.ctx.font = SCORE_FONT;
-            this.game.ctx.fillStyle = "#D4AF37";
+            this.game.ctx.fillStyle = FONT_COLOR;
             this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
             this.displayCookie.draw();
             this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
