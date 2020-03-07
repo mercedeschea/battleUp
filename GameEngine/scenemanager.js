@@ -66,11 +66,16 @@ class SceneManager {
     // clears entities on screen, switches to end scene
     gameOverScene(score) {
         // this.game.entities = [];
+        console.log(score.maxY);
         this.game.scene = 'gameOver';
         this.game.clearAllEntities();
-
-        this.gameOver = new GameOver(this.game, AM, score);
-        this.game.sceneObj = this.gameOver;
+        if (this.gameOver) {
+            this.game.sceneObj = this.gameOver;
+            this.game.sceneObj.score = score;
+        }
+        else {
+            this.gameOver = new GameOver(this.game, AM, score);
+        }
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
 
         this.game.addEntity(startButton, 'general');
@@ -221,16 +226,16 @@ class GameOver {
             if (!this.scores) {
                 this.getScoreBoard();
             } else {
-                console.log(this.scores);
+                // console.log(this.scores);
                 this.game.ctx.fillText("High Scores", drawX, drawY);
                 drawY += this.game.surfaceHeight/12;
                 this.game.ctx.font = KT_FONT;
                 for (const player of this.scores) {
-                    console.log('hello', player.username, player.mscore);
+                    // console.log('hello', player.username, player.mscore);
                     this.game.ctx.fillText(player.username, drawX, drawY);
-                    drawX += this.game.surfaceWidth/4;
+                    drawX += this.game.surfaceWidth/3;
                     this.game.ctx.fillText(player.mscore, drawX, drawY);
-                    drawX -= this.game.surfaceWidth/4;
+                    drawX -= this.game.surfaceWidth/3;
                     drawY += this.game.surfaceHeight/16;
                 }
             }
@@ -245,11 +250,11 @@ class GameOver {
         const that = this;
         XHR.addEventListener( "load", function(event) {
             // alert( event.target.responseText );
-            console.log(this);
+            // console.log(this);
             // let parsed = JSON.parse(this.reponseText);
             // that.scores = parsed.data;
             that.scores = this.response.data;
-            console.log(that.scores);
+            // console.log(that.scores);
             that.draw();
         } );
         XHR.addEventListener( "error", function( event ) {
