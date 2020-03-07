@@ -55,11 +55,11 @@ class SceneManager {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
-        this.gameplayScene = new GameScene(this.game, AM, background);
-        this.game.mapHeight = background.spriteSheet.height;
-        this.game.sceneObj = this.gameplayScene;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
+        this.game.mapHeight = background.spriteSheet.height;
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
+        this.gameplayScene = new GameScene(this.game, AM, background);
+        this.game.sceneObj = this.gameplayScene;
         this.gameplayScene.level0(this.playerCharacter);
     }
 
@@ -92,6 +92,7 @@ class SceneManager {
 class GameScene {
     constructor(gameEngine, AM, background) {
         this.game = gameEngine;
+        console.log(this.game.camera);
         this.background = background;
         this.score = null;
         this.kT = new Krimtrok(gameEngine, AM);
@@ -127,7 +128,7 @@ class GameScene {
         genWalls(this.game, AM);
         let startX = this.playerCharacter.radius * 8;
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
-        let startform = new Platform(AM.getAsset(GENFORM_PATH), 'center', startX, startY, 1, this.game);
+        let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
         this.game.addEntity(startform, 'genforms');
         console.log(startform.equation);
         // genGenforms(10, this.game, AM, 
@@ -137,9 +138,8 @@ class GameScene {
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
-
-        // console.log(this.playerCharacter.y);
-        genLevel0Exit(this.game, AM, this.game.mapHeight - this.game.surfaceHeight);
+        buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
+            LEVEL0_MAP_FILE_NAME, 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
@@ -166,13 +166,13 @@ class GameScene {
         this.playerCharacter.newScene();
 
         for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATH), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
+            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
         
         this.game.camera.totalDrawOffset = this.game.mapHeight;
         // this.game.addEntity(this.game.floor, 'general');
-        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME);
+        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, 'level1');
         // this.game.addEntity(this.kT, 'top'); //i wanted it to draw on top maybe rethink later
         this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!');  
         // console.log(this.score);

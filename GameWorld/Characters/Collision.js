@@ -108,7 +108,7 @@ function checkPCPlatformCollision(PlayerCircleInfo, platform) {
 
     } else if (platform.type === 'left') {
         result  = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
-    } else {
+    } else if (platform.type === 'right') {
         // console.log("right equation", equation);
         // console.log("pc coords", PlayerCircleInfo);
         result = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
@@ -165,11 +165,12 @@ function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " 
     // console.log("platform.x", platform.x);
     // console.log("gameWorldHeight", gameWorldHeight);
     // console.log("platform real y", gameWorldHeight - (platform.y + 80));
-    let platformLength = 80;
+    let platformLength = HOR_BLOCK_SIZE;
+    let lineOffset = Math.sqrt(2)/2 * PLATFORM_HEIGHT;
     return {
         mSlope: slope,
-        gameB: platform.y + platformLength - (slope * platform.x),
-        bOffset: (gameWorldHeight - (platform.y + platformLength) - (slope * platform.x)),
+        // gameB: platform.y + platformLength - (slope * platform.x),
+        bOffset: (gameWorldHeight - (platform.y + platformLength) - (slope * platform.x - lineOffset - 2)),
         xLeft: platform.x,
         xRight: (platform.x + platformLength)
     }
@@ -180,14 +181,15 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
     // y = mx + b
     // top left point of this platform is (this.x + 7, this.y) 
     // gameHeight - this.y = (-1) * (this.x + 7) + b 
-    let platformLength = 83;
+    let platformLength = HOR_BLOCK_SIZE;
+    let lineOffset = Math.sqrt(2)/2 * PLATFORM_HEIGHT;
     return {
         mSlope: slope,
-        gameB: platform.y + (platform.x + 7),
-        bOffset: (gameWorldHeight - platform.y) + (platform.x + 7),
+        // gameB: platform.y + (platform.x + Math.sqrt(2) * PLATFORM_HEIGHT),
+        bOffset: (gameWorldHeight - platform.y) + (platform.x + lineOffset + 2),
         xLeft: platform.x,
         xRight: platform.x + platformLength,
-        yValue: gameWorldHeight - platform.y - 30
+        // yValue: gameWorldHeight - platform.y - 30
     }
 }
 
@@ -280,7 +282,7 @@ function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
         mSlope: 0,
         yValue: gameWorldHeight - platform.y, 
         xLeft: platform.x, 
-        xRight: platform.x + 119
+        xRight: platform.x + HOR_BLOCK_SIZE
     };
 }
 
@@ -297,7 +299,7 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
         return false;
     } else if ((CircleInfo.cartesianX + CircleInfo.radius >= LineInfo.xLeft) && 
                 (CircleInfo.cartesianX - CircleInfo.radius <= LineInfo.xRight) && 
-                (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
+                (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue - 2) {
         return 'colliding';
     } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && 
                 (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && 

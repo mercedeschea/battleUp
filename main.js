@@ -1,7 +1,7 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-// const BACKEND_URL = "http://localhost:5000/";
-const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
+const BACKEND_URL = "http://localhost:5000/";
+// const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
 
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
