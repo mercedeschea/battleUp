@@ -1,8 +1,7 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-const SCORE_TEXT = "./Sprites/HUD/score_Text.png";
-const FLASHFORM = "./Sprites/Usables/lvl0/placeform2.png";
-
+const BACKEND_URL = "http://localhost:5000/";
+// const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
 
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
@@ -66,7 +65,7 @@ class Animation {
 PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
-AM.queueDownload(SCORE_TEXT);
+// AM.queueDownload(SCORE_TEXT);
 
 
 AM.downloadAll(function () {

@@ -1,5 +1,5 @@
-// const LEVEL_SERVICE_URL = "http://localhost:5000/static/"//local 
-const LEVEL_SERVICE_URL = "https://battleup-backend.herokuapp.com/static/"
+const FONT_URL = "url(./Sprites/PressStart2P-Regular.ttf)";
+const LEVEL_EP = "static/"
 class AssetManager {
     constructor() {
         this.successCount = 0;
@@ -8,6 +8,7 @@ class AssetManager {
         this.downloadQueue = [];
         this.serverDownloadQueue = [];
         this.serverCache = [];
+        this.font = null;
     }
 
     queueServerDownload(fileName) {
@@ -58,9 +59,16 @@ class AssetManager {
                 if (that.isDone())
                     callback();
             });
-            xmlhttp.open("GET", LEVEL_SERVICE_URL + fileName, false);
+            xmlhttp.open("GET", BACKEND_URL + LEVEL_EP + fileName, false);
             xmlhttp.send();
         }
+        this.font = new FontFace('mainFont', FONT_URL, {});
+        this.font.load().then(function(loadedFont){
+            console.log('font loaded');
+            document.fonts.add(loadedFont);
+            if(that.isDone())
+                callback();
+        });
         
     }
     getAsset(path) {
