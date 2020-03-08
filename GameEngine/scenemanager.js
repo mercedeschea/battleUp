@@ -1,9 +1,6 @@
 const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
 const START_PATH = './Sprites/Usables/lvl1/background.png';
-const LEVEL1_PATH = './Sprites/Usables/lvl1/backgroundAppended.png';
-const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
-const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
@@ -17,6 +14,7 @@ const FONT_COLOR = '#F1C40F';
 
 const ADD_SCORE_EP = 'addscore/';
 const SCOREBOARD_EP = 'scoreboard/';
+
 class SceneManager {
     constructor(gameEngine) {
         this.gameSceneArr = [];
@@ -127,8 +125,7 @@ class GameScene {
         }
     }
 
-    level0(activeGloop) 
-    {
+    level0(activeGloop) {
         this.playerCharacter = activeGloop;
         this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  this.playerCharacter.radius * 14, 
@@ -190,6 +187,11 @@ class GameScene {
         // console.log(this.game.entities.general);
     }
     
+    level2(activeGloop) {
+        this.game.clearAllButGloopAndTop();
+        this.playerCharacter = activeGloop;
+        this.background = new Background(this.game, AM, LEVEL2_PATH, 'level2');
+    }
 
     draw() {
         // console.log(this.background.name, 'background');
