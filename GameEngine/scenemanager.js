@@ -15,13 +15,16 @@ const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 const ARROW_ICON = './Sprites/HUD/arrow.png';
 const FONT_COLOR = '#F1C40F';
 
+const ADD_SCORE_EP = 'addscore/';
+const SCOREBOARD_EP = 'scoreboard/';
 class SceneManager {
-    constructor(gameEngine, musicManager) {
+    constructor(gameEngine) {
         this.gameSceneArr = [];
         this.game = gameEngine;
         this.playerCharacter = null;
         this.background = null;
         this.musicManager = MUSIC_MANAGER;
+        this.nameForm = document.getElementById("nameForm");
     }
     
     // clears entities on screen, switches to start screen
@@ -50,7 +53,7 @@ class SceneManager {
         this.game.addGloop(this.blueGloop, 'blueGloop');
 
         this.game.draw();
-
+        this.nameForm.style.display = 'none';
     }
 
     gameScene(selectedGloopPath) {
@@ -73,11 +76,16 @@ class SceneManager {
     // clears entities on screen, switches to end scene
     gameOverScene(score) {
         // this.game.entities = [];
+        console.log(score.maxY);
         this.game.scene = 'gameOver';
         this.game.clearAllEntities();
-
-        this.gameOver = new GameOver(this.game, AM, score);
-        this.game.sceneObj = this.gameOver;
+        if (this.gameOver) {
+            this.game.sceneObj = this.gameOver;
+            this.game.sceneObj.score = score;
+        }
+        else {
+            this.gameOver = new GameOver(this.game, AM, score);
+        }
         let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
 
         this.game.addEntity(startButton, 'general');
@@ -85,7 +93,9 @@ class SceneManager {
         this.gameOver.draw();
 
         this.game.started = false;
+        this.nameForm.style.display = 'block';
     }
+
 }
 
 // game play scene
@@ -135,7 +145,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
 
         // console.log(this.playerCharacter.y);
@@ -157,6 +167,7 @@ class GameScene {
         console.log('mapheight could be a problem', this.game.mapHeight);
         let oldPCY = this.playerCharacter.y;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        // this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
         if (this.playerCharacter.superAttacking) {
             //should we stop super attack on level transition?
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
@@ -198,17 +209,104 @@ class GameOver {
         this.spriteWidth = this.spriteSheet.width;
         this.spriteHeight = this.spriteSheet.height;
         this.kT = new Krimtrok(this.game, AM);
+        this.scores = null;
+        this.nameForm = document.getElementById("nameForm");
+        let that = this;
+        this.arrowSpriteSheet = AM.getAsset(ARROW_ICON);
+        this.nameForm.addEventListener( "submit", function ( event ) {
+            event.preventDefault();
+            that.sendScore();
+        });
     }
     update() {}
     draw(){
+        // this.game.ctx.font = KT_FONT;
+        // this.game.ctx.fillStyle = "#D4AF37";
         this.background.draw();
-        if(this.score.win) {
-            this.kT.drawWin(this.score);
-        } else {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
-                this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
-        } 
+        // if(this.score.win) {
+            this.game.ctx.fillStyle = "#D4AF37";
+            this.game.ctx.font = SCORE_FONT;
+            if (!this.scoreSent) {
+                this.game.ctx.fillText("Enter your name below", 10, this.game.surfaceHeight - this.arrowSpriteSheet.height - 20);
+                this.game.ctx.drawImage(this.arrowSpriteSheet, 0, this.game.surfaceHeight - this.arrowSpriteSheet.height);
+            }
+            this.kT.drawGameOver(this.score, 0, this.game.surfaceHeight/16);
+            let drawX = this.game.surfaceWidth/2;
+            let drawY = this.game.surfaceHeight/16;
+            if (!this.scores) {
+                this.getScoreBoard();
+            } else {
+                // console.log(this.scores);
+                this.game.ctx.fillText("High Scores", drawX, drawY);
+                drawY += this.game.surfaceHeight/12;
+                this.game.ctx.font = KT_FONT;
+                for (const player of this.scores) {
+                    // console.log('hello', player.username, player.mscore);
+                    this.game.ctx.fillText(player.username, drawX, drawY);
+                    drawX += this.game.surfaceWidth/3;
+                    this.game.ctx.fillText(player.mscore, drawX, drawY);
+                    drawX -= this.game.surfaceWidth/3;
+                    drawY += this.game.surfaceHeight/16;
+                }
+            }
+        // } else {
+        //     this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+        //         this.game.surfaceWidth/2 - this.spriteWidth/2, this.game.surfaceHeight/6, 
+        //         this.spriteWidth, this.spriteHeight, this.spriteWidth/2, this.spriteHeight/2);
+        // } 
+    }
+    getScoreBoard() {
+        const XHR = new XMLHttpRequest();
+        const that = this;
+        XHR.addEventListener( "load", function(event) {
+            // alert( event.target.responseText );
+            // console.log(this);
+            // let parsed = JSON.parse(this.reponseText);
+            // that.scores = parsed.data;
+            that.scores = this.response.data;
+            // console.log(that.scores);
+            that.draw();
+        } );
+        XHR.addEventListener( "error", function( event ) {
+            alert( 'Oops! Something went wrong.' );
+        } );
+        XHR.open( "GET", BACKEND_URL + SCOREBOARD_EP );
+        XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        XHR.responseType = 'json';
+        //   The data sent is what the user provided in the form
+        XHR.send();
+        
+        // ...and take over its submit event.
+    }
+    sendScore() {
+        const XHR = new XMLHttpRequest();
+
+        // Bind the FormData object and the form element
+        const FD = new FormData( this.nameForm );
+        const that = this;
+        //Define what happens on successful data submission
+        XHR.addEventListener( "load", function(event) {
+            that.scoreSent = true;
+            that.getScoreBoard();
+            that.nameForm.style.display = 'none';
+        } );
+
+        // Define what happens in case of error
+        XHR.addEventListener( "error", function( event ) {
+            alert( 'Oops! Something went wrong.' );
+        } );
+        // Set up our request
+        XHR.open( "POST", BACKEND_URL + ADD_SCORE_EP );
+        XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        const username = FD.get("playerName");
+        //   if (!username || !username.trim())
+        let JSONFD = JSON.stringify({username:username, score:that.score.maxY}); 
+        console.log(JSONFD);
+        let inputField = document.getElementById("playerName");
+        inputField.value = "";
+        //   The data sent is what the user provided in the form
+        XHR.send(JSONFD);
+        // ...and take over its submit event.
     }
 }
 
@@ -407,21 +505,25 @@ class Krimtrok extends Entity {
             this.x -= this.game.clockTick * this.speed;
         }
     }
-    drawWin(score) {
+    drawGameOver(score, x, y) {
         let sWidth = this.spriteSheet.width;
         let sHeight = this.spriteSheet.height;
-        this.x = this.game.surfaceWidth/3;
-        this.y = this.game.surfaceHeight/2;
+        this.x = x;
+        this.y = y + this.bubbleAnimation.frameHeight;
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, sWidth, sHeight, this.x, this.y, sWidth, sHeight);
         let bubX = this.x + this.bubbleAnimation.frameWidth * .45;
-        let bubY = this.y - this.bubbleAnimation.frameHeight * .65;
+        let bubY = this.y - this.bubbleAnimation.frameHeight;
         this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
         bubX, bubY, 1.5);
         this.game.ctx.font = KT_FONT;
         this.game.ctx.fillStyle = "#D4AF37";
         let scoreString = "Score: " + score.maxY;
         let cookieString = "Cookies: " + score.lastCookieCount;
-        this.game.ctx.fillText('Acceptable Job', bubX+5, bubY + 25);
+        if(score.win) {
+            this.game.ctx.fillText('Acceptable Job', bubX+5, bubY + 25);
+        } else {
+            this.game.ctx.fillText('Do Better', bubX+5, bubY + 25);
+        }
         this.game.ctx.fillText(scoreString, bubX+5, bubY + 50);
         this.game.ctx.fillText(cookieString, bubX+5, bubY+ 75);
     }
