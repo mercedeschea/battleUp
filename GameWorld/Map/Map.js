@@ -129,10 +129,13 @@ class Cookie extends Entity {
         // console.log(this);
         if (type === 'center') {
             this.equation = convertHorizontalPlatformToEquation(this, game.mapHeight);
+            this.aboveEquation = convertHorizontalEquationToAboveEquation(this.equation);
         } else if (type === 'left') {
             this.equation = convertLeftSlopedPlatformToEquation(this, game.mapHeight);
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         } else {
             this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         }
     }
     draw() {
