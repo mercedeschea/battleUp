@@ -18,7 +18,7 @@ class PlaceformManager {
             if (angled) {
                 let type = 'left';
                 placeformPlaced = new Platform(this.placeformSpriteSheet, type, 
-                x - 87 * scale - PLACEFORM_OFFSET, y - 87 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
+                x - 87 * scale - PLACEFORM_OFFSET, y - /*87*/100 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 
@@ -29,7 +29,7 @@ class PlaceformManager {
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 
-                x + characterWidth + PLACEFORM_OFFSET, y - 87 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
+                x + characterWidth + PLACEFORM_OFFSET, y - /*87*/100 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 
