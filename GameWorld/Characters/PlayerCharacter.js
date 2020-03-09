@@ -34,7 +34,8 @@ const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
 const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
-const PLAYER_RADIUS = 32;
+const PLAYER_RADIUS = 25;
+const PLAYER_SCALE = PLAYER_RADIUS / 32; //32 is og radius determined by sprite sheet size
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
 const PLAYER_SPEED = 200;
@@ -62,6 +63,7 @@ function PlayerCharacterAMDownloads(AM) {
 
 class PlayerCharacter extends Entity {
     constructor(game, AM, gloopSheetPath) {
+        // super(self, game, 0, 0);
         super(self, game, 0, 0);
 
         this.game = game;
@@ -77,7 +79,7 @@ class PlayerCharacter extends Entity {
         this.collidingBotLeft = false;
         this.collidingBotRight = false;
         this.collidingTop = false;
-        this.radius = 32;
+        this.radius = PLAYER_RADIUS;
         this.setupAnimations(gloopSheetPath);
 
         // Movement
@@ -158,24 +160,25 @@ class PlayerCharacter extends Entity {
         let drawY;
         if (this.game.camera) {
             drawY = this.cameraTransform(); 
+            // drawY += PLAYER_SCALE * 68 / 2;
         } else {
             drawY = this.y;
         }
     //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (this.dead) {
             // console.log(this.deadAnimation);
-            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
             return;
         } else if (this.jumping && this.facingLeft) {
-            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.jumping && !this.facingLeft) {
-            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.movingLeft) {
-            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.movingRight) {
-            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else {
-            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         }
         if (this.attacking) {
             this.currentAttackAnimation['animation'].drawFrame
@@ -341,19 +344,19 @@ class PlayerCharacter extends Entity {
         if (this.game.placeAngledLeft && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(true, true, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
         } else if (this.game.placeAngledRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, true, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
         } else if (this.game.placeFlatLeft && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(true, false, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
         } else if (this.game.placeFlatRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, false, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
         }
         if (this.game.removePlatforms) {
             this.placeformManager.clearPlaceforms();
