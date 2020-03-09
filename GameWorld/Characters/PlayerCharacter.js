@@ -158,6 +158,7 @@ class PlayerCharacter extends Entity {
 
     draw(ctx) {
         let drawY;
+        console.log(this.game.scene);
         if (this.game.camera) {
             drawY = this.cameraTransform(); 
             // drawY += PLAYER_SCALE * 68 / 2;
@@ -177,8 +178,12 @@ class PlayerCharacter extends Entity {
             this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.movingRight) {
             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
-        } else {
+        } else if (this.game.scene !== 'start'){
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
+        } else if (this.game.scene === 'start') {
+             // } else if (this.game.scene === 'start') {
+            console.log('hello')
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, 1);
         }
         if (this.attacking) {
             this.currentAttackAnimation['animation'].drawFrame

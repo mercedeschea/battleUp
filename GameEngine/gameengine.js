@@ -108,12 +108,13 @@ class GameEngine {
             that.mouse = {x: e.clientX, y: e.clientY}
             console.log(that.mouse);
             that.click = true;
+            this.gloopStartSize = 64;
             // mouse hover for green gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
-                that.mouse.y < that.surfaceHeight -123 + 64) {
+                that.mouse.y < that.surfaceHeight - 123 + 64) {
                     that.gloopColor = 'greenSelected';
                     that.mouseStart = false;
             } // mouse hover for purple gloop

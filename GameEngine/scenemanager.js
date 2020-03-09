@@ -204,8 +204,8 @@ class GameScene {
         this.playerCharacter.newScene();
 
         for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(LEVEL2_GENFORM), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
+            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
     }
 
@@ -221,8 +221,8 @@ class GameScene {
         this.playerCharacter.newScene();
 
         for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(LEVEL3_GENFORM), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
+            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
     }
 
@@ -363,7 +363,7 @@ class StartScreen {
 
         this.midSpacing = 50;
         this.spacing = 100;
-        this.gloopWidth = 2 * this.greenGloop.radius;
+        this.gloopWidth = 64;
 
         this.gloopY = this.game.surfaceHeight - 123;
         this.greenGloop.x = this.game.surfaceWidth - (this.game.surfaceWidth/2) - 
