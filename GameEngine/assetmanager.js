@@ -97,7 +97,7 @@ class AssetManager {
           }  
           yIndex++;
         }
-        console.log(mapInfo);
+        // console.log(mapInfo);
         this.serverCache[fileName] = mapInfo;
     }
 }
