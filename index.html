@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <canvas id="gameWorld" tabindex="1" width="1170" height="702" style="border: 1px solid brown; background: white"></canvas>
+    <canvas id="gameWorld" tabindex="1" width="1170" height="500" style="border: 1px solid brown; background: white"></canvas>
     <form id="nameForm" style="display:none;"> 
         <div>
           <label for="playerName">Enter your name to save your score!</label>
@@ -10,6 +10,38 @@
         </div>
         <div>
           <input type="submit" value="Save">
+        </div>
+      </form>
+      <form id="MP">
+        <p>Multiplayer:</p>
+        <div>
+            <input type="radio" id="mPOn"
+            name="MP" value="on" onclick="showMP()">
+            <label for="mPOn">On</label>
+        
+            <input type="radio" id="mPOff" checked="checked"
+            name="MP" value="off" onclick="hideMP()">
+            <label for="mPOff">Off</label>
+        </div>
+      </form>
+      <form id="mPDetails" style="display:none;">
+            <p>Do you want to host?</p>
+            <div>
+                <input type="radio" id="hostOn"
+                name="mPHost" value="on" onclick="hideRoom()">
+                <label for="hostOn">On</label>
+            
+                <input type="radio" id="hostOff" checked="checked"
+                name="mPHost" value="off" onclick="showRoom()">
+                <label for="hostOff">Off</label>
+            </div>
+        <div>
+            <label for="mPName">Enter your name</label>
+            <input id="mPName" type="text" name="mPName" required>
+            <label id="roomCode">Enter your room code
+                <input type="text" name="roomCode">
+            </label>
+            <button type="submit">Submit</button>
         </div>
       </form>
     <p>Climb up through the world and collect cookies to bring to Krimtrok!</p>
@@ -34,13 +66,18 @@
             }
         });
     </script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.10.0/firebase-database.js"></script>
+    <script src="./simple-peer-master/simplepeer.min.js"></script>
     <script type="text/javascript" src="./GameEngine/gameengine.js"></script>
     <script type="text/javascript" src="./GameEngine/assetmanager.js"></script>
-    <script typer="text/javascript" src="./GameEngine/gamepad.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Map.js"></script>
     <script type="text/javascript" src="./GameWorld/Map/Placeform.js"></script>
     <script type="text/javascript" src="./GameWorld/Characters/Collision.js"></script>    
     <script type="text/javascript" src="./GameWorld/Characters/PlayerCharacter.js"></script>
+    <script type="text/javascript" src="./GameEngine/MP/Host.js"></script>
+    <script type="text/javascript" src="./GameEngine/MP/Player.js"></script>
     <audio id="soundTrack" >
         <source src="./Music/Alien_One.wav" type="audio/wav"> 
     </audio>

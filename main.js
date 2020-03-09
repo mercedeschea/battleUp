@@ -1,8 +1,9 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-const BACKEND_URL = "http://localhost:5000/";
-// const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
-
+// const BACKEND_URL = "http://localhost:5000/";
+const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
+let myHost;
+let myPlayer;
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
         this.spriteSheet = spriteSheet;
@@ -66,6 +67,43 @@ PlayerCharacterAMDownloads(AM);
 MapAMDownloads(AM);
 
 // AM.queueDownload(SCORE_TEXT);
+function showMP() {
+    let mpForm = document.getElementById('mPDetails');
+    mpForm.style.display = 'block';
+    mpForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        let data = new FormData(mpForm);
+        console.log(data.get('mPHost'));
+        console.log(data);
+        let code;
+        if (data.get('mPHost') == 'on') {
+            console.log('i am host');
+            console.log(data.get('mPName'));
+            myHost = new Host(data.get('mPName'));
+            myHost.runHost();
+            code = myHost.state.code;
+        } else {
+            console.log('i am player');
+            console.log(data.get('mPName'));
+            code = data.get('roomCode');
+        }
+        myPlayer = new Player(data.get('mPName'), code);
+        myPlayer.joinGame();
+        SCENE_MANAGER.game.peer = myPlayer;
+    });
+}
+
+function hideMP() {
+    document.getElementById('mPDetails').style.display = 'none';
+}
+
+function showRoom() {
+    document.getElementById('roomCode').style.display = 'block';
+}
+
+function hideRoom() {
+    document.getElementById('roomCode').style.display = 'none';
+}
 
 
 AM.downloadAll(function () {
@@ -74,6 +112,7 @@ AM.downloadAll(function () {
     let gameEngine = new GameEngine(MUSIC_MANAGER);
     gameEngine.init(ctx);
     SCENE_MANAGER.game = gameEngine;
+    console.log(myPlayer);
     SCENE_MANAGER.startScene();
     console.log("All Done!");
 });

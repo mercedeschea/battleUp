@@ -8,6 +8,21 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyBMnfpgxAUaDDjTUWO4-48xNryJbE0YD2E",
+    authDomain: "jumping-8c2b3.firebaseapp.com",
+    databaseURL: "https://jumping-8c2b3.firebaseio.com",
+    projectId: "jumping-8c2b3",
+    storageBucket: "jumping-8c2b3.appspot.com",
+    messagingSenderId: "418307239327",
+    appId: "1:418307239327:web:3392266b0f763c6c4221aa",
+    measurementId: "G-WWNQJ8E2RD"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+console.log(firebase);
+const DATABASE = firebase.database();
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
@@ -17,7 +32,6 @@ const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor(musicManager) {
-        this.gamepads = {};
         this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
         this.ctx = null;
@@ -44,6 +58,8 @@ class GameEngine {
         this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
         this.selectGloop = null;
+        this.multiplayer = false;
+        this.peer = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -72,34 +88,13 @@ class GameEngine {
         })();
     }
 
-    // scangamepads() {
-    //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
-    //     for (var i = 0; i < gamepads.length; i++) {
-    //       if (gamepads[i]) {
-    //         if (gamepads[i].index in this.gamepads) {
-    //           this.gamepads[gamepads[i].index] = gamepads[i];
-    //         } else {
-    //           this.gamepads[i] = (gamepads[i]);
-    //         }
-    //       }
-    //     }
-    //     console.log(this.gamepads);
-    // }
     startInput() {
-        // this.scangamepads();
         const keyArr = {'removePlatforms':'KeyF', 'up':'KeyW', /*'left':'KeyA',*/ 'down':'KeyS', /*'right':'KeyD',*/ 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlatLeft':'KeyA', 'placeFlatRight':'KeyD', 'placeAngledLeft':'KeyQ', 'placeAngledRight':'KeyE', 'jump':'Space',
             /*'attackLeft':'KeyR', 'attackRight':'Tab', */'attackSuper':'KeyR', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
-        window.addEventListener("gamepadconnected", function (e) {
-            that.gamepads[e.gamepad.index] = e.gamepad;
-            console.log(that.gamepads);
-        } );
-        window.addEventListener("gamepaddisconnected", function (e) {
-            delete(that.gamepads[e.gamepad.index]);
-        });
         this.showButton = true;
         this.mouseDown = false;
         this.mouseReleased = false;
@@ -108,8 +103,6 @@ class GameEngine {
                 that.showButton = false;
                 that.mouseDown = true;
                 that.draw();
-                // console.log('mouse down')
-                // console.log('mouse down in game engine: ' + that.mouseDown);
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
@@ -139,8 +132,6 @@ class GameEngine {
                 that.jump = true;
             if ((e.code === keyArr['left'] || e.code === keyArr['altLeft']) && that.active)
                 that.left = true;
-            /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = true;
             if ((e.code === keyArr['right'] || e.code === keyArr['altRight']) && that.active)
@@ -168,50 +159,15 @@ class GameEngine {
                 that.up = false;
             if (e.code === keyArr['left'] || e.code === keyArr['altLeft'])
                 that.left = false;
-            /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = false;
             if (e.code === keyArr['right'] || e.code === keyArr['altRight'])
                 that.right = false;
-            // if (e.code === keyArr['')
-            //     that.placeAngled = false;
-            // if (e.code === keyArr[5])
-            //     that.placeFlat = false;
-            // if (e.code === keyArr[10])
-            //     that.attack = false;
-            // if (e.code === keyArr[11])
-            //     that.attack = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
     }
 
-    controllerStatus(gamepad) {
-        if(gamepad.buttons[0] == 1.0)
-            this.jump = true;
-        // if(game.buttons[1] == 1.0)
-        //     this.attack = true;
-        // if (game.buttons[2] == 1.0)
-        if(gamepad.axes[0] >= .5) 
-            this.down =  true;
-        if(gamepad.axes[1] >= .5) 
-            this.right =  true;
-        if(gamepad.axes[2] >= .5)
-            this.up =  true;    
-        if(gamepad.axes[3] >= .5) 
-            this.left =  true;
-
-    }
-
-    // reload() {
-    //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
-    //     genGenforms(20, gameEngine, AM, mapHeight);
-    //     playerCharacter.x = lowestGenformCoords[0];
-    //     playerCharacter.y = lowestGenformCoords[1] - 64;
-    //     this.playerCharacter = 
-    // }
-    //game must be off for this to work
     clearAllEntities() {
         console.log('this is called');
         const entityTypes = Object.keys(this.entities);
@@ -290,10 +246,6 @@ class GameEngine {
                 gloopEntity.update();
             }
         }
-
-        // if (this.gamepads[0]) {
-        //     this.controllerStatus(this.gamepads[0]);
-        // }
         const entityTypes = Object.keys(this.entities);
         for (const  type of entityTypes) {
             const typeCount = this.entities[type].length;
@@ -304,11 +256,6 @@ class GameEngine {
                 }
             }
         }
-        
-        // cookies.filter((cookie) => {
-        //     console.log(cookie);
-        //     cookie.removeFromWorld === false;
-        // });
         for (const  type of entityTypes) {
             for (var i = this.entities[type].length - 1; i >= 0; --i) {
                 if (this.entities[type][i].removeFromWorld) {
@@ -325,6 +272,10 @@ class GameEngine {
             // console.log('game is over');
         }
         // console.log(this.timer.gameTime);
+        if(this.peer) {
+            console.log('sending to peer');
+            this.peer.broadcast({type:'gameUpdate', x:this.x, y:this.y});
+        }
     }
 
     loop() {
