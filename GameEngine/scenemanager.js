@@ -111,13 +111,16 @@ class GameScene {
                 this.level1(this.playerCharacter);
                 // console.log(this.game.gloops['orangeGloop'].y);
             }
-            if (this.background.name === 'level1') {
-                this.level2(this.playCharacter);
+            else if (this.background.name === 'level1') {
+                this.level2(this.playerCharacter);
             }
+            // else if (this.background.name === 'level2') {
+            //     this.level3(this.playerCharacter);
+            // }
         }
         // console.log(this.game.camera.totalDrawOffset);
         // console.log(this.background.name);
-        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level1') {
+        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level3') {
             console.log('won');
             this.score.win = true;
             this.game.over = true;
@@ -141,7 +144,7 @@ class GameScene {
         
         this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
+        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
 
         // console.log(this.playerCharacter.y);
@@ -164,7 +167,7 @@ class GameScene {
         console.log('mapheight could be a problem', this.game.mapHeight);
         let oldPCY = this.playerCharacter.y;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
-        // this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
+        this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
         if (this.playerCharacter.superAttacking) {
             //should we stop super attack on level transition?
             // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
@@ -200,6 +203,23 @@ class GameScene {
 
         for (let i = -1; i < 2; i++) {
             this.game.addEntity(new Platform(AM.getAsset(LEVEL2_GENFORM), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
+        }
+    }
+
+    level3(activeGloop) {
+        this.game.clearAllButGloopAndTop();
+        this.playerCharacter = activeGloop;
+        this.background = new Background(this.game, AM, LEVEL3_PATH, 'level3');
+        this.game.mapHeight = this.background.spriteSheet.height;
+        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        if (this.playerCharacter.superAttacking) {
+            this.playerCharacter.stopSuperAttack();
+        }
+        this.playerCharacter.newScene();
+
+        for (let i = -1; i < 2; i++) {
+            this.game.addEntity(new Platform(AM.getAsset(LEVEL3_GENFORM), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
         }
     }
