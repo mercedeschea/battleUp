@@ -134,7 +134,9 @@ class GameScene {
         // genGenforms(10, this.game, AM, 
         //     this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         
+        // this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.x = startX + this.playerCharacter.radius;
+        // this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
