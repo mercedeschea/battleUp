@@ -112,9 +112,13 @@ class GameScene {
         this.background.update();
         this.kT.update();
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
-            if(this.background.name === 'level0')
+            if(this.background.name === 'level0') {
                 this.level1(this.playerCharacter);
                 // console.log(this.game.gloops['orangeGloop'].y);
+            }
+            if (this.background.name === 'level1') {
+                this.level2(this.playCharacter);
+            }
         }
         // console.log(this.game.camera.totalDrawOffset);
         // console.log(this.background.name);
@@ -152,6 +156,7 @@ class GameScene {
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
         this.game.addEntity(this.kT, 'top');
         this.game.addEntity(this.score, 'top');
+        console.log(this.score);
     }
 
 
@@ -191,6 +196,17 @@ class GameScene {
         this.game.clearAllButGloopAndTop();
         this.playerCharacter = activeGloop;
         this.background = new Background(this.game, AM, LEVEL2_PATH, 'level2');
+        this.game.mapHeight = this.background.spriteSheet.height;
+        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        if (this.playerCharacter.superAttacking) {
+            this.playerCharacter.stopSuperAttack();
+        }
+        this.playerCharacter.newScene();
+
+        for (let i = -1; i < 2; i++) {
+            this.game.addEntity(new Platform(AM.getAsset(LEVEL2_GENFORM), 'center', this.playerCharacter.x + PLATFORM_WIDTH *i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, 1, this.game), 'genforms');
+        }
     }
 
     draw() {

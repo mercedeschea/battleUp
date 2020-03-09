@@ -14,6 +14,7 @@ const LEVEL1_PATH = './Sprites/Usables/lvl1/backgroundAppended.png';
 const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
 const LEVEL2_PATH = './Sprites/Usables/lvl2/background.png';
+const LEVEL2_GENFORM = './Sprites/Usables/lvl2/fenform2.png';
 const COOKIE_RADIUS = 21;
 const PLATFORM_WIDTH = 120;
 const PLATFORM_HEIGHT = 16;
@@ -365,6 +366,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(LEVEL1_FLOOR);
     AM.queueDownload(LEVEL1_FLOOR_FLASH);
     AM.queueDownload(LEVEL2_PATH);
+    
     AM.queueDownload(KRIMTROK_SHEET);
     AM.queueDownload(BUBBLE_SHEET);
     AM.queueDownload(LOGO_ICON);
