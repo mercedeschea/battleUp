@@ -21,7 +21,7 @@ class AssetManager {
         this.downloadQueue.push(path);
     }
     isDone() {
-        return this.downloadQueue.length + this.serverDownloadQueue.length === this.successCount + this.errorCount + 1;
+        return this.downloadQueue.length + this.serverDownloadQueue.length + 1 === this.successCount + this.errorCount;
     }
     downloadAll(callback) {
         for (var i = 0; i < this.downloadQueue.length; i++) {
