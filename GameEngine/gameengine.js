@@ -18,7 +18,7 @@ const SCROLL_POINT = 100;
 class GameEngine {
     constructor(musicManager) {
         GE_COUNT++;
-        console.log(GE_COUNT);
+        console.log(GE_COUNT, 'never more than 1');
         this.gamepads = {};
         this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
