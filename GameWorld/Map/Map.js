@@ -11,10 +11,10 @@ const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
 const LEVEL0_MAP_FILE_NAME = "lvl0.txt";
 const LEVEL1_MAP_FILE_NAME = "test3.txt";
 const COOKIE_RADIUS = 21;
-const PLATFORM_SCALE = .5;
+const PLATFORM_SCALE = .4;
 const PLATFORM_HEIGHT = 10.5;
 const FLOOR_HEIGHT = 30;
-const COL_COUNT = 10;
+const COL_COUNT = 12;
 const ORIG_BLOCK_SIZE = 234;
 const HOR_BLOCK_SIZE = ORIG_BLOCK_SIZE * PLATFORM_SCALE;
 const VERT_BLOCK_SIZE = ORIG_BLOCK_SIZE * PLATFORM_SCALE;
@@ -131,11 +131,14 @@ class Cookie extends Entity {
         // console.log(this);
         if (type === 'center') {
             this.equation = convertHorizontalPlatformToEquation(this, game.mapHeight);
+            this.aboveEquation = convertHorizontalEquationToAboveEquation(this.equation);
         } else if (type === 'left') {
             this.equation = convertLeftSlopedPlatformToEquation(this, game.mapHeight);
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         } else if (type === 'right') {
             this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
-        } else if (type === 'vert') {
+            this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
+        } else { //type === 'vert'
             this.equation = null;
         }
     }
@@ -155,6 +158,7 @@ class Cookie extends Entity {
 
             }
         }
+        // if (this.type != 'vert') {
         // let drawTestLeft = {x:this.equation.xLeft, 
         //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
         // let drawTestRight = {x:this.equation.xRight,
@@ -165,6 +169,7 @@ class Cookie extends Entity {
         // this.game.ctx.moveTo(drawTestLeft.x, drawTestLeft.y);
         // this.game.ctx.lineTo(drawTestRight.x, drawTestRight.y);
         // this.game.ctx.stroke();
+        // }
     }
 }
 
@@ -352,7 +357,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(KRIMTROK_SHEET);
     AM.queueDownload(BUBBLE_SHEET);
     AM.queueDownload(LOGO_ICON);
-    AM.queueDownload(ARROW);
+    AM.queueDownload(ARROW_ICON);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

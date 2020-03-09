@@ -34,7 +34,8 @@ const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
 const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
-const PLAYER_RADIUS = 32;
+const PLAYER_RADIUS = 25;
+const PLAYER_SCALE = PLAYER_RADIUS / 32; //32 is og radius determined by sprite sheet size
 const X_CENTER = 32.5;
 const Y_CENTER = 36.5;
 const PLAYER_SPEED = 200;
@@ -62,6 +63,7 @@ function PlayerCharacterAMDownloads(AM) {
 
 class PlayerCharacter extends Entity {
     constructor(game, AM, gloopSheetPath) {
+        // super(self, game, 0, 0);
         super(self, game, 0, 0);
 
         this.game = game;
@@ -77,7 +79,7 @@ class PlayerCharacter extends Entity {
         this.collidingBotLeft = false;
         this.collidingBotRight = false;
         this.collidingTop = false;
-        this.radius = 32;
+        this.radius = PLAYER_RADIUS;
         this.setupAnimations(gloopSheetPath);
 
         // Movement
@@ -93,11 +95,18 @@ class PlayerCharacter extends Entity {
         this.attacking = false;
         this.attackingSuper = 0;//can be 0(off), 1(extending), 2(spinning);
         this.attackpoint = null;
+
         this.floorTimer = 0;
         this.dead = false;
-        this.currentPlatform = null;
+
         this.cookies = 0;
         this.totalCookies = 0;
+
+        this.placedTwoAgo = null;
+        this.placedOneAgo = null;
+        this.placedZeroAgo = null;
+        this.slow = false;
+        this.slowdownTime = null;
     }
     
     setupAnimations(gloopSheetPath) {
@@ -107,6 +116,7 @@ class PlayerCharacter extends Entity {
         this.jumpLeftAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 65, 0, 64, 64, 1, 1, false, true);
         this.jumpRightAnimation = new Animation(AM.getAsset(gloopSheetPath.turning), 193, 0, 64, 64, 1, 1, false, true);
         this.deadAnimation = new Animation(AM.getAsset(gloopSheetPath.dead), 0, 0, 64, 68, 1, 1, false, true);
+        this.sadAnimation = new Animation(AM.getAsset(gloopSheetPath.sad), 0, 0, 64, 68, 1, 1, false, true);
         // this.attackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, 2, false, false);
         // this.reverseAttackAnimation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, 0.1, 3, false, true);
         let attackCaches = this.buildAttackCache();
@@ -140,6 +150,8 @@ class PlayerCharacter extends Entity {
         
         this.placePlatforms();
 
+        this.checkSlowdown();
+
         this.handleAttacking();
 
         this.clearOutPlaceforms();
@@ -158,24 +170,25 @@ class PlayerCharacter extends Entity {
         let drawY;
         if (this.game.camera) {
             drawY = this.cameraTransform(); 
+            // drawY += PLAYER_SCALE * 68 / 2;
         } else {
             drawY = this.y;
         }
     //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (this.dead) {
             // console.log(this.deadAnimation);
-            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.deadAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
             return;
         } else if (this.jumping && this.facingLeft) {
-            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.jumpLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.jumping && !this.facingLeft) {
-            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.jumpRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.movingLeft) {
-            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.moveLeftAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.movingRight) {
-            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else {
-            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY);
+            this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         }
         if (this.attacking) {
             this.currentAttackAnimation['animation'].drawFrame
@@ -233,7 +246,6 @@ class PlayerCharacter extends Entity {
         this.collidingTopLeft = false;
         this.collidingBotLeft = false;
         this.collidingBotRight = false;
-        this.currentPlatform = null;
 
         isCharacterColliding(this);
     }
@@ -272,8 +284,6 @@ class PlayerCharacter extends Entity {
         }
         if (this.movingLeft) {
             if (this.x > 0) {
-                // const platformSlope = this.currentPlatform.equation.mSlope;
-                // const platformB = this.currentPlatform.equation.gameB;
                 if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
                     this.x -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
                     this.y -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
@@ -287,8 +297,6 @@ class PlayerCharacter extends Entity {
             
         } else if (this.movingRight) {
             if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
-                // const platformSlope = this.currentPlatform.equation.mSlope;
-                // const platformB = this.currentPlatform.equation.gameB;
                 if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
                     this.x += this.game.clockTick * this.speed * Math.sqrt(2)/2;
                     // this.y = this.x * platformSlope + platformB - PLATFORM_HEIGHT - Math.sqrt(2)/2;
@@ -341,23 +349,63 @@ class PlayerCharacter extends Entity {
         if (this.game.placeAngledLeft && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(true, true, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            this.savePlaceformHistory('aLeft');
+            this.setSlowdown();
         } else if (this.game.placeAngledRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, true, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            this.savePlaceformHistory('aRight');
+            this.setSlowdown();
         } else if (this.game.placeFlatLeft && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(true, false, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            this.savePlaceformHistory('fLeft');
+            this.setSlowdown();
         } else if (this.game.placeFlatRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, false, this.x, this.y, 
-                this.moveLeftAnimation.frameWidth, this.moveLeftAnimation.frameHeight);
+                this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            this.savePlaceformHistory('fRight');
+            this.setSlowdown();
         }
         if (this.game.removePlatforms) {
             this.placeformManager.clearPlaceforms();
         }
+    }
+
+    savePlaceformHistory(newForm) {
+        this.placedTwoAgo = this.placedOneAgo;
+        this.placedOneAgo = this.placedZeroAgo;
+        this.placedZeroAgo = newForm;
+    }
+
+    slowdown() {
+        this.slow = true;
+        this.speed = 100;/// save old speed for cookie speedups
+        this.slowdownTime = Date.now();
+    }
+    setSlowdown() {
+        if (this.placedZeroAgo && this.placedZeroAgo === this.placedOneAgo && this.placedZeroAgo === this.placedTwoAgo) 
+            this.slowdown();
+    }
+    checkSlowdown() {
+        // console.log('Check Slowdown');
+        // console.log('speed', this.speed);
+        // if (this.placedZeroAgo && this.placedZeroAgo === this.placedOneAgo && this.placedZeroAgo === this.placedTwoAgo) 
+        //     this.slowdown();
+            // console.log('Date now', Date.now());
+            // console.log('currentCheck', 100 + this.slowdownTime);
+        if (Date.now() > 1000 + this.slowdownTime) {
+            // console.log('long enough now');
+            this.stopSlowdown();
+        }
+    }
+    stopSlowdown() {
+        this.speed = 200;///
+        this.slow = false;
     }
 
     handleAttacking() {

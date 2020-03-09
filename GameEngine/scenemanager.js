@@ -9,9 +9,12 @@ const COOKIE_COUNT_SIZE_X = 150;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
-const ARROW = './Sprites/HUD/arrow.png';
 const SCORE_FONT = "20px mainFont";
 const KT_FONT = "12px mainFont";
+const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
+const ARROW_ICON = './Sprites/HUD/arrow.png';
+const FONT_COLOR = '#F1C40F';
+
 const ADD_SCORE_EP = 'addscore/';
 const SCOREBOARD_EP = 'scoreboard/';
 class SceneManager {
@@ -39,8 +42,10 @@ class SceneManager {
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.sceneObj = this.startScreen;
         this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
+        this.arrow = new Arrow(this.game);
 
         this.game.addEntity(this.startButton, 'general');
+        this.game.addEntity(this.arrow, 'general');
 
         this.game.addGloop(this.greenGloop, 'greenGloop');
         this.game.addGloop(this.purpleGloop, 'purpleGloop');
@@ -51,12 +56,12 @@ class SceneManager {
         this.nameForm.style.display = 'none';
     }
 
-    gameScene() {
+    gameScene(selectedGloopPath) {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
-        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
         this.game.mapHeight = background.spriteSheet.height;
+        this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.sceneObj = this.gameplayScene;
@@ -130,11 +135,13 @@ class GameScene {
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
         let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
         this.game.addEntity(startform, 'genforms');
-        console.log(startform.equation);
+        // console.log(startform.equation);
         // genGenforms(10, this.game, AM, 
         //     this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
         
+        // this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.x = startX + this.playerCharacter.radius;
+        // this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
@@ -202,7 +209,7 @@ class GameOver {
         this.scores = null;
         this.nameForm = document.getElementById("nameForm");
         let that = this;
-        this.arrowSpriteSheet = AM.getAsset(ARROW);
+        this.arrowSpriteSheet = AM.getAsset(ARROW_ICON);
         this.nameForm.addEventListener( "submit", function ( event ) {
             event.preventDefault();
             that.sendScore();
@@ -336,8 +343,6 @@ class StartScreen {
     }
 
     update() {
-        this.greenGloop.jumping = true;
-        // console.log(this.game.mouse.x);
     }
 
     draw() {
@@ -346,6 +351,9 @@ class StartScreen {
         // console.log(this.spriteHeight);
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
             this.destX, this.game.surfaceHeight/6, this.spriteWidth, this.spriteHeight);
+        this.game.ctx.font = SCORE_FONT;
+        this.game.ctx.fillStyle = FONT_COLOR;
+        this.game.ctx.fillText("Select a gloop and press start to play!", this.game.surfaceWidth/6, this.game.surfaceHeight/2);
     }
 }
 
@@ -360,22 +368,56 @@ class StartButton {
         this.destY = destY;
     }
     
-    draw() {
-        // 70 is the y, so that the button fits in space of the floor
-        if (!this.game.mouseDown) { // default button animation
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, 70, this.spriteHeight);
-            this.showButton = false;
-            this.removeFromWorld = true;
-        } if (this.game.mouseDown) { // button press animation
+    draw() { // 70 is the y, so that the button fits in space of the floor
+        // animates start button when pressed
+        if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, 70, this.spriteHeight);
-            this.removeFromWorld = true;
+            this.removeFromWorld;
+        } // default start button
+        else {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+                                    this.destX, this.destY, 70, this.spriteHeight);
         }
     }
 
     update() {}
 }
+
+class Arrow {
+    constructor(game) {
+        this.game = game;
+        this.spriteSheet = AM.getAsset(ARROW_ICON);
+        this.spriteWidth = this.spriteSheet.width;
+        this.spriteHeight = this.spriteSheet.height;
+        console.log('arrow made');
+    }
+    update(){
+    }
+    draw(){
+        let destY = 525 - this.spriteHeight;
+        // console.log('im in arrow draw method', this.game.gloopColor);
+        if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight ,
+                339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+        }
+        if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+        }
+    }
+
+
+}
+
 
 // player score based on max height and number of cookies
 class Score {
@@ -395,18 +437,11 @@ class Score {
     }
 
     draw() {
-        //console.log(this.game.mouseReleased);
-        if (this.game.mouseReleased) {
-            // this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-            //     this.spriteSheet.width/5, this.spriteSheet.height/5);
-            // this.game.ctx.font = ("20px Times New Roman");
-            // console.log(AM.font);
-            this.game.ctx.font = SCORE_FONT;
-            this.game.ctx.fillStyle = "#D4AF37";
-            this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
-            this.displayCookie.draw();
-            this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
-        }
+        this.game.ctx.font = SCORE_FONT;
+        this.game.ctx.fillStyle = FONT_COLOR;
+        this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
+        this.displayCookie.draw();
+        this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
     }
 
     update() { 
