@@ -10,6 +10,7 @@ function isCharacterColliding(PlayerCharacter) {
         cartesianX: PlayerCartCords.cartesianX,
         cartesianY: PlayerCartCords.cartesianY
     }
+    // console.log(PlayerCircleInfo);
     pc.currentCircle = PlayerCircleInfo;
     if(pc.superAttacking > 0) {
         PlayerCircleInfo.radius += DRILL_LENGTH;
@@ -24,12 +25,13 @@ function isCharacterColliding(PlayerCharacter) {
         attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
     for (const platform of pc.game.entities.placeforms) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
+        // console.log(result);
         if (result) {
             pc[result] = true;
-            if (result === 'colliding')
-                pc.y = whereShouldMyCharacterBeHoriz(platform.aboveEquation, pc);
-            else if (result === 'collidingBotRight' || result === 'collidingBotRight')
-                pc.y = whereShouldMyCharacterBeSloped(platform.aboveEquation, pc);
+            // if (result === 'colliding')
+            //     pc.y = whereShouldMyCharacterBeHoriz(platform.aboveEquation, pc);
+            // else if ((result === 'collidingBotRight' || result === 'collidingBotLeft') && !pc['colliding'])
+            //     pc.y = whereShouldMyCharacterBeSloped(platform.aboveEquation, pc);
             if (pc.superAttacking > 0)
                 platform.removeFromWorld = true;
         }
@@ -86,7 +88,8 @@ function whereShouldMyCharacterBeSloped(aboveLine, pc) {
     // y = mx + b
     // use x to find y
     // wow it's the 5th grade!
-    return pc.game.mapHeight - (aboveLine.mSlope * pc.currentCircle.cartesianX + aboveLine.bOffset);
+    // console.log('this', pc.currentCircle.cartesianX)
+    return pc.game.mapHeight - (aboveLine.mSlope * pc.currentCircle.cartesianX + aboveLine.bOffset) +21;
 }
 
 function checkPCPlatformCollision(PlayerCircleInfo, platform) {
@@ -96,12 +99,12 @@ function checkPCPlatformCollision(PlayerCircleInfo, platform) {
 
     } else if (platform.type === 'left') {
         result  = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
-    } else {
+    } else if (platform.type === 'right') {
         // console.log("right equation", equation);
         // console.log("pc coords", PlayerCircleInfo);
         result = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
-        
     }
+    // console.log(result);
     return result;
 }
 
@@ -131,11 +134,12 @@ function calculateAttackLine(pc, PlayerCircleInfo, gameWorldHeight) {
 
 function convertRightSlopedPlatformToEquation(platform, gameWorldHeight) { /* " / " */
     let slope = 1;
-    let platformLength = 80;
+    let platformLength = HOR_BLOCK_SIZE;
+    let lineOffset = Math.sqrt(2)/2 * PLATFORM_HEIGHT;
     return {
         mSlope: slope,
-        gameB: platform.y + platformLength - (slope * platform.x),
-        bOffset: (gameWorldHeight - (platform.y + platformLength) - (slope * platform.x)),
+        // gameB: platform.y + platformLength - (slope * platform.x),
+        bOffset: (gameWorldHeight - (platform.y + platformLength) - (slope * platform.x - lineOffset - 2)),
         xLeft: platform.x,
         xRight: (platform.x + platformLength)
     }
@@ -146,14 +150,15 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
     // y = mx + b
     // top left point of this platform is (this.x + 7, this.y) 
     // gameHeight - this.y = (-1) * (this.x + 7) + b 
-    let platformLength = 83;
+    let platformLength = HOR_BLOCK_SIZE;
+    let lineOffset = Math.sqrt(2)/2 * PLATFORM_HEIGHT;
     return {
         mSlope: slope,
-        gameB: platform.y + (platform.x + 7),
-        bOffset: (gameWorldHeight - platform.y) + (platform.x + 7),
+        // gameB: platform.y + (platform.x + Math.sqrt(2) * PLATFORM_HEIGHT),
+        bOffset: (gameWorldHeight - platform.y) + (platform.x + lineOffset + 2),
         xLeft: platform.x,
         xRight: platform.x + platformLength,
-        yValue: gameWorldHeight - platform.y - 30
+        // yValue: gameWorldHeight - platform.y - 30
     }
 }
 
@@ -171,6 +176,11 @@ function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
     // let platformThicknessCorrect = LineInfo.mSlope < 0 ? PLATFORM_HEIGHT : PLATFORM_HEIGHT * -1;
     let platformThicknessCorrect = PLATFORM_HEIGHT * LineInfo.mSlope;
     let answer = quadraticFormula(a, b, c);
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    // console.log(answer.result1);
+    // console.log(answer.result2);
+
     if (isNaN(answer.result1) && isNaN(answer.result2)) {
         return false;
     }
@@ -217,13 +227,13 @@ function convertHorizontalPlatformToEquation(platform, gameWorldHeight) {
         mSlope: 0,
         yValue: gameWorldHeight - platform.y, 
         xLeft: platform.x, 
-        xRight: platform.x + 119
+        xRight: platform.x + HOR_BLOCK_SIZE
     };
 }
 
 function convertHorizontalEquationToAboveEquation(equation) {
     return {
-        yValue: equation.yValue + 68, // height of gloop sprite
+        yValue: equation.yValue + 68 * PLAYER_SCALE, // height of gloop sprite
         xLeft: equation.xLeft, 
         xRight: equation.xRight
     };
@@ -251,7 +261,7 @@ function isCircleCollidingWithHorizontalLine(CircleInfo, LineInfo) { // Char is 
         return false;
     } else if ((CircleInfo.cartesianX + CircleInfo.radius >= LineInfo.xLeft) && 
                 (CircleInfo.cartesianX - CircleInfo.radius <= LineInfo.xRight) && 
-                (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue) {
+                (CircleInfo.cartesianY - CircleInfo.radius + PLATFORM_HEIGHT) >= LineInfo.yValue - 2) {
         return 'colliding';
     } else if ((CircleInfo.cartesianX + CircleInfo.radius/2 >= LineInfo.xLeft) && 
                 (CircleInfo.cartesianX - CircleInfo.radius/2 <= LineInfo.xRight) && 
@@ -300,7 +310,7 @@ function isCircleCollidingWithCircle(PlayerCircleInfo, OtherCircleInfo) {
 
 function convertCharacterToGameWorldCoords(thisX, thisY) {
     // Assumes the circle character is a 64x68 sprite with 4 dead pixels on top
-    return { gameWorldX: thisX + 32.5, gameWorldY: thisY + 36.5 };
+    return { gameWorldX: thisX + /*32.5*/PLAYER_RADIUS, gameWorldY: thisY + /*36.5*/ PLAYER_RADIUS + PLAYER_SCALE * 4 };
 }
 
 function convertToCartesianCoords(gameWorldX, gameWorldY, gameHeight) {

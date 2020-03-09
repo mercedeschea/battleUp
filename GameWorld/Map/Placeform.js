@@ -1,5 +1,5 @@
 const PLACEFORM_LIMITS = {'left':1, 'right':1, 'center':5};
-const PLACEFORM_OFFSET = 5;
+const PLACEFORM_OFFSET =0//-5;
 class PlaceformManager {
     constructor(game, AM, placeformLimit) {
         this.placeformsCurrent = []//{'right':[], 'left':[], 'center':[]};
@@ -8,32 +8,31 @@ class PlaceformManager {
         this.game = game;
     }
     //should we allow placeforms to be placed partly offscreen?
-    placeformPlace(facingLeft, angled, x, y, characterWidth, characterHeight) {
-       const scale = 1; //modify this line to resize;
+    placeformPlace(placeLeft, angled, x, y, characterWidth, characterHeight) {
        let placeformPlaced;
         // if (this.placeformsCurrent.length === this.placeformLimit) {
         //     this.placeformsCurrent[0].removeFromWorld = true;
         // }
-        if (facingLeft) {
+        if (placeLeft) {
             if (angled) {
-                let type = 'left';
-                placeformPlaced = new Platform(this.placeformSpriteSheet, type, 
-                x - 87 * scale - PLACEFORM_OFFSET, y - /*87*/100 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
+                // let type = 'left';
+                placeformPlaced = new Platform(this.placeformSpriteSheet, 'left', 
+                x - HOR_BLOCK_SIZE - PLACEFORM_OFFSET, y - HOR_BLOCK_SIZE + characterHeight - PLACEFORM_OFFSET - 6, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 
-                x - 87 * scale, y + characterHeight - 2, scale, this.game);
+                x - HOR_BLOCK_SIZE, y + characterHeight - 2, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             }
             
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 
-                x + characterWidth + PLACEFORM_OFFSET, y - /*87*/100 * scale + characterHeight - PLACEFORM_OFFSET, scale, this.game);
+                x + characterWidth + PLACEFORM_OFFSET, y - HOR_BLOCK_SIZE + characterHeight - PLACEFORM_OFFSET - 6, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             } else {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'center', 
-                x + characterWidth, y + characterHeight - 2, scale, this.game);
+                x + characterWidth, y + characterHeight - 2, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             }
         }
