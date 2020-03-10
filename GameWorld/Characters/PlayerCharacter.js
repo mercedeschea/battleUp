@@ -382,6 +382,8 @@ class PlayerCharacter extends Entity {
         this.placedZeroAgo = newForm;
     }
 
+    // TODO: clear recently placed history after each second or so of no placing
+    // TODO: don't slow down if just moving left/right
     slowdown() {
         this.slow = true;
         this.speed = 100;/// save old speed for cookie speedups
@@ -392,14 +394,7 @@ class PlayerCharacter extends Entity {
             this.slowdown();
     }
     checkSlowdown() {
-        // console.log('Check Slowdown');
-        // console.log('speed', this.speed);
-        // if (this.placedZeroAgo && this.placedZeroAgo === this.placedOneAgo && this.placedZeroAgo === this.placedTwoAgo) 
-        //     this.slowdown();
-            // console.log('Date now', Date.now());
-            // console.log('currentCheck', 100 + this.slowdownTime);
         if (Date.now() > 1000 + this.slowdownTime) {
-            // console.log('long enough now');
             this.stopSlowdown();
         }
     }
