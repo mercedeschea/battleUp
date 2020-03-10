@@ -114,12 +114,14 @@ class Host {
         }
 
         this.handleData = (playerName, data) => {
+          // console.log(playerName, data);
         switch(data.type){
             case 'ready':
             this.handleReady(playerName, data.ready);
             break;
-            case 'input':
-            this.handleInput(playerName, data.input);
+            case 'gameUpdate':
+            // this.handleInput(playerName, data.input);
+            this.game.updateOthers(data);
             break;
             case 'connected':
             this.handleConnected(playerName);
@@ -130,14 +132,14 @@ class Host {
         return;
         }
 
-        // Input from players
-        this.handleInput = (playerName, input) => {
-        const playersCopy = this.copyPlayers();
-        for (const key in input) {
-            playersCopy[playerName].input[key] = input[key];
-        }
-        this.state.players = playersCopy;
-        }
+        // // Input from players
+        // this.handleInput = (playerName, input) => {
+        // const playersCopy = this.copyPlayers();
+        // for (const key in input) {
+        //     playersCopy[playerName].input[key] = input[key];
+        // }
+        // this.state.players = playersCopy;
+        // }
 
         // // Input from host
         // OnInputChange((input) => {
@@ -166,7 +168,7 @@ class Host {
             if(playerCount > 0 && playersReady.every(e => e === true)){
                 // We have enough players and they are all ready
                 this.state.gameStarted = true;
-                this.game.startMP();
+                this.game.startMP(GLOOP_SHEET_PATHS_PURPLE);
                 // Send start game to all peers
                 this.broadcast({type: 'startGame'});
 

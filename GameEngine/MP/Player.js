@@ -33,13 +33,13 @@ class Player {
         switch(data.type){
         case 'startGame':
             console.log('got them readies');
-            this.game.startMP();
+            this.game.startMP(GLOOP_SHEET_PATHS_ORANGE);
             break;
         case 'players':
             this.state.players = data.players;
             break;
         case 'gameUpdate':
-            console.log(this.data);
+            // console.log(data);
             this.game.updateOthers(data);
             break;
         default:

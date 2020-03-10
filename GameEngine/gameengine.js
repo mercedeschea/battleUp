@@ -68,6 +68,7 @@ class GameEngine {
         this.click = false;
         this.mouse = null;
         this.gameEngineShim = null;
+        this.myName = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -161,7 +162,7 @@ class GameEngine {
             if (!that.started) {
                 that.draw();      
             }
-            console.log(that.gloopColor);
+            // console.log(that.gloopColor);
         }, false);
         this.ctx.canvas.addEventListener("mousemove", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
@@ -305,8 +306,15 @@ class GameEngine {
         this.ctx.restore();
     }
 
+    updateOthers(data) {
+        this.gameEngineShim.update(data);
+        this.gloops.other.extUpdate(data);
+    }
+
     update() {
         this.sceneObj.update();
+        this.gameEngineShim.clockTick = this.clockTick;
+
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
             var gloopEntity = this.gloops[gloop];
@@ -341,9 +349,9 @@ class GameEngine {
         }
         // console.log(this.timer.gameTime);
         if(this.peer) {
-            console.log('sending to peer');
-            let gameState = this.gloops['me'].packageToSend();
-            this.peer.broadcast({type:'gameUpdate', state:gameState});
+            // console.log('sending to peer');
+            let gameState = this.gloops['me'].packageToSend(this.myName);
+            this.peer.broadcast({type:'gameUpdate', playerName:this.myName, input:gameState});
         }
     }
 
@@ -412,6 +420,10 @@ class Entity {
         //     return null;
         // }
         return drawY;
+    }
+
+    cameraUnTransform() {
+        this.y = this.y + this.game.game.totalDrawOffset;
     }
     
     rotateAndCache(image, angle, srcX, srcY, frameWidth, frameHeight, scale) {

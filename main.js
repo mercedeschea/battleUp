@@ -95,6 +95,7 @@ function showMP() {
         mPReady.style.display ='block';
         SCENE_MANAGER.game.peer = myPeer;
         myPeer.game = SCENE_MANAGER.game;
+        myPeer.game.myName = data.get('mPName');
     });
     mPReady.addEventListener('submit', function (e) {
         e.preventDefault();

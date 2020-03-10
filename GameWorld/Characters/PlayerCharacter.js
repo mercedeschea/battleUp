@@ -156,11 +156,19 @@ class PlayerCharacter extends Entity {
 
         this.clearOutPlaceforms();
     }
+    extUpdate(gameState) {
+        console.log(gameState);
+        let props = Object.keys(gameState.input);
+        for (const key of props) {
+            this[key] = gameState.input[key];
+        }
+        console.log(this);
+    }
 
     
     packageToSend() {
         let gameState = {left:this.game.left, right:this.game.right,
-            jumping:this.jumping, facingLeft:this.facingLeft,
+            jumping:this.jumping, facingLeft:this.facingLeft, jumpY:this.jumpY,
             facingRight:this.facingRight, clockTick:this.game.clockTick};
         return gameState;
     }
@@ -196,6 +204,9 @@ class PlayerCharacter extends Entity {
         } else if (this.movingRight) {
             this.moveRightAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else {
+            if (this.gloopSheetPath === GLOOP_SHEET_PATHS_PURPLE) {
+                // console.log(this.game.clockTick, this.x, drawY);
+            }
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         }
         if (this.attacking) {

@@ -62,16 +62,16 @@ class SceneManager {
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         this.game.mapHeight = background.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
-        let otherGloops;
-        if (otherSelectedGloopPath) {
-            let gEShim = new GameEngineShim(this.game);
-            this.game.GameEngineShim = gEShim;
-            otherGloops = new PlayerCharacter(gEShim, AM, otherSelectedGloopPath);
-        }
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.sceneObj = this.gameplayScene;
-        this.gameplayScene.level0(this.playerCharacter);
+        let otherGloop;
+        if (otherSelectedGloopPath) {
+            let gEShim = new GameEngineShim(this.game);
+            this.game.gameEngineShim = gEShim;
+            otherGloop = new PlayerCharacter(gEShim, AM, otherSelectedGloopPath);
+        }
+        this.gameplayScene.level0(this.playerCharacter, otherGloop);
     }
 
     // clears entities on screen, switches to end scene
@@ -155,9 +155,19 @@ class GameScene {
             LEVEL0_MAP_FILE_NAME, 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
-        this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
+        this.game.addGloop(this.playerCharacter, 'me'); 
         if (extGloop) {
+            // startX = this.playerCharacter.radius * 20;
+            startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
+            this.game.addEntity(startform, 'genforms');
+            extGloop.x = startX + this.playerCharacter.radius;
+            extGloop.y = startY - this.playerCharacter.radius * 2;
             this.game.addGloop(extGloop, 'other');
+
+            console.log(extGloop.y);
+            console.log(startY);
+            // console.log(extGloop.game);
+            // console.log(extGloop);
         }
         this.game.addEntity(this.kT, 'top');
         this.game.addEntity(this.score, 'top');
