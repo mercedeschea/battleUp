@@ -438,17 +438,12 @@ class Score {
 
     draw() {
         //console.log(this.game.mouseReleased);
-        if (this.game.scene === 'game start') {
-            // this.game.ctx.drawImage(this.spriteSheet, 0, 0,
-            //     this.spriteSheet.width/5, this.spriteSheet.height/5);
-            // this.game.ctx.font = ("20px Times New Roman");
-            // console.log(AM.font);
-            this.game.ctx.font = SCORE_FONT;
-            this.game.ctx.fillStyle = FONT_COLOR;
-            this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
-            this.displayCookie.draw();
-            this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
-        }
+
+        this.game.ctx.font = SCORE_FONT;
+        this.game.ctx.fillStyle = FONT_COLOR;
+        this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
+        this.displayCookie.draw();
+        this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
     }
 
     update() { 
