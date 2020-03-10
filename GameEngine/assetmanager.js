@@ -21,7 +21,7 @@ class AssetManager {
         this.downloadQueue.push(path);
     }
     isDone() {
-        return this.downloadQueue.length + this.serverDownloadQueue.length === this.successCount + this.errorCount;
+        return this.downloadQueue.length + this.serverDownloadQueue.length + 1 === this.successCount + this.errorCount;
     }
     downloadAll(callback) {
         for (var i = 0; i < this.downloadQueue.length; i++) {
@@ -65,6 +65,7 @@ class AssetManager {
         this.font = new FontFace('mainFont', FONT_URL, {});
         this.font.load().then(function(loadedFont){
             console.log('font loaded');
+            that.successCount++;
             document.fonts.add(loadedFont);
             if(that.isDone())
                 callback();

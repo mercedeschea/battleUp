@@ -8,6 +8,7 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
+let GE_COUNT = 0;
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
@@ -16,6 +17,8 @@ const SCROLL_POINT = 100;
 
 class GameEngine {
     constructor(musicManager) {
+        GE_COUNT++;
+        console.log(GE_COUNT, 'never more than 1');
         this.gamepads = {};
         this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
