@@ -109,36 +109,38 @@ class GameEngine {
             console.log(that.mouse);
             that.click = true;
             this.gloopStartSize = 64;
+            this.spacing = 100;
             // mouse hover for green gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
-                that.mouse.y >= that.surfaceHeight - 123 &&
-                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                that.mouse.y >= 500 &&
+                that.mouse.y < 564) {
                     that.gloopColor = 'greenSelected';
+                    console.log(that.gloopColor);
                     that.mouseStart = false;
             } // mouse hover for purple gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 && 
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - 50 &&
-                that.mouse.y >= that.surfaceHeight - 123 &&
-                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                that.mouse.y >= 500 &&
+                that.mouse.y < 564) {
                     that.gloopColor = 'purpleSelected';
                     that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 &&
-                that.mouse.y >= that.surfaceHeight - 123 &&
-                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                that.mouse.y >= 500 &&
+                that.mouse.y < 564) {
                     that.gloopColor = 'orangeSelected';
                     that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 + 64 &&
-                that.mouse.y >= that.surfaceHeight - 123 &&
-                that.mouse.y < that.surfaceHeight - 123 + 64) {
+                that.mouse.y >= 500 &&
+                that.mouse.y < 564) {
                     that.gloopColor = 'blueSelected';
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected

@@ -374,6 +374,18 @@ class StartScreen {
         this.blueGloop.x = this.game.surfaceWidth - (this.game.surfaceWidth/2) + 
                            this.midSpacing + this.gloopWidth + this.spacing;
 
+        console.log('green gloop x start', this.greenGloop.x);
+        console.log('green gloop x end', this.greenGloop.x + 64);
+        console.log('mouse hover x start', (this.game.surfaceWidth - (this.game.surfaceWidth/2) - 64 - 50 - 100 - 64));
+        console.log('mouse hover x end', (this.game.surfaceWidth - (this.game.surfaceWidth/2) - 64 - 50 - 100));
+        console.log('green gloop y start', this.game.surfaceHeight - 123);
+        console.log('green gloop y end', this.game.surfaceHeight - 123 + 64)
+        console.log('mouse hover y start', this.game.surfaceHeight - 123);
+        console.log('mouse hover y end', this.game.surfaceHeight - 123 + 64)
+        console.log(FLOOR_HEIGHT);
+        console.log(this.purpleGloop.x);
+        console.log(this.orangeGloop.x);
+        console.log(this.blueGloop.x);
         this.greenGloop.y = this.gloopY;
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;

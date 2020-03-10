@@ -182,7 +182,6 @@ class PlayerCharacter extends Entity {
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, PLAYER_SCALE);
         } else if (this.game.scene === 'start') {
              // } else if (this.game.scene === 'start') {
-            console.log('hello')
             this.lookForwardAnimation.drawFrame(this.game.clockTick, this.ctx, this.x, drawY, 1);
         }
         if (this.attacking) {
