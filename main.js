@@ -1,9 +1,9 @@
 const AM = new AssetManager();
 const SCENE_MANAGER = new SceneManager();
-const BACKEND_URL = "http://localhost:5000/";
-// const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
-let myHost;
-let myPlayer;
+// const BACKEND_URL = "http://localhost:5000/";
+const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
+let myPeer;
+// let myPlayer;
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
         this.spriteSheet = spriteSheet;
@@ -68,30 +68,54 @@ MapAMDownloads(AM);
 
 // AM.queueDownload(SCORE_TEXT);
 function showMP() {
-    let mpForm = document.getElementById('mPDetails');
-    mpForm.style.display = 'block';
-    mpForm.addEventListener('submit', function (e) {
+    let mPForm = document.getElementById('mPDetails');
+    let mPReady = document.getElementById('mPReady');
+    mPForm.style.display = 'block';
+    mPForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        let data = new FormData(mpForm);
+        let data = new FormData(mPForm);
         console.log(data.get('mPHost'));
         console.log(data);
         let code;
         if (data.get('mPHost') == 'on') {
             console.log('i am host');
             console.log(data.get('mPName'));
-            myHost = new Host(data.get('mPName'));
-            myHost.runHost();
-            code = myHost.state.code;
+            myPeer = new Host(data.get('mPName'));
+            myPeer.runHost();
+            SCENE_MANAGER.game.gloopColor = GLOOP_SHEET_PATHS_ORANGE;
         } else {
             console.log('i am player');
             console.log(data.get('mPName'));
             code = data.get('roomCode');
+            mPReady.style.display ='block';
+            myPeer = new Player(data.get('mPName'), code);
+            myPeer.joinGame();
+            SCENE_MANAGER.game.gloopColor = GLOOP_SHEET_PATHS_PURPLE;
         }
-        myPlayer = new Player(data.get('mPName'), code);
-        myPlayer.joinGame();
-        SCENE_MANAGER.game.peer = myPlayer;
+        mPReady.style.display ='block';
+        SCENE_MANAGER.game.peer = myPeer;
+        myPeer.game = SCENE_MANAGER.game;
+    });
+    mPReady.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if(mPReady.readyOn.checked) {
+            myPeer.sendReady(true);
+        } else {
+            myPeer.sendReady(false);
+        }
     });
 }
+
+//First define some delay function which is called from async function
+function __delay__(timer) {
+    return new Promise(resolve => {
+        timer = timer || 2000;
+        setTimeout(function () {
+            resolve();
+        }, timer);
+    });
+};
+
 
 function hideMP() {
     document.getElementById('mPDetails').style.display = 'none';
@@ -112,7 +136,6 @@ AM.downloadAll(function () {
     let gameEngine = new GameEngine(MUSIC_MANAGER);
     gameEngine.init(ctx);
     SCENE_MANAGER.game = gameEngine;
-    console.log(myPlayer);
     SCENE_MANAGER.startScene();
     console.log("All Done!");
 });

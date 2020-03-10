@@ -56,12 +56,18 @@ class SceneManager {
         this.nameForm.style.display = 'none';
     }
 
-    gameScene(selectedGloopPath) {
+    gameScene(selectedGloopPath, otherSelectedGloopPath) {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         this.game.mapHeight = background.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
+        let otherGloops;
+        if (otherSelectedGloopPath) {
+            let gEShim = new GameEngineShim(this.game);
+            this.game.GameEngineShim = gEShim;
+            otherGloops = new PlayerCharacter(gEShim, AM, otherSelectedGloopPath);
+        }
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.sceneObj = this.gameplayScene;
@@ -123,7 +129,7 @@ class GameScene {
         }
     }
 
-    level0(activeGloop) 
+    level0(activeGloop, extGloop) 
     {
         this.playerCharacter = activeGloop;
         this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
@@ -150,6 +156,9 @@ class GameScene {
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
+        if (extGloop) {
+            this.game.addGloop(extGloop, 'other');
+        }
         this.game.addEntity(this.kT, 'top');
         this.game.addEntity(this.score, 'top');
     }

@@ -157,6 +157,14 @@ class PlayerCharacter extends Entity {
         this.clearOutPlaceforms();
     }
 
+    
+    packageToSend() {
+        let gameState = {left:this.game.left, right:this.game.right,
+            jumping:this.jumping, facingLeft:this.facingLeft,
+            facingRight:this.facingRight, clockTick:this.game.clockTick};
+        return gameState;
+    }
+
     calcJump(jumpAnimation, totalHeight) {
         var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
         // var totalHeight = 100;

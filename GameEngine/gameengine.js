@@ -67,6 +67,7 @@ class GameEngine {
         this.mouseDown = false;
         this.click = false;
         this.mouse = null;
+        this.gameEngineShim = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -122,7 +123,7 @@ class GameEngine {
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight -123 + 64) {
-                    that.gloopColor = 'greenSelected';
+                    that.gloopColor = GLOOP_SHEET_PATHS_GREEN;
                     that.mouseStart = false;
             } // mouse hover for purple gloop
             if (that.scene === 'start' && 
@@ -130,7 +131,7 @@ class GameEngine {
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - 50 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.gloopColor = 'purpleSelected';
+                    that.gloopColor = GLOOP_SHEET_PATHS_PURPLE;
                     that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
@@ -138,7 +139,7 @@ class GameEngine {
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.gloopColor = 'orangeSelected';
+                    that.gloopColor = GLOOP_SHEET_PATHS_ORANGE;
                     that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
@@ -146,26 +147,12 @@ class GameEngine {
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 + 64 &&
                 that.mouse.y >= that.surfaceHeight - 123 &&
                 that.mouse.y < that.surfaceHeight - 123 + 64) {
-                    that.gloopColor = 'blueSelected';
+                    that.gloopColor = GLOOP_SHEET_PATHS_BLUE;
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
                 that.active = true;
-                if (that.gloopColor === 'greenSelected') {
-                    console.log(that.mouse);
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
-                }
-                else if (that.gloopColor === 'purpleSelected') {
-                    console.log(that.mouse);
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
-                }
-                else if (that.gloopColor === 'orangeSelected') {
-                    console.log(that.mouse);
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
-                } else if (that.gloopColor === 'blueSelected') {
-                    console.log(that.mouse);
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
-                }
+                SCENE_MANAGER.gameScene(that.gloopColor); 
                 that.start();
             } 
             else if (that.scene === 'gameOver' && that.over){
@@ -241,6 +228,12 @@ class GameEngine {
             e.preventDefault();
         }, false);
         console.log('Input started');
+    }
+
+    startMP(otherColor) {
+        this.active = true;
+        SCENE_MANAGER.gameScene(this.gloopColor, otherColor); 
+        this.start();
     }
 
     clearAllEntities() {
@@ -349,7 +342,8 @@ class GameEngine {
         // console.log(this.timer.gameTime);
         if(this.peer) {
             console.log('sending to peer');
-            this.peer.broadcast({type:'gameUpdate', x:this.x, y:this.y});
+            let gameState = this.gloops['me'].packageToSend();
+            this.peer.broadcast({type:'gameUpdate', state:gameState});
         }
     }
 

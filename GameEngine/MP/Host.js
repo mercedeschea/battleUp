@@ -48,6 +48,7 @@ class Host {
             host: true,
             ready: false,
             input: null,
+            gloopColor: GLOOP_SHEET_PATHS_ORANGE,
             // Peer object with blank methods so I don't have to
             // filter when I iterate over players
             peer: {
@@ -59,9 +60,9 @@ class Host {
             code: null,
             gameStarted: false
         }
-
+        this.game = null;
         this.hostName = name;
-
+        this.me = players[name];
         this.copyPlayers = () => Object.assign({}, this.state.players);
 
         this.playersToArray = () => {
@@ -75,6 +76,10 @@ class Host {
             });
             }
             return playersArr;
+        }
+
+        this.sendReady = (ready) => {
+          this.me.ready = ready;
         }
 
         this.getPlayersForGame = () => {
@@ -161,12 +166,12 @@ class Host {
             if(playerCount > 0 && playersReady.every(e => e === true)){
                 // We have enough players and they are all ready
                 this.state.gameStarted = true;
-                
+                this.game.startMP();
                 // Send start game to all peers
                 this.broadcast({type: 'startGame'});
 
                 // Delete the room
-                this.DATABASE.ref('/rooms/'+this.state.code).remove();
+                DATABASE.ref('/rooms/'+this.state.code).remove();
             }
         }
     }
@@ -174,12 +179,14 @@ class Host {
         getOpenRoom().then((code) => {
             // Display room code
             this.state.code = code;
+            console.log(this);
             console.log(code);
             // Players signaling
             DATABASE.ref('/rooms/'+code+'/players').on('child_added', ({key: playerName}) => {
                 // Create Peer channel
                 const peer = new SimplePeer();
-
+                console.log(peer);
+                console.log('new peer connected');
                 // Upload Host signals
                 const signalDataRef = DATABASE.ref('/rooms/'+code+'/host/'+playerName);
                 peer.on('signal', (signalData) => {

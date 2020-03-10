@@ -7,6 +7,7 @@ class Player {
         connecting: false,
         gameStarted: false,
         error: '',
+        gloopColor: GLOOP_SHEET_PATHS_PURPLE,
         database: DATABASE,
         host: null,
         players: [],
@@ -14,7 +15,7 @@ class Player {
             sprites: []
         }
     }
-
+    this.game = null;
     this.peer = null;
 
     this.broadcast = (obj) => {
@@ -31,14 +32,15 @@ class Player {
     this.handleData = (data) => {
         switch(data.type){
         case 'startGame':
-            this.state.gameStarted = true;
+            console.log('got them readies');
+            this.game.startMP();
             break;
         case 'players':
             this.state.players = data.players;
             break;
         case 'gameUpdate':
             console.log(this.data);
-            this.state.gameState = data.gameState;
+            this.game.updateOthers(data);
             break;
         default:
             throw Error('Unknown input ', data.type);
