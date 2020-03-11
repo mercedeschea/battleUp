@@ -1,8 +1,18 @@
 const genForms = [];
 const cookies = [];
-const GENFORM_PATHS = {level0:'./Sprites/Usables/lvl0/genform2.png', level1:'./Sprites/Usables/lvl1/genform2.png'};
+const GENFORM_PATHS = {level0:'./Sprites/Usables/lvl0/genform2.png', 
+                       level1:'./Sprites/Usables/lvl1/genform2.png',
+                       level2:'./Sprites/Usables/lvl2/genform2.png',
+                       level3:'./Sprites/Usables/lvl3/genform2.png',
+                       level4:'./Sprites/Usables/lvl4/genform2.png'};
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
-const PLACEFORM_PATH = './Sprites/Usables/gloop(blue)/placeform.png';//modify this line to view the different sprites
+let PLACEFORM_PATHS = {
+    green: './Sprites/Usables/gloop(green)/placeform.png',
+    purple: './Sprites/Usables/gloop(purple)/placeform.png',
+    orange: './Sprites/Usables/gloop(orange)/placeform.png',
+    blue: './Sprites/Usables/gloop(blue)/placeform.png'
+}//`'./Sprites/Usables/gloop(${game.gloopColor})/placeform.png'`;//modify this line to view the different sprites
+let PLACEFORM_PATH = PLACEFORM_PATHS['orange']//`'./Sprites/Usables/gloop(${})/placeform.png'`;//modify this line to view the different sprites
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
@@ -10,6 +20,15 @@ const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
 const LEVEL0_MAP_FILE_NAME = "lvl0.txt";
 const LEVEL1_MAP_FILE_NAME = "test3.txt";
+const LEVEL1_PATH = './Sprites/Usables/lvl1/backgroundAppended.png';
+const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
+const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
+const LEVEL2_PATH = './Sprites/Usables/lvl2/background.png';
+const LEVEL2_GENFORM = './Sprites/Usables/lvl2/genform2.png';
+const LEVEL3_PATH = './Sprites/Usables/lvl3/background.png';
+const LEVEL3_GENFORM = './Sprites/Usables/lvl3/genform2.png';
+const LEVEL4_PATH = './Sprites/Usables/lvl4/background.png';
+const LEVEL4_GENFORM = './Sprites/Usables/lvl4/genform2.png';
 const COOKIE_RADIUS = 21;
 const PLATFORM_SCALE = .4;
 const PLATFORM_HEIGHT = 10.5;
@@ -34,6 +53,9 @@ class Background {
     }
     update() {
         this.srcY -= this.game.camera.currentDrawOffset * .9;
+    }
+    addBackground(background, name) {
+        this.backgrounds[name] = background;
     }
 };
 
@@ -136,7 +158,7 @@ class Cookie extends Entity {
             this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
             this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         } else { //type === 'vert'
-            this.equation = null;
+            this.equation = convertVertPlatformToEquation(this, game.mapHeight);
         }
         this.draw = function () {
             let drawY = this.cameraTransform(-40);
@@ -336,7 +358,10 @@ function MapAMDownloads(AM) {
     for (const key of Object.keys(GENFORM_PATHS)) {
         AM.queueDownload(GENFORM_PATHS[key]);
     }
-    AM.queueDownload(PLACEFORM_PATH);
+    AM.queueDownload(PLACEFORM_PATHS['green']);
+    AM.queueDownload(PLACEFORM_PATHS['purple']);
+    AM.queueDownload(PLACEFORM_PATHS['orange']);
+    AM.queueDownload(PLACEFORM_PATHS['blue']);
     // AM.queueDownload(GENFORM_PATH);
     AM.queueDownload(BACKGROUND_PATH);
     AM.queueDownload(FLOOR_PATH);
@@ -353,6 +378,12 @@ function MapAMDownloads(AM) {
     AM.queueDownload(LEVEL1_PATH);
     AM.queueDownload(LEVEL1_FLOOR);
     AM.queueDownload(LEVEL1_FLOOR_FLASH);
+    AM.queueDownload(LEVEL2_PATH);
+    AM.queueDownload(LEVEL2_GENFORM);
+    AM.queueDownload(LEVEL3_PATH);
+    AM.queueDownload(LEVEL3_GENFORM);
+    AM.queueDownload(LEVEL4_PATH);
+    AM.queueDownload(LEVEL4_GENFORM);
     AM.queueDownload(KRIMTROK_SHEET);
     AM.queueDownload(BUBBLE_SHEET);
     AM.queueDownload(LOGO_ICON);

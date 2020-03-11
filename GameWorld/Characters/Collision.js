@@ -102,13 +102,12 @@ function checkPCPlatformCollision(PlayerCircleInfo, platform) {
     let result;
     if (platform.type === 'center') {
         result = isCircleCollidingWithHorizontalLine(PlayerCircleInfo, platform.equation);
-
     } else if (platform.type === 'left') {
         result  = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
     } else if (platform.type === 'right') {
-        // console.log("right equation", equation);
-        // console.log("pc coords", PlayerCircleInfo);
         result = isCircleCollidingWithSlopedLine(PlayerCircleInfo, platform.equation);
+    } else if (platform.type === 'vert') {
+        result = isCircleCollidingWithVert(PlayerCircleInfo, platform.equation);
     }
     // console.log(result);
     return result;
@@ -167,7 +166,33 @@ function convertLeftSlopedPlatformToEquation(platform, gameWorldHeight) { /* " \
         // yValue: gameWorldHeight - platform.y - 30
     }
 }
+function isCircleCollidingWithVert(CircleInfo, LineInfo) {
+    // radius and carteisanX and cartesianY in circle
+    // lineinfo will have xLeft and xRight, yTop yBottom?
+    if (CircleInfo.cartesianX - CircleInfo.radius < LineInfo.xRight // My left is left of the right side of the vert
+        && CircleInfo.cartesianX > LineInfo.xRight // My center is right of the right side of the vert
+        && isCircleWithinVertLineYAxis(CircleInfo, LineInfo))
+        return "collidingLeft"
+    if (CircleInfo.cartesianX + CircleInfo.radius > LineInfo.xLeft // My right is right of the left side of the vert
+        && CircleInfo.cartesianX < LineInfo.xLeft // My center is left of the left side of the vert
+        && isCircleWithinVertLineYAxis(CircleInfo, LineInfo))
+        return "collidingRight" 
+    return false;
+}
+function isCircleWithinVertLineYAxis(CircleInfo, LineInfo) {
+    return CircleInfo.cartesianY + CircleInfo.radius > LineInfo.yBottom // my top is above their bottom
+        && CircleInfo.cartesianY - CircleInfo.radius < LineInfo.yTop     // my bottom is below their top
+}
 
+function convertVertPlatformToEquation(platform, gameWorldHeight) {
+    return {
+        xLeft: platform.x,
+        xRight: platform.x + (22 * PLATFORM_SCALE),
+        yTop: gameWorldHeight - platform.y,// carteisan
+        yBottom: gameWorldHeight - (platform.y + HOR_BLOCK_SIZE),// carteisan
+
+    }
+}
 function isCircleCollidingWithSlopedLine(CircleInfo, LineInfo) {
 
     const a = 2;
