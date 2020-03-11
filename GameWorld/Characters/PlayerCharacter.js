@@ -185,8 +185,8 @@ class PlayerCharacter extends Entity {
         }
 
         let gameState = {game:{left:this.game.left, right:this.game.right, clockTick:this.game.clockTick},
-            player:{jumping:this.jumping, facingLeft:this.facingLeft, facingRight:this.facingRight,
-                 jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent}};
+            player:{jumping:this.jumping, facingLeft:this.facingLeft, attackingSuper:this.attackingSuper, facingRight:this.facingRight,
+                 jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent, dead:this.dead}};
         return gameState;
     }
     
