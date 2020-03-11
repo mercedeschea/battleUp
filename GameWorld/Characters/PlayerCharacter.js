@@ -70,6 +70,8 @@ class PlayerCharacter extends Entity {
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+        if (this.game.gloopColor)
+            this.placeformManager.setColor(this.game.gloopColor);
         this.gloopSheetPath = gloopSheetPath;
 
         //Collision
