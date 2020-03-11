@@ -42,6 +42,9 @@ class Background {
     update() {
         this.srcY -= this.game.camera.currentDrawOffset * .9;
     }
+    addBackground(background, name) {
+        this.backgrounds[name] = background;
+    }
 };
 
 class Wall extends Entity{

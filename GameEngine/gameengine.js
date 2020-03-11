@@ -107,43 +107,55 @@ class GameEngine {
         window.addEventListener("gamepaddisconnected", function (e) {
             delete(that.gamepads[e.gamepad.index]);
         });
+        
+        let canvas = document.getElementById("gameWorld");
+        function getMousePos(canvas, e) {
+            let rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            }
+        };
         this.ctx.canvas.addEventListener("click", function (e) {
-            that.mouse = {x: e.clientX, y: e.clientY}
-            console.log(that.mouse);
+            that.mouse = getMousePos(canvas, e);
+            // console.log(that.mouse);
             that.click = true;
             this.gloopStartSize = 64;
-            this.spacing = 100;
+            this.spacing = 50;
+            // 55 is the dist of the floor on start screen
+            this.minMouseY = that.surfaceHeight - 55 - this.gloopStartSize; 
+            this.maxMouseY = that.surfaceWidth - 55;
             // mouse hover for green gloop
             if (that.scene === 'start' && 
-                that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100 - 64) && 
-                that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 - 100) &&
-                that.mouse.y >= 500 &&
-                that.mouse.y < 564) {
+                that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2)) && 
+                that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spacing*2) &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
                     that.gloopColor = 'greenSelected';
                     console.log(that.gloopColor);
                     that.mouseStart = false;
             } // mouse hover for purple gloop
             if (that.scene === 'start' && 
-                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - 64 - 50 && 
-                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - 50 &&
-                that.mouse.y >= 500 &&
-                that.mouse.y < 564) {
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing && 
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - this.spacing &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
                     that.gloopColor = 'purpleSelected';
                     that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
-                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 &&
-                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 &&
-                that.mouse.y >= 500 &&
-                that.mouse.y < 564) {
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
                     that.gloopColor = 'orangeSelected';
                     that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
-                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 &&
-                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + 50 + 64 + 100 + 64 &&
-                that.mouse.y >= 500 &&
-                that.mouse.y < 564) {
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + 64 + this.spacing*2 + this.gloopStartSize &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
                     that.gloopColor = 'blueSelected';
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected
@@ -176,11 +188,17 @@ class GameEngine {
         }, false);
         this.ctx.canvas.addEventListener("mousemove", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
+            this.startButtonWidth = 70;
+            this.startButtonHeight = 33;
+            console.log(that.mouse);
             // used for mouse hover on start button
             if (that.scene === 'start' &&
-                that.mouse.x >= 560 && that.mouse.x < 631 &&
-                that.mouse.y >= 614 && that.mouse.y < 646) {
+                that.mouse.x >= that.surfaceWidth/2 - that.spriteWidth/2 && 
+                that.mouse.x < that.surfaceWidth/2 - that.spriteWidth/2 + that.spriteWidth &&
+                that.mouse.y >= that.surfaceHeight - 46 && 
+                that.mouse.y < that.surfaceHeight - 46 + this.startButtonHeight) {
                     that.mouseStart = true;
+                    console.log('logging mouse start state', that.mouseStart)
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
@@ -321,6 +339,8 @@ class GameEngine {
         this.gloops[color] = gloop;
         // console.log(this.gloops[color])
     }
+
+    
 
     draw() {
         if (this.camera) {

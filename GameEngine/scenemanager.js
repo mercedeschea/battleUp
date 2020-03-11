@@ -17,7 +17,7 @@ const SCOREBOARD_EP = 'scoreboard/';
 
 class SceneManager {
     constructor(gameEngine) {
-        this.gameSceneArr = [];
+        this.backgrounds = {};
         this.game = gameEngine;
         this.playerCharacter = null;
         this.background = null;
@@ -39,7 +39,7 @@ class SceneManager {
 
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.sceneObj = this.startScreen;
-        this.startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5 + 63);
+        this.startButton = new StartButton(this.game, AM);
         this.arrow = new Arrow(this.game);
 
         this.game.addEntity(this.startButton, 'general');
@@ -58,10 +58,13 @@ class SceneManager {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
+        let level1 = new Background(this.game, AM, LEVEL1_PATH, 'level1');
+        // this.backgrounds.addBackground(background, 'level0');
+        // this.backgrounds.addBackground(level1, 'level1');
         this.game.mapHeight = background.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
-        this.gameplayScene = new GameScene(this.game, AM, background);
+        this.gameplayScene = new GameScene(this.game, AM, background, this.backgrounds);
         this.game.sceneObj = this.gameplayScene;
         this.gameplayScene.level0(this.playerCharacter);
     }
@@ -88,13 +91,17 @@ class SceneManager {
         this.game.started = false;
         this.nameForm.style.display = 'block';
     }
+    addBackground(background, name) {
+        this.backgrounds[name] = background;
+    }
 
 }
 
 // game play scene
 class GameScene {
-    constructor(gameEngine, AM, background) {
+    constructor(gameEngine, AM, background, backgrounds) {
         this.game = gameEngine;
+        this.backgrounds = backgrounds;
         console.log(this.game.camera);
         this.background = background;
         this.score = null;
@@ -111,6 +118,7 @@ class GameScene {
             if(this.background.name === 'level0') {
                 this.level1(this.playerCharacter);
                 // console.log(this.game.gloops['orangeGloop'].y);
+                this.transitionLevel(this.playerCharacter, 'level1')
             }
             else if (this.background.name === 'level1') {
                 this.level2(this.playerCharacter);
@@ -213,6 +221,23 @@ class GameScene {
         this.game.clearAllButGloopAndTop();
         this.playerCharacter = activeGloop;
         this.background = new Background(this.game, AM, LEVEL3_PATH, 'level3');
+        this.game.mapHeight = this.background.spriteSheet.height;
+        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        if (this.playerCharacter.superAttacking) {
+            this.playerCharacter.stopSuperAttack();
+        }
+        this.playerCharacter.newScene();
+
+        for (let i = -1; i < 2; i++) {
+            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
+            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
+        }
+    }
+
+    transitionLevel(activeGloop, background) {
+        this.game.clearAllButGloopAndTop();
+        this.playerCharacter = activeGloop;
+        this.background = this.backgrounds[background];
         this.game.mapHeight = this.background.spriteSheet.height;
         this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
         if (this.playerCharacter.superAttacking) {
@@ -373,19 +398,6 @@ class StartScreen {
         this.orangeGloop.x = this.game.surfaceWidth - (this.game.surfaceWidth/2) + this.midSpacing;
         this.blueGloop.x = this.game.surfaceWidth - (this.game.surfaceWidth/2) + 
                            this.midSpacing + this.gloopWidth + this.spacing;
-
-        console.log('green gloop x start', this.greenGloop.x);
-        console.log('green gloop x end', this.greenGloop.x + 64);
-        console.log('mouse hover x start', (this.game.surfaceWidth - (this.game.surfaceWidth/2) - 64 - 50 - 100 - 64));
-        console.log('mouse hover x end', (this.game.surfaceWidth - (this.game.surfaceWidth/2) - 64 - 50 - 100));
-        console.log('green gloop y start', this.game.surfaceHeight - 123);
-        console.log('green gloop y end', this.game.surfaceHeight - 123 + 64)
-        console.log('mouse hover y start', this.game.surfaceHeight - 123);
-        console.log('mouse hover y end', this.game.surfaceHeight - 123 + 64)
-        console.log(FLOOR_HEIGHT);
-        console.log(this.purpleGloop.x);
-        console.log(this.orangeGloop.x);
-        console.log(this.blueGloop.x);
         this.greenGloop.y = this.gloopY;
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;
@@ -409,25 +421,28 @@ class StartScreen {
 
 // animates start button
 class StartButton {
-    constructor(game, AM, destY) {
+    constructor(game, AM) {
         this.game = game;
         this.spriteSheet = AM.getAsset(START_BUTTON);
         this.spriteWidth = this.spriteSheet.width/2;
         this.spriteHeight = this.spriteSheet.height;
         this.destX = this.game.surfaceWidth/2 - (this.spriteWidth/2);
-        this.destY = destY;
+        this.destY = this.game.surfaceHeight - 46;
+        console.log('start button start x', this.game.surfaceWidth/2 - this.spriteWidth/2);
+        console.log('start button end x', this.game.surfaceWidth/2 - this.spriteWidth/2 + this.spriteWidth);
+        console.log('sheet width', this.spriteWidth);
     }
     
     draw() { // 70 is the y, so that the button fits in space of the floor
         // animates start button when pressed
         if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, 70, this.spriteHeight);
+                                    this.destX, this.destY, this.spriteWidth, this.spriteHeight);
             this.removeFromWorld;
         } // default start button
         else {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, 70, this.spriteHeight);
+                                    this.destX, this.destY, this.spriteWidth, this.spriteHeight);
         }
     }
 
@@ -437,9 +452,12 @@ class StartButton {
 class Arrow {
     constructor(game) {
         this.game = game;
+        this.surfaceWidth = this.game.surfaceWidth;
         this.spriteSheet = AM.getAsset(ARROW_ICON);
         this.spriteWidth = this.spriteSheet.width;
         this.spriteHeight = this.spriteSheet.height;
+        this.spacing = 50;
+        this.gloopStartSize = 64;
         console.log('arrow made');
     }
     update(){
@@ -448,20 +466,24 @@ class Arrow {
         let destY = 525 - this.spriteHeight;
         // console.log('im in arrow draw method', this.game.gloopColor);
         if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight ,
-                339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
+                this.surfaceWidth - (this.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2) - (this.spriteWidth/4), 
+                destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+                this.surfaceWidth - (this.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spriteWidth/4, 
+                destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+                this.surfaceWidth - (this.surfaceWidth/2) + this.spacing - this.spriteWidth/4, 
+                destY, this.spriteWidth, this.spriteHeight - 50);
         }
         if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
-                831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
+                this.surfaceWidth - (this.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 - this.spriteWidth/4, 
+                destY, this.spriteWidth, this.spriteHeight - 50);
         }
     }
 
