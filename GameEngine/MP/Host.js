@@ -62,7 +62,6 @@ class Host {
         }
         this.game = null;
         this.hostName = name;
-        this.me = players[name];
         this.copyPlayers = () => Object.assign({}, this.state.players);
 
         this.playersToArray = () => {
@@ -79,7 +78,7 @@ class Host {
         }
 
         this.sendReady = (ready) => {
-          this.me.ready = ready;
+          this.handleReady(this.hostName, ready);
         }
 
         this.getPlayersForGame = () => {

@@ -61,7 +61,7 @@ class SceneManager {
         this.game.clearAllEntities();
         let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         this.game.mapHeight = background.spriteSheet.height;
-        this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
+        this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath, false);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, background);
         this.game.sceneObj = this.gameplayScene;
@@ -69,7 +69,7 @@ class SceneManager {
         if (otherSelectedGloopPath) {
             let gEShim = new GameEngineShim(this.game);
             this.game.gameEngineShim = gEShim;
-            otherGloop = new PlayerCharacter(gEShim, AM, otherSelectedGloopPath);
+            otherGloop = new PlayerCharacter(gEShim, AM, otherSelectedGloopPath, true);
         }
         this.gameplayScene.level0(this.playerCharacter, otherGloop);
     }
@@ -416,19 +416,19 @@ class Arrow {
     draw(){
         let destY = 525 - this.spriteHeight;
         // console.log('im in arrow draw method', this.game.gloopColor);
-        if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === GLOOP_SHEET_PATHS_GREEN) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight ,
                 339 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === GLOOP_SHEET_PATHS_PURPLE) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 503 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === GLOOP_SHEET_PATHS_ORANGE) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 667 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === GLOOP_SHEET_PATHS_BLUE) {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 831 - this.spriteWidth/2, destY, this.spriteWidth, this.spriteHeight - 50);
         }
@@ -485,7 +485,7 @@ class Score {
 
 class Krimtrok extends Entity {
     constructor(game, AM) {
-        super(self, game, 0, 0);
+        super(game, 0, 0);
         this.y = game.surfaceHeight/4 - 5;
         this.speakingTime = 0;
         this.speed = 100;

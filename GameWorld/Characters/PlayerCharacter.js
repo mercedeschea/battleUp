@@ -62,9 +62,9 @@ function PlayerCharacterAMDownloads(AM) {
 }
 
 class PlayerCharacter extends Entity {
-    constructor(game, AM, gloopSheetPath) {
+    constructor(game, AM, gloopSheetPath, external) {
         // super(self, game, 0, 0);
-        super(self, game, 0, 0);
+        super(game, 0, 0);
 
         this.game = game;
         this.ctx = game.ctx;
@@ -107,6 +107,7 @@ class PlayerCharacter extends Entity {
         this.placedZeroAgo = null;
         this.slow = false;
         this.slowdownTime = null;
+        this.external = external;
     }
     
     setupAnimations(gloopSheetPath) {
@@ -128,7 +129,6 @@ class PlayerCharacter extends Entity {
 
     update() {
         super.update();
-
         this.checkCollisions();
 
         this.handleDeath();
@@ -140,7 +140,7 @@ class PlayerCharacter extends Entity {
             this.stopJumping();
         }
         // gravity
-        if (!this.jumping && !this.isSupported()) {
+        if (!this.jumping && !this.isSupported() && !this.external) {
             this.y += this.fallSpeed * this.game.clockTick;
         }
 
@@ -156,22 +156,34 @@ class PlayerCharacter extends Entity {
 
         this.clearOutPlaceforms();
     }
-    extUpdate(gameState) {
-        console.log(gameState);
-        let props = Object.keys(gameState.input);
+    externalUpdate(gameState) {
+        // console.log(gameState);
+        let props = Object.keys(gameState.input.player);
         for (const key of props) {
-            this[key] = gameState.input[key];
+            if (key === 'placeformsCurrent') {
+                continue;
+            } else {
+                this[key] = gameState.input.player[key];
+            }
         }
-        console.log(this);
+        this.placeformManager.replaceResources(gameState.input.player.placeformsCurrent);
+        this.placeformManager.placeformsCurrent = gameState.input.player.placeformsCurrent;
+        // console.log(this);
     }
 
     
     packageToSend() {
-        let gameState = {left:this.game.left, right:this.game.right,
-            jumping:this.jumping, facingLeft:this.facingLeft, jumpY:this.jumpY,
-            facingRight:this.facingRight, clockTick:this.game.clockTick};
+        let placeformsCurrent = this.placeformManager.getStrippedPlaceforms();
+        if(Date.now() % 10000 < 10) {
+            // console.log(placeformsCurrent);
+        }
+
+        let gameState = {game:{left:this.game.left, right:this.game.right, clockTick:this.game.clockTick},
+            player:{jumping:this.jumping, facingLeft:this.facingLeft, facingRight:this.facingRight,
+                 jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent}};
         return gameState;
     }
+    
 
     calcJump(jumpAnimation, totalHeight) {
         var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
@@ -241,6 +253,14 @@ class PlayerCharacter extends Entity {
                 }
             });
         }
+        if (this.external) {
+            // console.log(this.placeformManager.placeformsCurrent);
+        }
+        if (this.external && Date.now() % 1000 < 10) {
+            // console.log(this.placeformManager.placeformsCurrent);
+        }
+        this.placeformManager.draw();
+        
     }
 
     stopSuperAttack () {

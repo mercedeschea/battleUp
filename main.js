@@ -92,6 +92,17 @@ function showMP() {
             myPeer.joinGame();
             SCENE_MANAGER.game.gloopColor = GLOOP_SHEET_PATHS_PURPLE;
         }
+        if (!code) {
+            setTimeout(async function () {
+                //STOPT THE FUNCTION UNTIL CONDITION IS CORRECT
+                while (!myPeer.state.code) {
+                    console.log('adelay');
+                    await __delay__(1000);
+                }
+                code = myPeer.state.code;
+            }, 1);
+        }
+        document.getElementById('roomCodeDisplay').innerHTML = 'Your code is: ' + code;
         mPReady.style.display ='block';
         SCENE_MANAGER.game.peer = myPeer;
         myPeer.game = SCENE_MANAGER.game;

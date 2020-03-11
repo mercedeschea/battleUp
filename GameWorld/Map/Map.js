@@ -38,9 +38,8 @@ class Background {
 };
 
 class Wall extends Entity{
-    self = this;
     constructor(spriteSheet, game, destX, destY) {
-        super(self, game, destX, destY);
+        super(game, destX, destY);
         this.spriteSheet = spriteSheet;
         this.height = spriteSheet.height;
         this.animation = new Animation(spriteSheet, 0, 0, 66, 599, .1, 3, true, false);
@@ -82,9 +81,8 @@ class Floor {
 }
 
 class Cookie extends Entity {
-    self = this;
     constructor(spriteSheet, destX, destY, game) {
-        super(self, game, destX, destY);
+        super(game, destX, destY);
         this.spriteSheet = spriteSheet;
         this.scale = .3;
         this.animation = new Animation(spriteSheet, 0, 0, 130, 134, .1, 5, true, false);
@@ -116,9 +114,8 @@ class Cookie extends Entity {
  //this is now the class for both genforms and placeforms
  //changed to extend entity to take part in the update loop
  class Platform extends Entity {
-     self = this;
     constructor(spriteSheet, type, destX, destY, game) {
-        super(self, game, destX, destY);
+        super(game, destX, destY);
         this.type = type;
         //coordinates for new platform style
         this.srcCoordinates = {'left':[471, 0], 'vert':[704, 0], 'center':[235, 0], 'right':[0,0]};
@@ -141,36 +138,38 @@ class Cookie extends Entity {
         } else { //type === 'vert'
             this.equation = null;
         }
-    }
-    draw() {
-        let drawY = this.cameraTransform(-40);
-        // console.log(drawY);
-        if(drawY) {
-            if (this.animation) {
-                // console.log(this);
-                this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
-            } else {
-                let width = this.srcWidthAndHeight[this.type][0];
-                let height = this.srcWidthAndHeight[this.type][1];
-                this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
-                    width, height, this.x, drawY, 
-                    width * this.scale, height * this.scale);
-
+        this.draw = function () {
+            let drawY = this.cameraTransform(-40);
+            // console.log(drawY);
+            // console.log(drawY);
+            if(drawY) {
+                // if (this.animation) {
+                //     // console.log(this);
+                //     this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, drawY, 1);
+                // } else {
+                    let width = this.srcWidthAndHeight[this.type][0];
+                    let height = this.srcWidthAndHeight[this.type][1];
+                    this.game.ctx.drawImage(this.spriteSheet, this.srcCoordinates[this.type][0], this.srcCoordinates[this.type][1], 
+                        width, height, this.x, drawY, 
+                        width * this.scale, height * this.scale);
+    
+                // }
             }
+            // if (this.type != 'vert') {
+            // let drawTestLeft = {x:this.equation.xLeft, 
+            //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
+            // let drawTestRight = {x:this.equation.xRight,
+            //     y:-1 * (calcYFromX(this.equation, this.equation.xRight) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
+            // this.game.ctx.beginPath();
+            // this.game.ctx.lineWidth = 2;
+            // this.game.ctx.strokeStyle = 'Red';
+            // this.game.ctx.moveTo(drawTestLeft.x, drawTestLeft.y);
+            // this.game.ctx.lineTo(drawTestRight.x, drawTestRight.y);
+            // this.game.ctx.stroke();
+            // }
         }
-        // if (this.type != 'vert') {
-        // let drawTestLeft = {x:this.equation.xLeft, 
-        //     y:-1 * (calcYFromX(this.equation, this.equation.xLeft) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
-        // let drawTestRight = {x:this.equation.xRight,
-        //     y:-1 * (calcYFromX(this.equation, this.equation.xRight) - this.game.mapHeight) - this.game.camera.totalDrawOffset};
-        // this.game.ctx.beginPath();
-        // this.game.ctx.lineWidth = 2;
-        // this.game.ctx.strokeStyle = 'Red';
-        // this.game.ctx.moveTo(drawTestLeft.x, drawTestLeft.y);
-        // this.game.ctx.lineTo(drawTestRight.x, drawTestRight.y);
-        // this.game.ctx.stroke();
-        // }
     }
+
 }
 
 function genCookies(numberOfCoins, game, AM, startY, end) {

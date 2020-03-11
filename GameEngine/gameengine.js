@@ -34,7 +34,7 @@ class GameEngine {
     constructor(musicManager) {
         GE_COUNT++;
         console.log(GE_COUNT, 'never more than 1');
-        this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
+        this.entities = {general:[], genforms:[], cookies:[], top:[]};
         this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
@@ -162,7 +162,7 @@ class GameEngine {
             if (!that.started) {
                 that.draw();      
             }
-            // console.log(that.gloopColor);
+            console.log(that.gloopColor);
         }, false);
         this.ctx.canvas.addEventListener("mousemove", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
@@ -308,12 +308,12 @@ class GameEngine {
 
     updateOthers(data) {
         this.gameEngineShim.update(data);
-        this.gloops.other.extUpdate(data);
+        this.gloops.other.externalUpdate(data);
     }
 
     update() {
         this.sceneObj.update();
-        this.gameEngineShim.clockTick = this.clockTick;
+        // this.gameEngineShim.clockTick = this.clockTick;
 
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
@@ -352,6 +352,7 @@ class GameEngine {
             // console.log('sending to peer');
             let gameState = this.gloops['me'].packageToSend(this.myName);
             this.peer.broadcast({type:'gameUpdate', playerName:this.myName, input:gameState});
+
         }
     }
 
@@ -392,7 +393,7 @@ class Timer {
 }
 
 class Entity {
-    constructor(scope, game, x, y) { // pretty sure "scope" here should be refactored out, will do later
+    constructor(game, x, y) { // pretty sure "scope" here should be refactored out, will do later
         this.game = game;
         this.x = x;
         this.y = y;

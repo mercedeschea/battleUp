@@ -26,9 +26,9 @@ class GameEngineShim {
 
     update(gameState) {
         // console.log(gameState);
-        let props = Object.keys(gameState.input);
+        let props = Object.keys(gameState.input.game);
         for (const key of props) {
-            this[key] = gameState.input[key];
+            this[key] = gameState.input.game[key];
         }
         // console.log(this);
     }
