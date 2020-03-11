@@ -77,6 +77,8 @@ class PlayerCharacter extends Entity {
         //Collision
         this.wasColliding = false; 
         this.colliding = false;
+        this.collidingLeft = false;
+        this.collidingRight = false;
         this.collidingTopLeft = false;
         this.collidingTopRight = false;
         this.collidingBotLeft = false;
@@ -245,6 +247,8 @@ class PlayerCharacter extends Entity {
             this.wasColliding = true;
         }
         this.colliding = false;
+        this.collidingLeft = false;
+        this.collidingRight = false;
         this.collidingTop = false;
         this.collidingTopRight = false;
         this.collidingTopLeft = false;
@@ -290,7 +294,7 @@ class PlayerCharacter extends Entity {
             this.facingRight = true;
             this.facingLeft = false;
         }
-        if (this.movingLeft) {
+        if (this.movingLeft && !this.collidingLeft) {
             if (this.x > 0) {
                 if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
                     this.x -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
@@ -303,7 +307,7 @@ class PlayerCharacter extends Entity {
                 }
             }
             
-        } else if (this.movingRight) {
+        } else if (this.movingRight && !this.collidingRight) {
             if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
                 if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
                     this.x += this.game.clockTick * this.speed * Math.sqrt(2)/2;
@@ -390,13 +394,10 @@ class PlayerCharacter extends Entity {
         this.placedZeroAgo = newForm;
     }
     clearPlaceFormHistory() {
-        this.placedTwoAgo = null;
+        this.placedZeroAgo = this.placedOneAgo;
         this.placedOneAgo = null;
-        this.placedZeroAgo = null;
+        this.placedTwoAgo = null;
     }
-
-    // TODO: clear recently placed history after each second or so of no placing
-    // TODO: don't slow down if just moving left/right
     slowdown() {
         this.speed = 100;
         this.slow = true;

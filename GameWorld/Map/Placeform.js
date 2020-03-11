@@ -28,7 +28,6 @@ class PlaceformManager {
                 x - HOR_BLOCK_SIZE, y + characterHeight - 2, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             }
-            
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 

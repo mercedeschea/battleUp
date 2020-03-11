@@ -145,7 +145,7 @@ class Cookie extends Entity {
             this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
             this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         } else { //type === 'vert'
-            this.equation = null;
+            this.equation = convertVertPlatformToEquation(this, game.mapHeight);
         }
     }
     draw() {
