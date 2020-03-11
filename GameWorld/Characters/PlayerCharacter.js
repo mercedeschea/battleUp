@@ -563,8 +563,8 @@ class PlayerCharacter extends Entity {
                 0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
             cache[directions[j]].angle = angle;
             //calculates gloops edge
-            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
-            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
+            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 3;
+            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 3;
             
             //calculates the point of the end of the current attack animation frame
             cache[directions[j]].xCalcAttack = (framesUntilDone) => {

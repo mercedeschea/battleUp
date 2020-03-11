@@ -222,7 +222,13 @@ class GameScene {
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
             // this.playerCharacter.y + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
-        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
+        if (level === 'level2') {
+            buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL2_MAP_FILE_NAME, level);
+        } else {
+            buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
+        }
+        
+
         this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
     }
 

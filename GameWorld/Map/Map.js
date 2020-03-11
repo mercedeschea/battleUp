@@ -20,6 +20,7 @@ const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
 const LEVEL0_MAP_FILE_NAME = "lvl0.txt";
 const LEVEL1_MAP_FILE_NAME = "test3.txt";
+const LEVEL2_MAP_FILE_NAME = "lvl2.txt";
 const LEVEL1_PATH = './Sprites/Usables/lvl1/backgroundAppended.png';
 const LEVEL1_FLOOR = './Sprites/Usables/lvl1/floor.png';
 const LEVEL1_FLOOR_FLASH = './Sprites/Usables/lvl1/floorFlashing.png';
