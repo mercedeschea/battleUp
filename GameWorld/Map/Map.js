@@ -371,6 +371,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(PILLAR_PATH);
     AM.queueServerDownload(LEVEL0_MAP_FILE_NAME);
     AM.queueServerDownload(LEVEL1_MAP_FILE_NAME);
+    AM.queueServerDownload(LEVEL2_MAP_FILE_NAME);
     AM.queueDownload(START_BUTTON);
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
