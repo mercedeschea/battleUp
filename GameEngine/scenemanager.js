@@ -180,7 +180,7 @@ class GameScene {
         // bc level 0 is appended to bottom of level1 img
         if (level === 'level1') {
             this.game.camera.totalDrawOffset = this.game.mapHeight;
-            // this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;//spawn at the top for testing;
+            this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
         }
         else {
             this.game.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
