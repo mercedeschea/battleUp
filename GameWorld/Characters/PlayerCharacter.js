@@ -42,6 +42,7 @@ const PLAYER_SPEED = 200;
 const SUPER_ATTACK_HEIGHT = 500;
 const DRILL_LENGTH = 47;
 const COOKIES_FOR_SUPER = 3;
+const COOKIE_SPEED = 10;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -69,11 +70,15 @@ class PlayerCharacter extends Entity {
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
+        if (this.game.gloopColor)
+            this.placeformManager.setColor(this.game.gloopColor);
         this.gloopSheetPath = gloopSheetPath;
 
         //Collision
         this.wasColliding = false; 
         this.colliding = false;
+        this.collidingLeft = false;
+        this.collidingRight = false;
         this.collidingTopLeft = false;
         this.collidingTopRight = false;
         this.collidingBotLeft = false;
@@ -86,6 +91,7 @@ class PlayerCharacter extends Entity {
         this.facingLeft = false;
         this.facingRight = true;
         this.speed = PLAYER_SPEED;
+        this.normalSpeed = PLAYER_SPEED;
         this.fallSpeed = 200;
         this.jumping = false;
         this.jumpY = this.y;
@@ -148,7 +154,7 @@ class PlayerCharacter extends Entity {
         
         this.handleJumping();
         
-        this.placePlatforms();
+        this.placePlatforms(); 
 
         this.checkSlowdown();
 
@@ -244,6 +250,8 @@ class PlayerCharacter extends Entity {
             this.wasColliding = true;
         }
         this.colliding = false;
+        this.collidingLeft = false;
+        this.collidingRight = false;
         this.collidingTop = false;
         this.collidingTopRight = false;
         this.collidingTopLeft = false;
@@ -273,6 +281,10 @@ class PlayerCharacter extends Entity {
     }
 
     handleLeftRightMovement() {
+        this.normalSpeed = PLAYER_SPEED + COOKIE_SPEED * this.cookies;
+        if (!this.slow)
+            this.speed = this.normalSpeed;
+
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -285,7 +297,7 @@ class PlayerCharacter extends Entity {
             this.facingRight = true;
             this.facingLeft = false;
         }
-        if (this.movingLeft) {
+        if (this.movingLeft && !this.collidingLeft) {
             if (this.x > 0) {
                 if (this.collidingBotLeft && !(this.collidingTopLeft || this.collidingTop)) {
                     this.x -= this.game.clockTick * this.speed * Math.sqrt(2)/2;
@@ -298,7 +310,7 @@ class PlayerCharacter extends Entity {
                 }
             }
             
-        } else if (this.movingRight) {
+        } else if (this.movingRight && !this.collidingRight) {
             if (this.x < this.game.surfaceWidth - this.radius * 2) {  // stops character at the right border
                 if (this.collidingBotLeft && !(this.colliding || this.collidingBotRight)) {
                     this.x += this.game.clockTick * this.speed * Math.sqrt(2)/2;
@@ -384,10 +396,14 @@ class PlayerCharacter extends Entity {
         this.placedOneAgo = this.placedZeroAgo;
         this.placedZeroAgo = newForm;
     }
-
+    clearPlaceFormHistory() {
+        this.placedZeroAgo = this.placedOneAgo;
+        this.placedOneAgo = null;
+        this.placedTwoAgo = null;
+    }
     slowdown() {
+        this.speed = 100;
         this.slow = true;
-        this.speed = 100;/// save old speed for cookie speedups
         this.slowdownTime = Date.now();
     }
     setSlowdown() {
@@ -395,19 +411,16 @@ class PlayerCharacter extends Entity {
             this.slowdown();
     }
     checkSlowdown() {
-        // console.log('Check Slowdown');
-        // console.log('speed', this.speed);
-        // if (this.placedZeroAgo && this.placedZeroAgo === this.placedOneAgo && this.placedZeroAgo === this.placedTwoAgo) 
-        //     this.slowdown();
-            // console.log('Date now', Date.now());
-            // console.log('currentCheck', 100 + this.slowdownTime);
+        // reset memory of what your last placeform was everytime you stand on a flat platform
+        if (this.colliding)
+            this.clearPlaceFormHistory();
+        // slowdown only lasts 1 second
         if (Date.now() > 1000 + this.slowdownTime) {
-            // console.log('long enough now');
             this.stopSlowdown();
         }
     }
     stopSlowdown() {
-        this.speed = 200;///
+        this.speed = this.normalSpeed;
         this.slow = false;
     }
 
@@ -459,7 +472,7 @@ class PlayerCharacter extends Entity {
             // }
         }
         if (this.superAttacking > 0) {
-            this.y -= this.game.clockTick * PLAYER_SPEED * 2;
+            this.y -= this.game.clockTick * this.speed * 2;
         }
     }
 

@@ -6,7 +6,13 @@ const GENFORM_PATHS = {level0:'./Sprites/Usables/lvl0/genform2.png',
                        level3:'./Sprites/Usables/lvl3/genform2.png',
                        level4:'./Sprites/Usables/lvl4/genform2.png'};
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
-const PLACEFORM_PATH = './Sprites/Usables/gloop(blue)/placeform.png';//modify this line to view the different sprites
+let PLACEFORM_PATHS = {
+    green: './Sprites/Usables/gloop(green)/placeform.png',
+    purple: './Sprites/Usables/gloop(purple)/placeform.png',
+    orange: './Sprites/Usables/gloop(orange)/placeform.png',
+    blue: './Sprites/Usables/gloop(blue)/placeform.png'
+}//`'./Sprites/Usables/gloop(${game.gloopColor})/placeform.png'`;//modify this line to view the different sprites
+let PLACEFORM_PATH = PLACEFORM_PATHS['orange']//`'./Sprites/Usables/gloop(${})/placeform.png'`;//modify this line to view the different sprites
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
 const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
@@ -155,7 +161,7 @@ class Cookie extends Entity {
             this.equation = convertRightSlopedPlatformToEquation(this, game.mapHeight);
             this.aboveEquation = convertSlopedEquationToAboveEquation(this.equation);
         } else { //type === 'vert'
-            this.equation = null;
+            this.equation = convertVertPlatformToEquation(this, game.mapHeight);
         }
     }
     draw() {
@@ -353,7 +359,10 @@ function MapAMDownloads(AM) {
     for (const key of Object.keys(GENFORM_PATHS)) {
         AM.queueDownload(GENFORM_PATHS[key]);
     }
-    AM.queueDownload(PLACEFORM_PATH);
+    AM.queueDownload(PLACEFORM_PATHS['green']);
+    AM.queueDownload(PLACEFORM_PATHS['purple']);
+    AM.queueDownload(PLACEFORM_PATHS['orange']);
+    AM.queueDownload(PLACEFORM_PATHS['blue']);
     // AM.queueDownload(GENFORM_PATH);
     AM.queueDownload(BACKGROUND_PATH);
     AM.queueDownload(FLOOR_PATH);

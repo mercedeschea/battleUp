@@ -4,8 +4,12 @@ class PlaceformManager {
     constructor(game, AM, placeformLimit) {
         this.placeformsCurrent = []//{'right':[], 'left':[], 'center':[]};
         this.placeformLimit = placeformLimit;
-        this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATH);
+        this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATHS['blue']);//dl all the placeforms then pass theright onelater
         this.game = game;
+    }
+    setColor(gameGloopColor) {
+        let gloopColor = gameGloopColor.slice(0, -8);
+        this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATHS[gloopColor]);//dl all the placeforms then pass theright onelater
     }
     //should we allow placeforms to be placed partly offscreen?
     placeformPlace(placeLeft, angled, x, y, characterWidth, characterHeight) {
@@ -24,7 +28,6 @@ class PlaceformManager {
                 x - HOR_BLOCK_SIZE, y + characterHeight - 2, this.game);
                 this.updateCurrentPlaceforms(placeformPlaced);
             }
-            
         } else {
             if (angled) {
                 placeformPlaced = new Platform(this.placeformSpriteSheet, 'right', 
