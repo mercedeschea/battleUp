@@ -1,6 +1,10 @@
 const genForms = [];
 const cookies = [];
-const GENFORM_PATHS = {level0:'./Sprites/Usables/lvl0/genform2.png', level1:'./Sprites/Usables/lvl1/genform2.png'};
+const GENFORM_PATHS = {level0:'./Sprites/Usables/lvl0/genform2.png', 
+                       level1:'./Sprites/Usables/lvl1/genform2.png',
+                       level2:'./Sprites/Usables/lvl2/genform2.png',
+                       level3:'./Sprites/Usables/lvl3/genform2.png',
+                       level4:'./Sprites/Usables/lvl4/genform2.png'};
 const BACKGROUND_PATH = "./Sprites/Usables/lvl0/backgroundTall.png";
 const PLACEFORM_PATH = './Sprites/Usables/gloop(blue)/placeform.png';//modify this line to view the different sprites
 const FLOOR_PATH = "./Sprites/Usables/lvl0/floor.png";
