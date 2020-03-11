@@ -2,6 +2,7 @@ class GameEngineShim {
     constructor(game) {
         this.ctx = game.ctx;
         this.entities = game.entities;
+        this.gloops = game.gloops;
         this.surfaceHeight = game.surfaceHeight;
         this.surfaceWidth = game.surfaceWidth;
         this.mapHeight = game.mapHeight;

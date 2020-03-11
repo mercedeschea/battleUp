@@ -100,9 +100,11 @@ function showMP() {
                     await __delay__(1000);
                 }
                 code = myPeer.state.code;
+                document.getElementById('roomCodeDisplay').innerHTML = 'Your code is: ' + code;
             }, 1);
+        } else {
+            document.getElementById('roomCodeDisplay').innerHTML = 'Your code is: ' + code;
         }
-        document.getElementById('roomCodeDisplay').innerHTML = 'Your code is: ' + code;
         mPReady.style.display ='block';
         SCENE_MANAGER.game.peer = myPeer;
         myPeer.game = SCENE_MANAGER.game;

@@ -23,7 +23,13 @@ function isCharacterColliding(PlayerCharacter) {
     let attackEquation;
     if(pc.attacking)
         attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
-    for (const platform of pc.placeformManager.placeformsCurrent) {
+
+    let placeformsCurrent = [];
+    let gloopKeys = Object.keys(pc.game.gloops);
+    for (const key of gloopKeys){
+        placeformsCurrent = placeformsCurrent.concat(pc.game.gloops[key].placeformManager.placeformsCurrent);
+    }
+    for (const platform of placeformsCurrent) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         // console.log(result);
         if (result) {
