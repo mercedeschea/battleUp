@@ -42,6 +42,7 @@ const PLAYER_SPEED = 200;
 const SUPER_ATTACK_HEIGHT = 500;
 const DRILL_LENGTH = 47;
 const COOKIES_FOR_SUPER = 3;
+const COOKIE_SPEED = 10;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -86,6 +87,7 @@ class PlayerCharacter extends Entity {
         this.facingLeft = false;
         this.facingRight = true;
         this.speed = PLAYER_SPEED;
+        this.normalSpeed = PLAYER_SPEED;
         this.fallSpeed = 200;
         this.jumping = false;
         this.jumpY = this.y;
@@ -148,7 +150,7 @@ class PlayerCharacter extends Entity {
         
         this.handleJumping();
         
-        this.placePlatforms();
+        this.placePlatforms(); 
 
         this.checkSlowdown();
 
@@ -270,6 +272,10 @@ class PlayerCharacter extends Entity {
     }
 
     handleLeftRightMovement() {
+        this.normalSpeed = PLAYER_SPEED + COOKIE_SPEED * this.cookies;
+        if (!this.slow)
+            this.speed = this.normalSpeed;
+
         this.movingLeft = false;
         this.movingRight = false;
         if (this.game.left) {
@@ -381,12 +387,17 @@ class PlayerCharacter extends Entity {
         this.placedOneAgo = this.placedZeroAgo;
         this.placedZeroAgo = newForm;
     }
+    clearPlaceFormHistory() {
+        this.placedTwoAgo = null;
+        this.placedOneAgo = null;
+        this.placedZeroAgo = null;
+    }
 
     // TODO: clear recently placed history after each second or so of no placing
     // TODO: don't slow down if just moving left/right
     slowdown() {
+        this.speed = 100;
         this.slow = true;
-        this.speed = 100;/// save old speed for cookie speedups
         this.slowdownTime = Date.now();
     }
     setSlowdown() {
@@ -394,12 +405,16 @@ class PlayerCharacter extends Entity {
             this.slowdown();
     }
     checkSlowdown() {
+        // reset memory of what your last placeform was everytime you stand on a flat platform
+        if (this.colliding)
+            this.clearPlaceFormHistory();
+        // slowdown only lasts 1 second
         if (Date.now() > 1000 + this.slowdownTime) {
             this.stopSlowdown();
         }
     }
     stopSlowdown() {
-        this.speed = 200;///
+        this.speed = this.normalSpeed;
         this.slow = false;
     }
 
@@ -451,7 +466,7 @@ class PlayerCharacter extends Entity {
             // }
         }
         if (this.superAttacking > 0) {
-            this.y -= this.game.clockTick * PLAYER_SPEED * 2;
+            this.y -= this.game.clockTick * this.speed * 2;
         }
     }
 
