@@ -191,10 +191,14 @@ class GameEngine {
             this.startButtonWidth = 70;
             this.startButtonHeight = 33;
             console.log(that.mouse);
+            console.log(that.surfaceWidth/2 - this.startButtonWidth/2);
+            console.log(that.surfaceWidth/2 - this.startButtonWidth/2 + this.startButtonWidth);
+            console.log(that.surfaceHeight - 46);
+            console.log(that.surfaceHeight - 46 + this.startButtonHeight);
             // used for mouse hover on start button
             if (that.scene === 'start' &&
-                that.mouse.x >= that.surfaceWidth/2 - that.spriteWidth/2 && 
-                that.mouse.x < that.surfaceWidth/2 - that.spriteWidth/2 + that.spriteWidth &&
+                that.mouse.x >= that.surfaceWidth/2 - this.startButtonWidth/2 && 
+                that.mouse.x < that.surfaceWidth/2 - this.startButtonWidth/2 + this.startButtonWidth &&
                 that.mouse.y >= that.surfaceHeight - 46 && 
                 that.mouse.y < that.surfaceHeight - 46 + this.startButtonHeight) {
                     that.mouseStart = true;
@@ -205,7 +209,6 @@ class GameEngine {
             that.mouseDown = false;
             if (that.gloopColor !== null) {
                 that.selectGloop = true;
-                // console.log('selected glooop!')
             }
         }, false);
         this.ctx.canvas.addEventListener("mousedown", function (e) {
