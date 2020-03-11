@@ -59,7 +59,9 @@ class SceneManager {
     }
 
     gameScene(selectedGloopPath) {
-        this.game.scene = 'game';   
+        this.game.scene = 'game';
+        // console.log(this.startButton.removeFromWorld);
+        // this.startScene.startButton.removeFromWorld;  
         this.game.clearAllEntities();
         let level0 = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         let level1 = new Background(this.game, AM, LEVEL1_PATH, 'level1');
@@ -82,7 +84,7 @@ class SceneManager {
     // clears entities on screen, switches to end scene
     gameOverScene(score) {
         // this.game.entities = [];
-        console.log(score.maxY);
+        // console.log(score.maxY);
         this.game.scene = 'gameOver';
         this.game.clearAllEntities();
         if (this.gameOver) {
@@ -92,9 +94,9 @@ class SceneManager {
         else {
             this.gameOver = new GameOver(this.game, AM, score);
         }
-        let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
+        // let startButton = new StartButton(this.game, AM, (this.game.surfaceHeight/6)*5);
 
-        this.game.addEntity(startButton, 'general');
+        // this.game.addEntity(startButton, 'general');
 
         this.gameOver.draw();
 
@@ -118,31 +120,23 @@ class GameScene {
     }
 
     update() {
-        // console.log(this.game.surfaceHeight);
-        // console.log(this.game.mapHeight);
         this.score.update();
         this.background.update();
         this.kT.update();
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
             if(this.background.name === 'level0') {
-                // this.level1(this.playerCharacter);
-                // console.log(this.game.gloops['orangeGloop'].y);
                 this.transitionLevel(this.playerCharacter, 'level1')
             }
             else if (this.background.name === 'level1') {
                 this.transitionLevel(this.playerCharacter, 'level2');
-                // this.level2(this.playerCharacter);
             }
             else if (this.background.name === 'level2') {
-                // this.level3(this.playerCharacter);
                 this.transitionLevel(this.playerCharacter, 'level3');
             }
             else if (this.background.name === 'level3') {
                 this.transitionLevel(this.playerCharacter, 'level4');
             }
         }
-        // console.log(this.game.camera.totalDrawOffset);
-        // console.log(this.background.name);
         if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level4') {
             console.log('won');
             this.score.win = true;
@@ -161,26 +155,20 @@ class GameScene {
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
         let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
         this.game.addEntity(startform, 'genforms');
-        // console.log(startform.equation);
-        // genGenforms(10, this.game, AM, 
-        //     this.game.mapHeight - this.game.surfaceHeight - FLOOR_HEIGHT, this.game.mapHeight - FLOOR_HEIGHT);
-        
-        // this.playerCharacter.x = startX + this.playerCharacter.radius;
         this.playerCharacter.x = startX + this.playerCharacter.radius;
-        // this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
-        this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
+        // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
-            LEVEL0_MAP_FILE_NAME, 'level0');
+                         LEVEL0_MAP_FILE_NAME, 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
         this.game.addEntity(this.kT, 'top');
         this.game.addEntity(this.score, 'top');
-        // console.log(this.score);
     }
 
+    // transitions levels
     transitionLevel(activeGloop, level) {
         this.game.clearAllButGloopAndTop();
         this.playerCharacter = activeGloop;
@@ -189,16 +177,16 @@ class GameScene {
         this.game.camera.advanceTime = 0;
         this.game.floor = null;
         
+        // bc level 0 is appended to bottom of level1 img
         if (level === 'level1') {
             this.game.camera.totalDrawOffset = this.game.mapHeight;
-            this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;//spawn at the top for testing;
+            // this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;//spawn at the top for testing;
         }
         else {
             this.game.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
 
             this.playerCharacter.y = this.game.mapHeight - 6 * this.playerCharacter.radius; 
         }
-        // this.playerCharacter.y = this.game.mapHeight - 6 * this.playerCharacter.radius;
         
         if (this.playerCharacter.superAttacking) {
             this.playerCharacter.stopSuperAttack();
@@ -212,11 +200,9 @@ class GameScene {
         }
         buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
         this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
-        console.log('this is the end of transition level method')
     }
 
     draw() {
-        // console.log(this.background.name, 'background');
         this.background.draw();
         // this.score.draw();
         // this.kT.draw();
@@ -399,11 +385,12 @@ class StartButton {
         if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
             this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, this.spriteWidth, this.spriteHeight);
-            this.removeFromWorld;
+            this.removeFromWorld = true;
         } // default start button
         else {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
                                     this.destX, this.destY, this.spriteWidth, this.spriteHeight);
+            this.removeFromWorld = true;
         }
     }
 

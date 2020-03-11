@@ -180,7 +180,6 @@ class GameEngine {
             if (!that.started) {
                 that.draw();      
             }
-            console.log(that.gloopColor);
         }, false);
         this.ctx.canvas.addEventListener("mousemove", function (e) {
             that.mouse = {x: e.clientX, y: e.clientY}
@@ -396,7 +395,7 @@ class GameEngine {
             }
         }
         if (this.over) {
-            console.log(this.sceneObj);
+            // console.log(this.sceneObj);
             if(this.sceneObj)
                 SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
             else 
