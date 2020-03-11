@@ -25,6 +25,10 @@ class SceneManager {
         this.nameForm = document.getElementById("nameForm");
     }
     
+    addBackground(background, name) {
+        this.backgrounds[name] = background;
+    }
+
     // clears entities on screen, switches to start screen
     startScene() {
         this.game.scene = 'start';
@@ -57,14 +61,20 @@ class SceneManager {
     gameScene(selectedGloopPath) {
         this.game.scene = 'game';   
         this.game.clearAllEntities();
-        let background = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
+        let level0 = new Background(this.game, AM, BACKGROUND_PATH, 'level0');
         let level1 = new Background(this.game, AM, LEVEL1_PATH, 'level1');
-        // this.backgrounds.addBackground(background, 'level0');
-        // this.backgrounds.addBackground(level1, 'level1');
-        this.game.mapHeight = background.spriteSheet.height;
+        let level2 = new Background(this.game, AM, LEVEL2_PATH, 'level2');
+        let level3 = new Background(this.game, AM, LEVEL3_PATH, 'level3');
+        let level4 = new Background(this.game, AM, LEVEL4_PATH, 'level4');
+        this.addBackground(level0, 'level0');
+        this.addBackground(level1, 'level1');
+        this.addBackground(level2, 'level2');
+        this.addBackground(level3, 'level3');
+        this.addBackground(level4, 'level4');
+        this.game.mapHeight = level0.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
-        this.gameplayScene = new GameScene(this.game, AM, background, this.backgrounds);
+        this.gameplayScene = new GameScene(this.game, AM, level0, this.backgrounds);
         this.game.sceneObj = this.gameplayScene;
         this.gameplayScene.level0(this.playerCharacter);
     }
@@ -91,9 +101,8 @@ class SceneManager {
         this.game.started = false;
         this.nameForm.style.display = 'block';
     }
-    addBackground(background, name) {
-        this.backgrounds[name] = background;
-    }
+
+    
 
 }
 
@@ -116,20 +125,24 @@ class GameScene {
         this.kT.update();
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
             if(this.background.name === 'level0') {
-                this.level1(this.playerCharacter);
+                // this.level1(this.playerCharacter);
                 // console.log(this.game.gloops['orangeGloop'].y);
                 this.transitionLevel(this.playerCharacter, 'level1')
             }
             else if (this.background.name === 'level1') {
-                this.level2(this.playerCharacter);
+                this.transitionLevel(this.playerCharacter, 'level2');
+                // this.level2(this.playerCharacter);
             }
-            // else if (this.background.name === 'level2') {
-            //     this.level3(this.playerCharacter);
-            // }
+            else if (this.background.name === 'level2') {
+                this.transitionLevel(this.playerCharacter, 'level3');
+            }
+            else if (this.background.name === 'level3') {
+                this.transitionLevel(this.playerCharacter, 'level4');
+            }
         }
         // console.log(this.game.camera.totalDrawOffset);
         // console.log(this.background.name);
-        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level3') {
+        if (this.game.camera.totalDrawOffset <= (-this.game.surfaceHeight/2) && this.background.name === 'level4') {
             console.log('won');
             this.score.win = true;
             this.game.over = true;
@@ -168,78 +181,47 @@ class GameScene {
     }
 
 
-    level1(activeGloop) {
-        this.game.clearAllButGloopAndTop();
-        this.playerCharacter = activeGloop;
-        this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
-        this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
-        this.game.mapHeight = this.background.spriteSheet.height;
-        console.log('mapheight could be a problem', this.game.mapHeight);
-        let oldPCY = this.playerCharacter.y;
-        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
-        this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
-        if (this.playerCharacter.superAttacking) {
-            //should we stop super attack on level transition?
-            // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
-            this.playerCharacter.stopSuperAttack();
-        }
-        this.playerCharacter.newScene();
+    // level1(activeGloop) {
+    //     this.game.clearAllButGloopAndTop();
+    //     this.playerCharacter = activeGloop;
+    //     this.background = new Background(this.game, AM, LEVEL1_PATH, 'level1');
+    //     this.game.floor = new Floor(this.game, null, AM.getAsset(LEVEL1_FLOOR));
+    //     this.game.mapHeight = this.background.spriteSheet.height;
+    //     console.log('mapheight could be a problem', this.game.mapHeight);
+    //     let oldPCY = this.playerCharacter.y;
+    //     this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+    //     this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
+    //     if (this.playerCharacter.superAttacking) {
+    //         //should we stop super attack on level transition?
+    //         // this.playerCharacter.superAttackY = this.playerCharacter.y - (SUPER_ATTACK_HEIGHT - (oldPCY - this.playerCharacter.superAttackY));
+    //         this.playerCharacter.stopSuperAttack();
+    //     }
+    //     this.playerCharacter.newScene();
 
-        for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
-        }
+    //     for (let i = -1; i < 2; i++) {
+    //         this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
+    //         this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
+    //     }
         
-        this.game.camera.totalDrawOffset = this.game.mapHeight;
-        // this.game.addEntity(this.game.floor, 'general');
-        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, 'level1');
-        // this.game.addEntity(this.kT, 'top'); //i wanted it to draw on top maybe rethink later
-        this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!');  
-        // console.log(this.score);
-        // this.game.addEntity(this.score, 'general');
-        // console.log(this.game.entities.general);
-    }
-    
-    level2(activeGloop) {
-        this.game.clearAllButGloopAndTop();
-        this.playerCharacter = activeGloop;
-        this.background = new Background(this.game, AM, LEVEL2_PATH, 'level2');
-        this.game.mapHeight = this.background.spriteSheet.height;
-        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
-        if (this.playerCharacter.superAttacking) {
-            this.playerCharacter.stopSuperAttack();
-        }
-        this.playerCharacter.newScene();
-
-        for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
-        }
-    }
-
-    level3(activeGloop) {
-        this.game.clearAllButGloopAndTop();
-        this.playerCharacter = activeGloop;
-        this.background = new Background(this.game, AM, LEVEL3_PATH, 'level3');
-        this.game.mapHeight = this.background.spriteSheet.height;
-        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
-        if (this.playerCharacter.superAttacking) {
-            this.playerCharacter.stopSuperAttack();
-        }
-        this.playerCharacter.newScene();
-
-        for (let i = -1; i < 2; i++) {
-            this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
-            this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
-        }
-    }
+    //     this.game.camera.totalDrawOffset = this.game.mapHeight;
+    //     // this.game.addEntity(this.game.floor, 'general');
+    //     buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, 'level1');
+    //     // this.game.addEntity(this.kT, 'top'); //i wanted it to draw on top maybe rethink later
+    //     this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!');  
+    //     // console.log(this.score);
+    //     // this.game.addEntity(this.score, 'general');
+    //     // console.log(this.game.entities.general);
+    // }
 
     transitionLevel(activeGloop, background) {
+        console.log('i have transition levels')
         this.game.clearAllButGloopAndTop();
         this.playerCharacter = activeGloop;
         this.background = this.backgrounds[background];
+        console.log(this.background);
         this.game.mapHeight = this.background.spriteSheet.height;
-        this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        // this.playerCharacter.y = this.game.mapHeight - 8 * this.playerCharacter.radius;
+        this.playerCharacter.y = this.game.surfaceHeight/2;//spawn at the top for testing;
         if (this.playerCharacter.superAttacking) {
             this.playerCharacter.stopSuperAttack();
         }
@@ -249,6 +231,9 @@ class GameScene {
             this.game.addEntity(new Platform(AM.getAsset(GENFORM_PATHS.level1), 'center', this.playerCharacter.x + HOR_BLOCK_SIZE * i,
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
+        this.game.camera.totalDrawOffset = this.game.mapHeight;
+        this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
+        console.log('this is the end of transition level method')
     }
 
     draw() {
@@ -428,9 +413,6 @@ class StartButton {
         this.spriteHeight = this.spriteSheet.height;
         this.destX = this.game.surfaceWidth/2 - (this.spriteWidth/2);
         this.destY = this.game.surfaceHeight - 46;
-        console.log('start button start x', this.game.surfaceWidth/2 - this.spriteWidth/2);
-        console.log('start button end x', this.game.surfaceWidth/2 - this.spriteWidth/2 + this.spriteWidth);
-        console.log('sheet width', this.spriteWidth);
     }
     
     draw() { // 70 is the y, so that the button fits in space of the floor
@@ -458,7 +440,6 @@ class Arrow {
         this.spriteHeight = this.spriteSheet.height;
         this.spacing = 50;
         this.gloopStartSize = 64;
-        console.log('arrow made');
     }
     update(){
     }

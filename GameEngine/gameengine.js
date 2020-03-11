@@ -162,18 +162,14 @@ class GameEngine {
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
                 that.active = true;
                 if (that.gloopColor === 'greenSelected') {
-                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
                 }
                 else if (that.gloopColor === 'purpleSelected') {
-                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
                 }
                 else if (that.gloopColor === 'orangeSelected') {
-                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
                 } else if (that.gloopColor === 'blueSelected') {
-                    console.log(that.mouse);
                     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
                 }
                 that.start();
@@ -190,11 +186,6 @@ class GameEngine {
             that.mouse = {x: e.clientX, y: e.clientY}
             this.startButtonWidth = 70;
             this.startButtonHeight = 33;
-            console.log(that.mouse);
-            console.log(that.surfaceWidth/2 - this.startButtonWidth/2);
-            console.log(that.surfaceWidth/2 - this.startButtonWidth/2 + this.startButtonWidth);
-            console.log(that.surfaceHeight - 46);
-            console.log(that.surfaceHeight - 46 + this.startButtonHeight);
             // used for mouse hover on start button
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth/2 - this.startButtonWidth/2 && 
@@ -202,7 +193,6 @@ class GameEngine {
                 that.mouse.y >= that.surfaceHeight - 46 && 
                 that.mouse.y < that.surfaceHeight - 46 + this.startButtonHeight) {
                     that.mouseStart = true;
-                    console.log('logging mouse start state', that.mouseStart)
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {

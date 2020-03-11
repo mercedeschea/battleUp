@@ -168,7 +168,6 @@ class PlayerCharacter extends Entity {
 
     draw(ctx) {
         let drawY;
-        console.log(this.game.scene);
         if (this.game.camera) {
             drawY = this.cameraTransform(); 
             // drawY += PLAYER_SCALE * 68 / 2;
