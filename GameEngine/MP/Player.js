@@ -73,7 +73,7 @@ class Player {
             return;
         } else {
         // Store reference to peer
-        const peer = new SimplePeer({initiator: true, config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302?transport=tcp' }, { urls: 'stun:global.stun.twilio.com:3478?transport=tcp' }] }});
+        const peer = new SimplePeer({initiator: true, config: PEER_CONFIG});
         this.peer = peer;
 
         // Sending signal

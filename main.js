@@ -3,6 +3,12 @@ const SCENE_MANAGER = new SceneManager();
 // const BACKEND_URL = "http://localhost:5000/";
 const BACKEND_URL = "https://battleup-backend.herokuapp.com/"
 let myPeer;
+
+const PEER_CONFIG = {"username": "0671b05553c83272f11d6f6d86f4c85e5de161d85f70d1dee44c11372dfb6dfe", "password": "vW4vD9Cb2wZ9JLM1kCpJinQZP19ivrowC9BHxQzkIL0=",
+ "iceServers": [{"urls": "stun:global.stun.twilio.com:3478?transport=udp"}, 
+ {"username": "0671b05553c83272f11d6f6d86f4c85e5de161d85f70d1dee44c11372dfb6dfe", "urls": "turn:global.turn.twilio.com:3478?transport=udp", "credential": "vW4vD9Cb2wZ9JLM1kCpJinQZP19ivrowC9BHxQzkIL0="},
+  {"username": "0671b05553c83272f11d6f6d86f4c85e5de161d85f70d1dee44c11372dfb6dfe", "urls": "turn:global.turn.twilio.com:3478?transport=tcp", "credential": "vW4vD9Cb2wZ9JLM1kCpJinQZP19ivrowC9BHxQzkIL0="},
+   {"username": "0671b05553c83272f11d6f6d86f4c85e5de161d85f70d1dee44c11372dfb6dfe", "urls": "turn:global.turn.twilio.com:443?transport=tcp", "credential": "vW4vD9Cb2wZ9JLM1kCpJinQZP19ivrowC9BHxQzkIL0="}]};
 // let myPlayer;
 class Animation {
     constructor(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse, rotatedCache) {
