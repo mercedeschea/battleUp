@@ -185,7 +185,7 @@ class Host {
             // Players signaling
             DATABASE.ref('/rooms/'+code+'/players').on('child_added', ({key: playerName}) => {
                 // Create Peer channel
-                const peer = new SimplePeer();
+                const peer = new SimplePeer({config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302?transport=tcp' }, { urls: 'stun:global.stun.twilio.com:3478?transport=tcp' }] }});
                 console.log(peer);
                 console.log('new peer connected');
                 // Upload Host signals
