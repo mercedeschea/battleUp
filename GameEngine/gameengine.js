@@ -8,6 +8,21 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyBMnfpgxAUaDDjTUWO4-48xNryJbE0YD2E",
+    authDomain: "jumping-8c2b3.firebaseapp.com",
+    databaseURL: "https://jumping-8c2b3.firebaseio.com",
+    projectId: "jumping-8c2b3",
+    storageBucket: "jumping-8c2b3.appspot.com",
+    messagingSenderId: "418307239327",
+    appId: "1:418307239327:web:3392266b0f763c6c4221aa",
+    measurementId: "G-WWNQJ8E2RD"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+console.log(firebase);
+const DATABASE = firebase.database();
 let GE_COUNT = 0;
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
@@ -15,12 +30,12 @@ const SCROLL_SPEED = 50;
 const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
 
+
 class GameEngine {
     constructor(musicManager) {
         GE_COUNT++;
         console.log(GE_COUNT, 'never more than 1');
-        this.gamepads = {};
-        this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
+        this.entities = {general:[], genforms:[], cookies:[], top:[]};
         this.gloops = {};
         this.ctx = null;
         this.surfaceWidth = null;
@@ -45,12 +60,15 @@ class GameEngine {
         this.scene = null;//string used in control flow
         this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
+        this.multiplayer = false;
+        this.peer = null;
         this.gloopColor = null;
         this.selectGloop = false;
         this.mouseStart = false;
         this.mouseDown = false;
         this.click = false;
         this.mouse = null;
+        this.myName = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -63,6 +81,7 @@ class GameEngine {
 
     //initializes camera, in its own method because the background must be loaded first to determine map height
     initCamera(playerCharacter, startY) {
+        console.log(playerCharacter.external, 'cammera init');
         if (!this.camera)
             this.camera = new Camera(this, SCROLL_SPEED, startY, playerCharacter);
         else
@@ -79,34 +98,13 @@ class GameEngine {
         })();
     }
 
-    // scangamepads() {
-    //     var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
-    //     for (var i = 0; i < gamepads.length; i++) {
-    //       if (gamepads[i]) {
-    //         if (gamepads[i].index in this.gamepads) {
-    //           this.gamepads[gamepads[i].index] = gamepads[i];
-    //         } else {
-    //           this.gamepads[i] = (gamepads[i]);
-    //         }
-    //       }
-    //     }
-    //     console.log(this.gamepads);
-    // }
     startInput() {
-        // this.scangamepads();
         const keyArr = {'removePlatforms':'KeyF', 'up':'KeyW', /*'left':'KeyA',*/ 'down':'KeyS', /*'right':'KeyD',*/ 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
             'altDown':'ArrowDown', 'placeFlatLeft':'KeyA', 'placeFlatRight':'KeyD', 'placeAngledLeft':'KeyQ', 'placeAngledRight':'KeyE', 'jump':'Space',
             /*'attackLeft':'KeyR', 'attackRight':'Tab', */'attackSuper':'KeyR', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
-        window.addEventListener("gamepadconnected", function (e) {
-            that.gamepads[e.gamepad.index] = e.gamepad;
-            console.log(that.gamepads);
-        } );
-        window.addEventListener("gamepaddisconnected", function (e) {
-            delete(that.gamepads[e.gamepad.index]);
-        });
         
         let canvas = document.getElementById("gameWorld");
         function getMousePos(canvas, e) {
@@ -121,7 +119,7 @@ class GameEngine {
             // console.log(that.mouse);
             that.click = true;
             this.gloopStartSize = 64;
-            this.spacing = 50;
+            this.spacing = 100;
             // 55 is the dist of the floor on start screen
             this.minMouseY = that.surfaceHeight - 55 - this.gloopStartSize; 
             this.maxMouseY = that.surfaceWidth - 55;
@@ -130,8 +128,9 @@ class GameEngine {
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2)) && 
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spacing*2) &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'greenSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('green')) {
+
+                    that.gloopColor = 'green';
                     console.log(that.gloopColor);
                     that.mouseStart = false;
             } // mouse hover for purple gloop
@@ -139,42 +138,39 @@ class GameEngine {
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing && 
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - this.spacing &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'purpleSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('purple')) {
+                    that.gloopColor = 'purple';
                     that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'orangeSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('orange')) {
+                    that.gloopColor = 'orange';
                     that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + 64 + this.spacing*2 + this.gloopStartSize &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'blueSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('blue')) {
+                    that.gloopColor = 'blue';
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected
-            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
+            if(that.peer && that.gloopColor) {
+                that.peer.handleColorChange(that.myName, that.gloopColor);
+            }
+            //only hosts can start games
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart && !that.multiplayer) {
                 that.active = true;
-                if (that.gloopColor === 'greenSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
-                }
-                else if (that.gloopColor === 'purpleSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
-                }
-                else if (that.gloopColor === 'orangeSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
-                } else if (that.gloopColor === 'blueSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
-                }
+                SCENE_MANAGER.gameScene({name:'me', gloopColor:that.gloopColor, number:0});
                 that.start();
             } 
-            else if (that.scene === 'gameOver' && that.over){
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart
+            && that.multiplayer && that.peer instanceof Host) {
+                that.peer.tryToStartGame();
+            } else if (that.scene === 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
             }
             if (!that.started) {
@@ -215,8 +211,6 @@ class GameEngine {
                 that.jump = true;
             if ((e.code === keyArr['left'] || e.code === keyArr['altLeft']) && that.active)
                 that.left = true;
-            /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = true;
             if ((e.code === keyArr['right'] || e.code === keyArr['altRight']) && that.active)
@@ -244,50 +238,28 @@ class GameEngine {
                 that.up = false;
             if (e.code === keyArr['left'] || e.code === keyArr['altLeft'])
                 that.left = false;
-            /*if (e.code === keyArr[2] || e.code === keyArr[8])
-                that.down = true;*/
             if (e.code === keyArr['down'] || e.code === keyArr['altDown'])
                 that.down = false;
             if (e.code === keyArr['right'] || e.code === keyArr['altRight'])
                 that.right = false;
-            // if (e.code === keyArr['')
-            //     that.placeAngled = false;
-            // if (e.code === keyArr[5])
-            //     that.placeFlat = false;
-            // if (e.code === keyArr[10])
-            //     that.attack = false;
-            // if (e.code === keyArr[11])
-            //     that.attack = false;
             e.preventDefault();
         }, false);
         console.log('Input started');
     }
 
-    controllerStatus(gamepad) {
-        if(gamepad.buttons[0] == 1.0)
-            this.jump = true;
-        // if(game.buttons[1] == 1.0)
-        //     this.attack = true;
-        // if (game.buttons[2] == 1.0)
-        if(gamepad.axes[0] >= .5) 
-            this.down =  true;
-        if(gamepad.axes[1] >= .5) 
-            this.right =  true;
-        if(gamepad.axes[2] >= .5)
-            this.up =  true;    
-        if(gamepad.axes[3] >= .5) 
-            this.left =  true;
-
+    checkGloopAvailable(color) {
+        return !this.gloops[color].name;
+    }
+    checkSinglePlayerOrHost() {
+        return !this.multiplayer || this.peer instanceof Host;
     }
 
-    // reload() {
-    //     this.camera.totalDrawOffset = this.game.mapHeight - this.game.surfaceHeight;
-    //     genGenforms(20, gameEngine, AM, mapHeight);
-    //     playerCharacter.x = lowestGenformCoords[0];
-    //     playerCharacter.y = lowestGenformCoords[1] - 64;
-    //     this.playerCharacter = 
-    // }
-    //game must be off for this to work
+    startMP(thisPlayer, otherPlayers) {
+        this.active = true;
+        SCENE_MANAGER.gameScene(thisPlayer, otherPlayers);
+        this.start();
+    }
+
     clearAllEntities() {
         // console.log('this is called');
         const entityTypes = Object.keys(this.entities);
@@ -359,8 +331,17 @@ class GameEngine {
         this.ctx.restore();
     }
 
+    updateOtherGloop(playerName, data) {
+        if (Date.now() % 100 === 0 ){
+            // console.log(this.gloops);
+        }
+        this.gloops[playerName].externalUpdate(data);
+
+    }
+
     update() {
         this.sceneObj.update();
+
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
             var gloopEntity = this.gloops[gloop];
@@ -368,10 +349,6 @@ class GameEngine {
                 gloopEntity.update();
             }
         }
-
-        // if (this.gamepads[0]) {
-        //     this.controllerStatus(this.gamepads[0]);
-        // }
         const entityTypes = Object.keys(this.entities);
         for (const  type of entityTypes) {
             const typeCount = this.entities[type].length;
@@ -382,11 +359,6 @@ class GameEngine {
                 }
             }
         }
-        
-        // cookies.filter((cookie) => {
-        //     console.log(cookie);
-        //     cookie.removeFromWorld === false;
-        // });
         for (const  type of entityTypes) {
             for (var i = this.entities[type].length - 1; i >= 0; --i) {
                 if (this.entities[type][i].removeFromWorld) {
@@ -403,6 +375,12 @@ class GameEngine {
             // console.log('game is over');
         }
         // console.log(this.timer.gameTime);
+        if(this.peer) {
+            // console.log('sending to peer');
+            let gameState = this.gloops[this.myName].packageToSend(this.myName);
+            this.peer.broadcast({type:'gameUpdate', name:this.myName, input:gameState});
+
+        }
     }
 
     loop() {
@@ -442,7 +420,7 @@ class Timer {
 }
 
 class Entity {
-    constructor(scope, game, x, y) { // pretty sure "scope" here should be refactored out, will do later
+    constructor(game, x, y) { // pretty sure "scope" here should be refactored out, will do later
         this.game = game;
         this.x = x;
         this.y = y;
@@ -470,6 +448,10 @@ class Entity {
         //     return null;
         // }
         return drawY;
+    }
+
+    cameraUnTransform() {
+        this.y = this.y + this.game.game.totalDrawOffset;
     }
     
     rotateAndCache(image, angle, srcX, srcY, frameWidth, frameHeight, scale) {
@@ -526,16 +508,21 @@ class Camera {
         this.playerCharacter = playerCharacter;
         this.advanceTime = 0;
         this.advanceFactor = 15;
+        console.log(startY, playerCharacter.y);
     }
     draw() {}
     update() {
         //if the player is at the top of the canvas
         // console.log(this);
         // console.log(this.playerCharacter.y - this.totalDrawOffset);
+        // console.log('the scroll control pc', this.playerCharacter.y);
+        // console.log('the scroll control',  this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
+            console.log('should scrool');
             this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
+            console.log('should scrool');
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
             // console.log(this.game.clockTick, 'a tick with this value');
             // console.log(this.advanceTime);

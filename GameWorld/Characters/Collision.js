@@ -23,7 +23,13 @@ function isCharacterColliding(PlayerCharacter) {
     let attackEquation;
     if(pc.attacking)
         attackEquation = calculateAttackLine(pc, PlayerCircleInfo, mapHeight);
-    for (const platform of pc.game.entities.placeforms) {
+
+    let placeformsCurrent = [];
+    let gloopKeys = Object.keys(pc.game.gloops);
+    for (const key of gloopKeys){
+        placeformsCurrent = placeformsCurrent.concat(pc.game.gloops[key].placeformManager.placeformsCurrent);
+    }
+    for (const platform of placeformsCurrent) {
         let result = checkPCPlatformCollision(PlayerCircleInfo, platform);
         // console.log(result);
         if (result) {
@@ -59,7 +65,7 @@ function isCharacterColliding(PlayerCharacter) {
     const pcDistanceFromFloor =  pc.game.surfaceHeight - FLOOR_HEIGHT - (pc.cameraTransform(0) + pc.radius * 2 + 4);
     // console.log(pcDistanceFromFloor);
     // console.log(pc.game.sceneObj.background.name);
-    if (pc.game.floor && pcDistanceFromFloor <= 0 && pc.game.sceneObj.background.name !== 'level1') {
+    if (pc.game.floor && pcDistanceFromFloor <= 0) { // && pc.game.sceneObj.background.name !== 'level1' used for level specific floor behaviour
         pc.y += pcDistanceFromFloor;
         pc.colliding = true;
         // console.log(pc.floorTimer, "a floor timer");
@@ -73,7 +79,7 @@ function isCharacterColliding(PlayerCharacter) {
             pc.floorTimer -= pc.game.clockTick;
         }
 
-    } else if (pc.cameraTransform() > pc.game.surfaceHeight) {
+    } else if (pc.cameraTransform() > pc.game.surfaceHeight && !pc.external) {
         pc.dead = true;
     } else {
         pc.floorTimer = 0;

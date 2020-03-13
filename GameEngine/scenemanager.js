@@ -29,6 +29,22 @@ class SceneManager {
         this.backgrounds[name] = background;
     }
 
+    updateStartScreenPlayers(listOfPlayers) {
+        console.log(listOfPlayers);
+        if (this.game.scene === 'start') {
+            for (const gloop of Object.values(this.game.gloops)) {
+                gloop.name = null;
+            }
+            for (const player of listOfPlayers) {
+                if(player.gloopColor)
+                    this.game.gloops[player.gloopColor].setName(player.name);
+            }
+            this.game.draw();
+        } else {
+            console.error('update start screen called when not on startscreen');
+        }
+    }
+
     // clears entities on screen, switches to start screen
     startScene() {
         this.game.scene = 'start';
@@ -36,10 +52,10 @@ class SceneManager {
         this.game.clearAllEntities();
         this.game.camera = null;
 
-        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN);
-        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE);
-        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE);
-        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE);
+        this.greenGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_GREEN, true);
+        this.purpleGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_PURPLE, true);
+        this.orangeGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_ORANGE, true);
+        this.blueGloop = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS_BLUE, true);
 
         this.startScreen = new StartScreen(this.game, AM, this.greenGloop, this.purpleGloop, this.orangeGloop, this.blueGloop);
         this.game.sceneObj = this.startScreen;
@@ -49,17 +65,18 @@ class SceneManager {
         this.game.addEntity(this.startButton, 'general');
         this.game.addEntity(this.arrow, 'general');
 
-        this.game.addGloop(this.greenGloop, 'greenGloop');
-        this.game.addGloop(this.purpleGloop, 'purpleGloop');
-        this.game.addGloop(this.orangeGloop, 'orangeGloop');
-        this.game.addGloop(this.blueGloop, 'blueGloop');
+        this.game.addGloop(this.greenGloop, 'green');
+        this.game.addGloop(this.purpleGloop, 'purple');
+        this.game.addGloop(this.orangeGloop, 'orange');
+        this.game.addGloop(this.blueGloop, 'blue');
 
         this.game.draw();
         this.nameForm.style.display = 'none';
     }
 
-    gameScene(selectedGloopPath) {
+    gameScene(thisGloop, otherGloops) {
         this.game.scene = 'game';
+        // console.log('should at least be here');
         // console.log(this.startButton.removeFromWorld);
         // this.startScene.startButton.removeFromWorld;  
         this.game.clearAllEntities();
@@ -74,11 +91,24 @@ class SceneManager {
         this.addBackground(level3, 'level3');
         this.addBackground(level4, 'level4');
         this.game.mapHeight = level0.spriteSheet.height;
-        this.playerCharacter = new PlayerCharacter(this.game, AM, selectedGloopPath);
+        this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS[thisGloop.gloopColor], false, thisGloop.name);
+        console.log(thisGloop, otherGloops);
+        this.playerCharacter.number = thisGloop.number;
+        // console.log('right before camera init');
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, level0, this.backgrounds);
         this.game.sceneObj = this.gameplayScene;
-        this.gameplayScene.level0(this.playerCharacter);
+        let otherPlayerCharacters = [];
+        if (otherGloops) {
+            for (const otherGloop of otherGloops) {
+                let gameEngineProxy = new GameEngineProxy(this.game);
+                gameEngineProxy.gloopColor = otherGloop.gloopColor;
+                let newGloop = new PlayerCharacter(gameEngineProxy, AM, GLOOP_SHEET_PATHS[otherGloop.gloopColor], true, otherGloop.name);
+                newGloop.number = otherGloop.number;
+                otherPlayerCharacters.push(newGloop);
+            }
+        }
+        this.gameplayScene.level0(this.playerCharacter, otherPlayerCharacters);
     }
 
     // clears entities on screen, switches to end scene
@@ -123,6 +153,7 @@ class GameScene {
         this.score.update();
         this.background.update();
         this.kT.update();
+        // logEverySecond([this.game.camera.playerCharacter, this.playerCharacter]);
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
             if(this.background.name === 'level0') {
                 this.transitionLevel(this.playerCharacter, 'level1')
@@ -144,26 +175,37 @@ class GameScene {
         }
     }
 
-    level0(activeGloop) {
+    level0(activeGloop, otherGloops) {
         this.playerCharacter = activeGloop;
         this.game.floor = new Floor(this.game, AM.getAsset(FLOOR_FLASH_PATH), AM.getAsset(FLOOR_PATH));
         let testCookie = new Cookie(AM.getAsset(COOKIE_PATH),  this.playerCharacter.radius * 14, 
                             this.game.mapHeight - this.playerCharacter.radius * 5 - FLOOR_HEIGHT, this.game);
         this.game.addEntity(this.game.floor, 'general');
         genWalls(this.game, AM);
-        let startX = this.playerCharacter.radius * 8;
+        let startX = this.game.surfaceWidth/6;
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
-        let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
-        this.game.addEntity(startform, 'genforms');
-        this.playerCharacter.x = startX + this.playerCharacter.radius;
+        this.playerCharacter.x = startX * this.playerCharacter.number + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
+        let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
+         this.playerCharacter.x - this.playerCharacter.radius, startY, this.game);
+        this.game.addEntity(startform, 'genforms');
+        console.log(this.playerCharacter.number);
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
                          LEVEL_MAP_PATHS['level0'], 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
-        this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
+        this.game.addGloop(this.playerCharacter, activeGloop.name); 
+        for (const otherGloop of otherGloops) {
+            // startX = this.playerCharacter.radius * 20;
+            otherGloop.x = startX * otherGloop.number + this.playerCharacter.radius;
+            otherGloop.y = startY - this.playerCharacter.radius * 2;
+            startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
+            otherGloop.x - otherGloop.radius, startY, this.game);
+            this.game.addEntity(startform, 'genforms');
+            this.game.addGloop(otherGloop, otherGloop.name);
+        }
         this.game.addEntity(this.kT, 'top');
         this.game.addEntity(this.score, 'top');
     }
@@ -198,8 +240,9 @@ class GameScene {
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
             // this.playerCharacter.y + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
-        // buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
         buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL_MAP_PATHS[level], level);
+        
+
         this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
     }
 
@@ -337,8 +380,8 @@ class StartScreen {
         this.orangeGloop = orangeGloop;
         this.blueGloop = blueGloop;
 
-        this.midSpacing = 50;
-        this.spacing = 100;
+        this.midSpacing = 100;
+        this.spacing = 200;
         this.gloopWidth = 64;
 
         this.gloopY = this.game.surfaceHeight - 123;
@@ -353,9 +396,29 @@ class StartScreen {
         this.purpleGloop.y = this.gloopY;
         this.orangeGloop.y = this.gloopY;
         this.blueGloop.y = this.gloopY;
+        this.message = "Select a gloop and press start to play!";
     }
 
     update() {
+    }
+
+    hostWaitForPlayerColors() {
+        this.message = "Wait for all players to choose a color!";
+        this.draw();
+    }
+
+    playerWaitForHost() {
+        this.message = "Select a gloop and wait for your host!"
+        this.draw();
+    }
+
+    joinAGame() {
+        this.message = ("Join a game!");
+    }
+
+    hostWaitForPlayers() {
+        this.message = "Wait for other players to join!"
+        this.draw();
     }
 
     draw() {
@@ -364,10 +427,13 @@ class StartScreen {
         // console.log(this.spriteHeight);
         this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
             this.destX, this.game.surfaceHeight/6, this.spriteWidth, this.spriteHeight);
+
         this.game.ctx.font = SCORE_FONT;
         this.game.ctx.fillStyle = FONT_COLOR;
-        this.game.ctx.fillText("Select a gloop and press start to play!", this.game.surfaceWidth/6, this.game.surfaceHeight/2);
+        this.game.ctx.fillText(this.message, this.game.surfaceWidth/6, this.game.surfaceHeight/2);
     }
+
+
 }
 
 // animates start button
@@ -383,15 +449,17 @@ class StartButton {
     
     draw() { // 70 is the y, so that the button fits in space of the floor
         // animates start button when pressed
-        if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
-            this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, this.spriteWidth, this.spriteHeight);
-            this.removeFromWorld = true;
-        } // default start button
-        else {
-            this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
-                                    this.destX, this.destY, this.spriteWidth, this.spriteHeight);
-            this.removeFromWorld = true;
+        if (!this.game.multiplayer || this.game.peer instanceof Host) {
+            if (this.game.mouseDown && this.game.mouseStart && this.game.gloopColor != null){
+                this.game.ctx.drawImage(this.spriteSheet, this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
+                                        this.destX, this.destY, this.spriteWidth, this.spriteHeight);
+                this.removeFromWorld = true;
+            } // default start button
+            else {
+                this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight, 
+                                        this.destX, this.destY, this.spriteWidth, this.spriteHeight);
+                this.removeFromWorld = true;
+            }
         }
     }
 
@@ -405,36 +473,34 @@ class Arrow {
         this.spriteSheet = AM.getAsset(ARROW_ICON);
         this.spriteWidth = this.spriteSheet.width;
         this.spriteHeight = this.spriteSheet.height;
-        this.spacing = 50;
+        this.spacing = 100;
         this.gloopStartSize = 64;
     }
     update(){
     }
     draw(){
         let destY = 525 - this.spriteHeight;
-        // console.log('im in arrow draw method', this.game.gloopColor);
-        if (this.game.scene === 'start' && this.game.gloopColor === 'greenSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === 'green') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 this.surfaceWidth - (this.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2) - (this.spriteWidth/4), 
                 destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'purpleSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === 'purple') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 this.surfaceWidth - (this.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spriteWidth/4, 
                 destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'orangeSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === 'orange') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 this.surfaceWidth - (this.surfaceWidth/2) + this.spacing - this.spriteWidth/4, 
                 destY, this.spriteWidth, this.spriteHeight - 50);
         }
-        if (this.game.scene === 'start' && this.game.gloopColor === 'blueSelected') {
+        if (this.game.scene === 'start' && this.game.gloopColor === 'blue') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 this.surfaceWidth - (this.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 - this.spriteWidth/4, 
                 destY, this.spriteWidth, this.spriteHeight - 50);
         }
     }
-
 
 }
 
@@ -457,8 +523,6 @@ class Score {
     }
 
     draw() {
-        //console.log(this.game.mouseReleased);
-
         this.game.ctx.font = SCORE_FONT;
         this.game.ctx.fillStyle = FONT_COLOR;
         this.game.ctx.fillText("Score: " + this.maxY, 5, 20);
@@ -488,7 +552,7 @@ class Score {
 
 class Krimtrok extends Entity {
     constructor(game, AM) {
-        super(self, game, 0, 0);
+        super(game, 0, 0);
         this.y = game.surfaceHeight/4 - 5;
         this.speakingTime = 0;
         this.speed = 100;
@@ -528,7 +592,7 @@ class Krimtrok extends Entity {
         this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
         bubX, bubY, 1.5);
         this.game.ctx.font = KT_FONT;
-        this.game.ctx.fillStyle = "#D4AF37";
+        this.game.ctx.fillStyle = FONT_COLOR;
         let scoreString = "Score: " + score.maxY;
         let cookieString = "Cookies: " + score.lastCookieCount;
         if(score.win) {
@@ -551,7 +615,7 @@ class Krimtrok extends Entity {
                 bubX, bubY, 1.5);
             
             this.game.ctx.font = KT_FONT;
-            this.game.ctx.fillStyle = "#D4AF37";
+            this.game.ctx.fillStyle = FONT_COLOR;
             let msg = this.message.split('\n');
             this.game.ctx.fillText(msg[0], bubX+5, bubY + 25);
             this.game.ctx.fillText(msg[1], bubX+5, bubY + 50);

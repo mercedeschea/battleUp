@@ -32,6 +32,7 @@ const GLOOP_SHEET_PATHS_ORANGE = {
     'turning':"./Sprites/Usables/gloop(orange)/gloopTurn.png"};
 const GLOOP_SHEET_PATHS = {'green':GLOOP_SHEET_PATHS_GREEN, 'purple':GLOOP_SHEET_PATHS_PURPLE,
                            'blue':GLOOP_SHEET_PATHS_BLUE, 'orange':GLOOP_SHEET_PATHS_ORANGE};
+
 const DRILL_PROTO = "./Sprites/Usables/items/drillPrototype.png"
 const PLACEFORM_LIMIT = 6;
 const PLAYER_RADIUS = 25;
@@ -43,6 +44,8 @@ const SUPER_ATTACK_HEIGHT = 500;
 const DRILL_LENGTH = 47;
 const COOKIES_FOR_SUPER = 3;
 const COOKIE_SPEED = 10;
+const NAME_FONT = "12px mainFont";
+let LOCAL_PLAYERS = 0;
 // const GOD_MODE = true;//not implemented, use glitch jumps for now
 const GOD_MODE = false;
 
@@ -63,10 +66,14 @@ function PlayerCharacterAMDownloads(AM) {
 }
 
 class PlayerCharacter extends Entity {
-    constructor(game, AM, gloopSheetPath) {
+    constructor(game, AM, gloopSheetPath, external, name) {
         // super(self, game, 0, 0);
-        super(self, game, 0, 0);
-
+        super(game, 0, 0);
+        if (!external) {
+            LOCAL_PLAYERS++;
+            if (LOCAL_PLAYERS > 1)
+                console.error('more than one local player warning');
+        }
         this.game = game;
         this.ctx = game.ctx;
         this.placeformManager = new PlaceformManager(game, AM, PLACEFORM_LIMIT);
@@ -99,7 +106,7 @@ class PlayerCharacter extends Entity {
         // Extras
         this.attackDelay = 0;
         this.attacking = false;
-        this.attackingSuper = 0;//can be 0(off), 1(extending), 2(spinning);
+        this.superAttacking = 0;//can be 0(off), 1(extending), 2(spinning);
         this.attackpoint = null;
 
         this.floorTimer = 0;
@@ -107,12 +114,22 @@ class PlayerCharacter extends Entity {
 
         this.cookies = 0;
         this.totalCookies = 0;
-
+        if(name) {
+            this.setName(name);
+        }
         this.placedTwoAgo = null;
         this.placedOneAgo = null;
         this.placedZeroAgo = null;
         this.slow = false;
         this.slowdownTime = null;
+        this.external = external;
+    }
+
+
+    setName(name) {
+        let widthInCharacters = 5;
+        this.name = name;
+        this.nameOffset = (name.length - widthInCharacters)/2 * 9.5;
     }
     
     setupAnimations(gloopSheetPath) {
@@ -134,7 +151,6 @@ class PlayerCharacter extends Entity {
 
     update() {
         super.update();
-
         this.checkCollisions();
 
         this.handleDeath();
@@ -146,7 +162,7 @@ class PlayerCharacter extends Entity {
             this.stopJumping();
         }
         // gravity
-        if (!this.jumping && !this.isSupported()) {
+        if (!this.jumping && !this.isSupported() && !this.external) {
             this.y += this.fallSpeed * this.game.clockTick;
         }
 
@@ -162,6 +178,32 @@ class PlayerCharacter extends Entity {
 
         this.clearOutPlaceforms();
     }
+    externalUpdate(gameState) {
+        // console.log(gameState);
+        this.game.update(gameState);
+        let props = Object.keys(gameState.input.player);
+        for (const key of props) {
+            if (key === 'placeformsCurrent') {
+                continue;
+            } else {
+                this[key] = gameState.input.player[key];
+            }
+        }
+        this.placeformManager.replaceResources(gameState.input.player.placeformsCurrent);
+        this.placeformManager.placeformsCurrent = gameState.input.player.placeformsCurrent;
+        // console.log(this);
+    }
+
+    
+    packageToSend() {
+        let placeformsCurrent = this.placeformManager.getStrippedPlaceforms();
+        let gameState = {game:{left:this.game.left, right:this.game.right, clockTick:this.game.clockTick},
+            player:{jumping:this.jumping, 'jumpRightAnimation.elapsedTime':this.jumpRightAnimation.elapsedTime, 'jumpLeftAnimation.elapsedTime':this.jumpLeftAnimation.elapsedTime,
+             facingLeft:this.facingLeft, superAttacking:this.superAttacking,
+              facingRight:this.facingRight, jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent, dead:this.dead}};
+        return gameState;
+    }
+    
 
     calcJump(jumpAnimation, totalHeight) {
         var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;
@@ -179,6 +221,12 @@ class PlayerCharacter extends Entity {
             // drawY += PLAYER_SCALE * 68 / 2;
         } else {
             drawY = this.y;
+        }
+        if (this.name && this.game.multiplayer) {
+            // console.log('redraw with name', this.name);
+            this.ctx.fillStyle = FONT_COLOR;
+            this.ctx.font = NAME_FONT;
+            this.ctx.fillText(this.name, this.x - this.nameOffset, drawY - 5);
         }
     //this  is where we get transformed coordinates, drawY will be null if player is off screen
         if (this.dead) {
@@ -231,6 +279,14 @@ class PlayerCharacter extends Entity {
                 }
             });
         }
+        if (this.external) {
+            // console.log(this.placeformManager.placeformsCurrent);
+        }
+        if (this.external && Date.now() % 1000 < 10) {
+            // console.log(this.placeformManager.placeformsCurrent);
+        }
+        this.placeformManager.draw();
+        
     }
 
     stopSuperAttack () {
@@ -498,8 +554,8 @@ class PlayerCharacter extends Entity {
     buildAttackCache(){
         const cache = {};
         const superCache = {};
-        let xO = -2 * this.radius;//offsets to center character
-        let yO = -2 * this.radius + 5;//manual adjustment for dead pixels(i think)
+        let xO = -2.85 * this.radius;//offsets to center character
+        let yO = -2.85 * this.radius + 2;//manual adjustment for dead pixels(i think)
         const directions = ['right', 'upRight', 'up', 'upLeft', 'left', 'downLeft', 'down', 'downRight'];
         for (let j = 0; j < directions.length; j++) {
             let rotatedImages = [];
@@ -508,7 +564,7 @@ class PlayerCharacter extends Entity {
             let i;
             let newCanvas;
             for (i = 0; i < 3; i++) {
-                newCanvas = this.rotateAndCache(AM.getAsset(DRILL_PROTO), angle, 63 * i, 0, 63, 47, 1);
+                newCanvas = this.rotateAndCache(AM.getAsset(DRILL_PROTO), angle, 63 * i, 0, 63, 47, .75);
                 rotatedImages.push(newCanvas);
             }
             superCache[directions[j]] = {};
@@ -517,18 +573,18 @@ class PlayerCharacter extends Entity {
             let spinFrames = 3;
             for (let k = 0; k < spinFrames; k++) {
                 let curAngle = angle + (Math.PI/12) * k;
-                superRotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), curAngle, 63 * 2, 0, 63, 47, 1));
-                superCache[directions[j]].xOffset.push(xO + Math.cos(curAngle) * this.radius * 4);
-                superCache[directions[j]].yOffset.push(yO + Math.sin(curAngle) * this.radius * 4);
+                superRotatedImages.push(this.rotateAndCache(AM.getAsset(DRILL_PROTO), curAngle, 63 * 2, 0, 63, 47, .75));
+                superCache[directions[j]].xOffset.push(xO + Math.cos(curAngle) * this.radius * 4.7);
+                superCache[directions[j]].yOffset.push(yO + Math.sin(curAngle) * this.radius * 4.7);
             }
-            superCache[directions[j]].animation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .12, spinFrames, true, false, superRotatedImages);
+            superCache[directions[j]].animation = new Animation(AM.getAsset(DRILL_PROTO), 0, 0, 63, 47, .10, spinFrames, true, false, superRotatedImages);
             superCache[directions[j]].angle = angle;
             cache[directions[j]] = {animation:new Animation(AM.getAsset(DRILL_PROTO),
                 0, 0, 63, 47, .12, 3, false, false, rotatedImages)};
             cache[directions[j]].angle = angle;
             //calculates gloops edge
-            cache[directions[j]].xOffset = xO + Math.cos(angle) * this.radius * 4;
-            cache[directions[j]].yOffset = yO + Math.sin(angle) * this.radius * 4;
+            cache[directions[j]].xOffset = xO + Math.cos(angle) * 4 * this.radius;
+            cache[directions[j]].yOffset = yO + Math.sin(angle) * 4 * this.radius;
             
             //calculates the point of the end of the current attack animation frame
             cache[directions[j]].xCalcAttack = (framesUntilDone) => {
