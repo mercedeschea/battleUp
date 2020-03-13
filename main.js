@@ -140,19 +140,23 @@ function __delay__(timer) {
 function hideMP() {
     document.getElementById('mPDetails').style.display = 'none';
     if (SCENE_MANAGER.game) {
+        SCENE_MANAGER.game.peer = null;
         SCENE_MANAGER.game.multiplayer = false;
-        SCENE_MANAGER.game.draw();
+        SCENE_MANAGER.startScreen.updateStartScreenPlayers([]);
     }
 }
 
 function showRoom() {
     document.getElementById('roomCode').style.display = 'block';
-    SCENE_MANAGER.playerWaitForHost();
-    SCENE_MANAGER.draw();
+    if(SCENE_MANAGER.scene === 'start') {
+        SCENE_MANAGER.startScreen.playerWaitForHost();
+        SCENE_MANAGER.startScreen.draw();
+    }
 }
 
 function hideRoom() {
     document.getElementById('roomCode').style.display = 'none';
+
 }
 
 //use this to log things that are called every update without ruining your console

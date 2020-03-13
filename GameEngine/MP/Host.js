@@ -49,6 +49,7 @@ class Host {
             ready: false,
             input: null,
             gloopColor: null,
+            number:1,
             // Peer object with blank methods so I don't have to
             // filter when I iterate over players
             peer: {
@@ -63,7 +64,7 @@ class Host {
         this.game = null;
         this.hostName = name;
         this.copyPlayers = () => Object.assign({}, this.state.players);
-
+        this.playerNumbers = [true, true, false, false, false];
         this.playersToArray = () => {
             const playersArr = [];
             for (const playerName in this.state.players){
@@ -72,20 +73,22 @@ class Host {
                 input: this.state.players[playerName].input,
                 peer: this.state.players[playerName].peer,
                 ready: this.state.players[playerName].ready,
-                gloopColor: this.state.players[playerName].gloopColor
+                gloopColor: this.state.players[playerName].gloopColor,
+                number:this.state.players[playerName].number
             });
             }
             return playersArr;
         }
 
-        this.setColor = (color) => {
-          this.state.players[this.hostName].gloopColor = color;
+        this.handleGameUpdate = (playerName, data) => {
+          this.broadcast({type:'gameUpdate', name:playerName, data:data});
+          console.log(playerName, data);
+          // this.game.updateOtherGloop(playerName, data);
         }
 
-
-        this.sendReady = (ready) => {
-          this.handleReady(this.hostName, ready);
-        }
+        // this.sendReady = (ready) => {
+        //   this.handleReady(this.hostName, ready);
+        // }
 
         this.getPlayersForGame = () => {
             // Don't send peer info
@@ -113,7 +116,8 @@ class Host {
             return {
                 name: e.name,
                 ready: e.ready,
-                gloopColor: e.gloopColor
+                gloopColor: e.gloopColor,
+                number: e.number
             }
             })
         })
@@ -122,28 +126,32 @@ class Host {
           console.log('sending a color change', name, color);
           this.state.players[name].gloopColor = color;
           this.state.players[name].ready = true;
+          if (!this.state.players[name].number) {
+            this.state.players[name].number = this.playerNumbers.findIndex(number => !number);
+            console.log(this.state.players[name].number);
+          }
           this.broadcastPlayers();
           SCENE_MANAGER.updateStartScreenPlayers(this.playersToArray().map((e) => {
             return {
                 name: e.name,
                 ready: e.ready,
-                gloopColor: e.gloopColor
+                gloopColor: e.gloopColor,
+                number: e.number
             }
           }));
         }
         this.handleData = (playerName, data) => {
           // console.log(playerName, data);
         switch(data.type){
-            case 'ready':
-            this.handleReady(playerName, data.ready);
-            break;
+            // case 'ready':
+            // this.handleReady(playerName, data.ready);
+            // break;
             case 'colorChange':
             console.log('got a color change', data.players);
             this.handleColorChange(playerName, data.gloopColor);
             break;
             case 'gameUpdate':
-            // this.handleInput(playerName, data.input);
-            this.game.updateOthers(playerName, data);
+            this.handleGameUpdate(playerName, data);
             break;
             case 'connected':
             this.handleConnected(playerName);
@@ -169,7 +177,13 @@ class Host {
         // });
 
         this.handleConnected = (playerName) => {
-            playerListDisplay.innerHTML += player.name + '\n';
+          let playerListDisplay = document.getElementById('playerList');
+          playerListDisplay.innerHTML = "Player list: ";
+          let playerNames = Object.keys(this.state.players);
+          for (const playerName of playerNames) {
+              playerListDisplay.innerHTML += playerName + ', ';
+          }
+          playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
         // Workaround for https://github.com/feross/simple-peer/issues/178
         this.broadcastPlayers();
         }
@@ -181,54 +195,60 @@ class Host {
                 playerCount++;
                 playersReady.push(this.state.players[playerName].ready);
             }
-            if(playerCount > 0 && playersReady.every(e => e === true)){
+            if(playerCount > 1 && playersReady.every(e => e === true)){
               // We have enough players and they are all ready
               this.state.gameStarted = true;
-              let thisGloopDetails = {name:this.hostName, gloopColor:this.state.players[this.hostName].color};
+              let thisGloopDetails = {name:this.hostName, gloopColor:this.state.players[this.hostName].gloopColor,
+                 number:this.state.players[this.hostName].number};
               let otherGloopDetails = this.playersToArray().filter((e) => e.name !== this.hostName).map((e) => {
                 return {
                     name: e.name,
-                    gloopColor: e.gloopColor
+                    gloopColor: e.gloopColor,
+                    number: e.number
                 }
               });
-              this.game.active = true;
+              console.log(thisGloopDetails, otherGloopDetails)
               this.game.startMP(thisGloopDetails, otherGloopDetails);
-              this.game.start();
               // Send start game to all peers
               this.broadcast({type: 'startGame'});
 
               // Delete the room
               DATABASE.ref('/rooms/'+this.state.code).remove();
           } else if (SCENE_MANAGER.scene === 'start'){
-            SCENE_MANAGER.startScene.hostWaitForPlayerColors()
+            if (playerCount === 1) {
+              SCENE_MANAGER.startScreen.hostWaitForPlayers();
+            } else {
+              SCENE_MANAGER.startScreen.hostWaitForPlayerColors();
+            }
+            SCENE_MANAGER.startScreen.draw();
           }
         }
 
-        this.handleReady = (name, ready) => {
-            const p = this.copyPlayers();
-            p[name].ready = ready;
-            this.state.players = p;
-            // Update players of everyone's status
-            this.broadcastPlayers();
+        // this.handleReady = (name, ready) => {
+        //     const p = this.copyPlayers();
+        //     p[name].ready = ready;
+        //     this.state.players = p;
+        //     // Update players of everyone's status
+        //     this.broadcastPlayers();
 
-            // After updating the players ready status, check if the game should start
-            let playerCount = 0;
-            const playersReady = [];
-            for(const playerName in this.state.players){
-                playerCount++;
-                playersReady.push(this.state.players[playerName].ready);
-            }
-            if(playerCount > 0 && playersReady.every(e => e === true)){
-                // We have enough players and they are all ready
-                this.state.gameStarted = true;
-                this.game.startMP(GLOOP_SHEET_PATHS_PURPLE);
-                // Send start game to all peers
-                this.broadcast({type: 'startGame'});
+        //     // After updating the players ready status, check if the game should start
+        //     let playerCount = 0;
+        //     const playersReady = [];
+        //     for(const playerName in this.state.players){
+        //         playerCount++;
+        //         playersReady.push(this.state.players[playerName].ready);
+        //     }
+        //     if(playerCount > 0 && playersReady.every(e => e === true)){
+        //         // We have enough players and they are all ready
+        //         this.state.gameStarted = true;
+        //         this.game.startMP(GLOOP_SHEET_PATHS_PURPLE);
+        //         // Send start game to all peers
+        //         this.broadcast({type: 'startGame'});
 
-                // Delete the room
-                DATABASE.ref('/rooms/'+this.state.code).remove();
-            }
-        }
+        //         // Delete the room
+        //         DATABASE.ref('/rooms/'+this.state.code).remove();
+        //     }
+        // }
     }
     runHost() {
         getOpenRoom().then((code) => {
@@ -250,6 +270,8 @@ class Host {
                     data: JSON.stringify(signalData)
                     });
             });
+            
+
             
             // Add player to player list
             // Use fake peer so broadcasts don't fail
@@ -277,6 +299,7 @@ class Host {
             peer.on('close', () => {
                 // Delete local ref to player
                 const playersCopy = Object.assign({}, this.state.players);
+                this.playerNumbers[this.state.players[playerName].number] = false;
                 delete playersCopy[playerName];
                 this.state.players = playersCopy;
 

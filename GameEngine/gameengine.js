@@ -164,7 +164,7 @@ class GameEngine {
             //only hosts can start games
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart && !that.multiplayer) {
                 that.active = true;
-                SCENE_MANAGER.gameScene({name:'me', gloopColor:that.gloopColor});
+                SCENE_MANAGER.gameScene({name:'me', gloopColor:that.gloopColor, number:0});
                 that.start();
             } 
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart
@@ -254,10 +254,9 @@ class GameEngine {
         return !this.multiplayer || this.peer instanceof Host;
     }
 
-    startMP(otherPlayers) {
+    startMP(thisPlayer, otherPlayers) {
         this.active = true;
-        
-        SCENE_MANAGER.gameScene(thisColor, otherColor);
+        SCENE_MANAGER.gameScene(thisPlayer, otherPlayers);
         this.start();
     }
 
@@ -332,8 +331,11 @@ class GameEngine {
         this.ctx.restore();
     }
 
-    updateOthers(playerName, data) {
-            this.gloops[playerName].externalUpdate(data);
+    updateOtherGloop(playerName, data) {
+        if (Date.now() % 100 === 0 ){
+            // console.log(this.gloops);
+        }
+        this.gloops[playerName].externalUpdate(data);
 
     }
 
@@ -375,8 +377,8 @@ class GameEngine {
         // console.log(this.timer.gameTime);
         if(this.peer) {
             // console.log('sending to peer');
-            let gameState = this.gloops['me'].packageToSend(this.myName);
-            this.peer.broadcast({type:'gameUpdate', playerName:this.myName, input:gameState});
+            let gameState = this.gloops[this.myName].packageToSend(this.myName);
+            this.peer.broadcast({type:'gameUpdate', name:this.myName, input:gameState});
 
         }
     }

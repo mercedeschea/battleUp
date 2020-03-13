@@ -41,17 +41,17 @@ class Player {
         case 'startGame':
             console.log('got them readies');
             this.state.gameStarted = true;
-            let thisGloopDetails = {name:this.state.name, gloopColor:this.state.color};
+            let thisGloopDetails = {name:this.state.name, gloopColor:this.state.gloopColor, number:this.state.number};
             let otherGloopDetails = this.state.players.filter((e) => e.name !== this.state.name).map((e) => {
               return {
                   name: e.name,
-                  gloopColor: e.gloopColor
+                  gloopColor: e.gloopColor,
+                  number: e.number
               }
             });
-            this.game.active = true;
+            console.log(thisGloopDetails);
+            console.log(otherGloopDetails);
             this.game.startMP(thisGloopDetails, otherGloopDetails);
-            this.game.start();
-            this.game.startMP(this.state.players);
             break;
         case 'players':
             console.log('got a color change', data.players);
@@ -59,6 +59,10 @@ class Player {
             playerListDisplay.innerHTML = "Player list: ";
             for (const player of data.players) {
                 playerListDisplay.innerHTML += player.name + ', ';
+                if (player.name === this.state.name) {
+                    this.state.number = player.number;
+                }
+                console.log(player);
             }
             playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
             this.state.players = data.players;
@@ -66,7 +70,10 @@ class Player {
             break;
         case 'gameUpdate':
             // console.log(data);
-            this.game.updateOthers(data);
+            if (data.name !== this.state.name) {
+                this.game.updateOtherGloop(data.name, data);
+            }
+              
             break;
         default:
             throw Error('Unknown input ', data.type);

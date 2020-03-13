@@ -92,6 +92,8 @@ class SceneManager {
         this.addBackground(level4, 'level4');
         this.game.mapHeight = level0.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS[thisGloop.gloopColor], false, thisGloop.name);
+        console.log(thisGloop, otherGloops);
+        this.playerCharacter.number = thisGloop.number;
         // console.log('right before camera init');
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
         this.gameplayScene = new GameScene(this.game, AM, level0, this.backgrounds);
@@ -100,8 +102,10 @@ class SceneManager {
         if (otherGloops) {
             for (const otherGloop of otherGloops) {
                 let gameEngineProxy = new GameEngineProxy(this.game);
-                gameEngineProxy.gloopColor = otherPlayer.gloopColor;
-                otherGloop = new PlayerCharacter(gameEngineProxy, AM, GLOOP_SHEET_PATHS[otherGloop.gloopColor], true, otherGloop.name);
+                gameEngineProxy.gloopColor = otherGloop.gloopColor;
+                let newGloop = new PlayerCharacter(gameEngineProxy, AM, GLOOP_SHEET_PATHS[otherGloop.gloopColor], true, otherGloop.name);
+                newGloop.number = otherGloop.number;
+                otherPlayerCharacters.push(newGloop);
             }
         }
         this.gameplayScene.level0(this.playerCharacter, otherPlayerCharacters);
@@ -149,7 +153,7 @@ class GameScene {
         this.score.update();
         this.background.update();
         this.kT.update();
-        logEverySecond([this.game.camera.playerCharacter, this.playerCharacter]);
+        // logEverySecond([this.game.camera.playerCharacter, this.playerCharacter]);
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
             if(this.background.name === 'level0') {
                 this.transitionLevel(this.playerCharacter, 'level1')
@@ -178,12 +182,14 @@ class GameScene {
                             this.game.mapHeight - this.playerCharacter.radius * 5 - FLOOR_HEIGHT, this.game);
         this.game.addEntity(this.game.floor, 'general');
         genWalls(this.game, AM);
-        let startX = this.playerCharacter.radius * 8;
+        let startX = this.game.surfaceWidth/6;
         let startY = this.game.mapHeight - FLOOR_HEIGHT - this.playerCharacter.radius * 4; 
-        let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
-        this.game.addEntity(startform, 'genforms');
-        this.playerCharacter.x = startX + this.playerCharacter.radius;
+        this.playerCharacter.x = startX * this.playerCharacter.number + this.playerCharacter.radius;
         this.playerCharacter.y = startY - this.playerCharacter.radius * 2;
+        let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
+         this.playerCharacter.x - this.playerCharacter.radius, startY, this.game);
+        this.game.addEntity(startform, 'genforms');
+        console.log(this.playerCharacter.number);
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
@@ -193,11 +199,11 @@ class GameScene {
         this.game.addGloop(this.playerCharacter, activeGloop.name); 
         for (const otherGloop of otherGloops) {
             // startX = this.playerCharacter.radius * 20;
-            startX += this.game.surfaceWidth/6;
-            startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center', startX, startY, this.game);
-            this.game.addEntity(startform, 'genforms');
-            otherGloop.x = startX + this.playerCharacter.radius;
+            otherGloop.x = startX * otherGloop.number + this.playerCharacter.radius;
             otherGloop.y = startY - this.playerCharacter.radius * 2;
+            startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
+            otherGloop.x - otherGloop.radius, startY, this.game);
+            this.game.addEntity(startform, 'genforms');
             this.game.addGloop(otherGloop, otherGloop.name);
         }
         this.game.addEntity(this.kT, 'top');
@@ -408,6 +414,10 @@ class StartScreen {
         this.message = "Select a gloop and wait for your host!"
     }
 
+    hostWaitForPlayers() {
+        this.message = "Wait for other players to join!"
+    }
+
     draw() {
         this.background.draw();
         this.floor.draw();
@@ -467,7 +477,6 @@ class Arrow {
     }
     draw(){
         let destY = 525 - this.spriteHeight;
-        console.log('im in arrow draw method', this.game.gloopColor);
         if (this.game.scene === 'start' && this.game.gloopColor === 'green') {
             this.game.ctx.drawImage(this.spriteSheet, 0, 0, this.spriteWidth, this.spriteHeight,
                 this.surfaceWidth - (this.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2) - (this.spriteWidth/4), 

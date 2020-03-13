@@ -23,6 +23,7 @@ class GameEngineProxy {
         this.active = true;
         this.timer = game.timer;
         this.camera = game.camera;
+        this.multiplayer = true;
     }
 
     update(gameState) {

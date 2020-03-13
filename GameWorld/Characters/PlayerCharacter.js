@@ -129,9 +129,7 @@ class PlayerCharacter extends Entity {
     setName(name) {
         let widthInCharacters = 5;
         this.name = name;
-        console.log(name.length);
         this.nameOffset = (name.length - widthInCharacters)/2 * 9.5;
-        console.log(this.nameOffset);
     }
     
     setupAnimations(gloopSheetPath) {
@@ -225,7 +223,7 @@ class PlayerCharacter extends Entity {
             drawY = this.y;
         }
         if (this.name && this.game.multiplayer) {
-            console.log('redraw with name', this.name);
+            // console.log('redraw with name', this.name);
             this.ctx.fillStyle = FONT_COLOR;
             this.ctx.font = NAME_FONT;
             this.ctx.fillText(this.name, this.x - this.nameOffset, drawY - 5);
