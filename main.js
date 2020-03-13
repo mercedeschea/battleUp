@@ -74,11 +74,15 @@ MapAMDownloads(AM);
 
 // AM.queueDownload(SCORE_TEXT);
 function showMP() {
+    myPeer = null;
     let mPForm = document.getElementById('mPDetails');
     let mPReady = document.getElementById('mPReady');
+    let detailsSubmitButton = document.getElementById('detailsSubmitButton');
     mPForm.style.display = 'block';
+    detailsSubmitButton.style.display = 'block';
     mPForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        detailsSubmitButton.style.display = 'none';
         let data = new FormData(mPForm);
         console.log(data.get('mPHost'));
         console.log(data);
@@ -140,6 +144,7 @@ function __delay__(timer) {
 function hideMP() {
     document.getElementById('mPDetails').style.display = 'none';
     if (SCENE_MANAGER.game) {
+        myPeer = null;
         SCENE_MANAGER.game.peer = null;
         SCENE_MANAGER.game.multiplayer = false;
         SCENE_MANAGER.startScreen.updateStartScreenPlayers([]);
@@ -164,7 +169,6 @@ function logEverySecond(toLog) {
         console.log(toLog);
     }
 }
-
 
 AM.downloadAll(function () {
     let canvas = document.getElementById("gameWorld");

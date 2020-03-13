@@ -125,6 +125,11 @@ class Player {
             peer.signal(JSON.parse(res.val().data));
         });
 
+        peer.on('error', (error) =>{
+            let playerListDisplay = document.getElementById('playerList');
+            playerListDisplay.innerHTML = "An error occured, please refresh and try again."
+        });
+
         // Connecting
         peer.on('connect', () => {
             

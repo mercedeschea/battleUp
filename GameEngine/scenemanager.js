@@ -413,11 +413,11 @@ class StartScreen {
     }
 
     joinAGame() {
-        this.message = ("Join a game!");
+        this.message = ("Enter a game code to join a game!");
     }
 
     hostWaitForPlayers() {
-        this.message = "Wait for other players to join!"
+        this.message = "Wait for other players to join game!"
         this.draw();
     }
 
