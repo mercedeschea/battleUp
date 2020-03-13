@@ -1,0 +1,27 @@
+20200308 15:09 patch notes
+
+Summary:
+lvl0 genform rework
+lvl4 background added
+lvl4 genform
+scoreboard
+red gloop
+
+Files Added:
+
+Usables/lvl4/background.png
+Usables/lvl4/genform2.png
+HUD/scoreboard.png
+Usables/gloop(red)/gloop.png
+Usables/gloop(red)/gloopDead.png
+Usables/gloop(red)/gloopEvil.png
+Usables/gloop(red)/gloopFaceless.png
+
+Files updated:
+
+Usables/lvl0/genform2.png
+
+
+
+
+

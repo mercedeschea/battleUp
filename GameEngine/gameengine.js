@@ -8,15 +8,17 @@ window.requestAnimFrame = (function () {
                 window.setTimeout(callback, 1000 / 60);
             };
 })();
+let GE_COUNT = 0;
 //change this to change scroll speed
 const SCROLL_SPEED = 50;
 //change this to change time before map starts scrolling.
 const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
-const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 
 class GameEngine {
     constructor(musicManager) {
+        GE_COUNT++;
+        console.log(GE_COUNT, 'never more than 1');
         this.gamepads = {};
         this.entities = {general:[], genforms:[], placeforms:[], cookies:[], top:[]};
         this.gloops = {};
@@ -43,7 +45,12 @@ class GameEngine {
         this.scene = null;//string used in control flow
         this.sceneObj = null; //Object used for drawing
         this.musicManager = musicManager;
-        this.selectGloop = null;
+        this.gloopColor = null;
+        this.selectGloop = false;
+        this.mouseStart = false;
+        this.mouseDown = false;
+        this.click = false;
+        this.mouse = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -100,38 +107,107 @@ class GameEngine {
         window.addEventListener("gamepaddisconnected", function (e) {
             delete(that.gamepads[e.gamepad.index]);
         });
-        this.showButton = true;
-        this.mouseDown = false;
-        this.mouseReleased = false;
-        this.ctx.canvas.addEventListener("mousedown", function (e) {
+        
+        let canvas = document.getElementById("gameWorld");
+        function getMousePos(canvas, e) {
+            let rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            }
+        };
+        this.ctx.canvas.addEventListener("click", function (e) {
+            that.mouse = getMousePos(canvas, e);
+            // console.log(that.mouse);
+            that.click = true;
+            this.gloopStartSize = 64;
+            this.spacing = 50;
+            // 55 is the dist of the floor on start screen
+            this.minMouseY = that.surfaceHeight - 55 - this.gloopStartSize; 
+            this.maxMouseY = that.surfaceWidth - 55;
+            // mouse hover for green gloop
+            if (that.scene === 'start' && 
+                that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2)) && 
+                that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spacing*2) &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
+                    that.gloopColor = 'greenSelected';
+                    console.log(that.gloopColor);
+                    that.mouseStart = false;
+            } // mouse hover for purple gloop
+            if (that.scene === 'start' && 
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing && 
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - this.spacing &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
+                    that.gloopColor = 'purpleSelected';
+                    that.mouseStart = false;
+            } // mouse hover for orange gloop
+            if (that.scene === 'start' &&
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
+                    that.gloopColor = 'orangeSelected';
+                    that.mouseStart = false;
+            } // mouse hover for blue gloop
+            if (that.scene === 'start' &&
+                that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 &&
+                that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + 64 + this.spacing*2 + this.gloopStartSize &&
+                that.mouse.y >= this.minMouseY &&
+                that.mouse.y < this.maxMouseY) {
+                    that.gloopColor = 'blueSelected';
+                    that.mouseStart = false;
+            } // gloop color null unless gloop is selected
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
+                that.active = true;
+                if (that.gloopColor === 'greenSelected') {
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
+                }
+                else if (that.gloopColor === 'purpleSelected') {
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
+                }
+                else if (that.gloopColor === 'orangeSelected') {
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
+                } else if (that.gloopColor === 'blueSelected') {
+                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
+                }
+                that.start();
+            } 
+            else if (that.scene === 'gameOver' && that.over){
+                SCENE_MANAGER.startScene();
+            }
             if (!that.started) {
-                that.showButton = false;
-                that.mouseDown = true;
-                that.draw();
-                // console.log('mouse down')
-                // console.log('mouse down in game engine: ' + that.mouseDown);
+                that.draw();      
+            }
+        }, false);
+        this.ctx.canvas.addEventListener("mousemove", function (e) {
+            that.mouse = {x: e.clientX, y: e.clientY}
+            this.startButtonWidth = 70;
+            this.startButtonHeight = 33;
+            // used for mouse hover on start button
+            if (that.scene === 'start' &&
+                that.mouse.x >= that.surfaceWidth/2 - this.startButtonWidth/2 && 
+                that.mouse.x < that.surfaceWidth/2 - this.startButtonWidth/2 + this.startButtonWidth &&
+                that.mouse.y >= that.surfaceHeight - 46 && 
+                that.mouse.y < that.surfaceHeight - 46 + this.startButtonHeight) {
+                    that.mouseStart = true;
             }
         }, false);
         this.ctx.canvas.addEventListener("mouseup", function (e) {
             that.mouseDown = false;
-            that.mouseReleased = true;
-            if (that.scene === 'start' && !that.started) {
-                that.active = true;
-                console.log('starting');
-                SCENE_MANAGER.gameScene();
-                that.start();
-            } else  if (that.scene == 'gameOver' && that.over){
-                SCENE_MANAGER.startScene();
+            if (that.gloopColor !== null) {
+                that.selectGloop = true;
             }
-            else {
-                that.musicManager.playPause();
+        }, false);
+        this.ctx.canvas.addEventListener("mousedown", function (e) {
+            // that.mouse = {x: e.clientX, y: e.clientY}
+            if (!that.started) {
+                that.mouseDown = true;
+                that.draw();   
             }
-            //console.log('mouse up');
         }, false);
-        this.ctx.canvas.addEventListener("", function (e) {
-            that.mouse = {x: e.clientX, y: e.clientY}
-            // if (that.mouse.x = )
-        }, false);
+        
         this.ctx.canvas.addEventListener("keydown", function (e) {
             if (e.code === keyArr['up'] || e.code === keyArr['altUp'])
                 that.jump = true;
@@ -213,7 +289,7 @@ class GameEngine {
     // }
     //game must be off for this to work
     clearAllEntities() {
-        console.log('this is called');
+        // console.log('this is called');
         const entityTypes = Object.keys(this.entities);
         // console.log('before clearing', this.entities);
         for (const type of entityTypes) {
@@ -255,6 +331,8 @@ class GameEngine {
         this.gloops[color] = gloop;
         // console.log(this.gloops[color])
     }
+
+    
 
     draw() {
         if (this.camera) {
@@ -317,7 +395,7 @@ class GameEngine {
             }
         }
         if (this.over) {
-            console.log(this.sceneObj);
+            // console.log(this.sceneObj);
             if(this.sceneObj)
                 SCENE_MANAGER.gameOverScene(this.sceneObj.score); 
             else 
