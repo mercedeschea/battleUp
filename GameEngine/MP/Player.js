@@ -7,7 +7,7 @@ class Player {
         connecting: false,
         gameStarted: false,
         error: '',
-        gloopColor: GLOOP_SHEET_PATHS_PURPLE,
+        gloopColor: null,
         database: DATABASE,
         host: null,
         players: [],
@@ -25,18 +25,44 @@ class Player {
     this.sendReady = (ready) => {
         this.broadcast({
             type: 'ready',
+            name:name,
             ready: ready
         });
     }
-  
+    
+    this.handleColorChange = (name, color) => {
+        console.log('sending a color change');
+        this.state.gloopColor = color;
+        this.broadcast({type:'colorChange', gloopColor:color, name:name});
+    }
+
     this.handleData = (data) => {
         switch(data.type){
         case 'startGame':
             console.log('got them readies');
-            this.game.startMP(GLOOP_SHEET_PATHS_ORANGE);
+            this.state.gameStarted = true;
+            let thisGloopDetails = {name:this.state.name, gloopColor:this.state.color};
+            let otherGloopDetails = this.state.players.filter((e) => e.name !== this.state.name).map((e) => {
+              return {
+                  name: e.name,
+                  gloopColor: e.gloopColor
+              }
+            });
+            this.game.active = true;
+            this.game.startMP(thisGloopDetails, otherGloopDetails);
+            this.game.start();
+            this.game.startMP(this.state.players);
             break;
         case 'players':
+            console.log('got a color change', data.players);
+            let playerListDisplay = document.getElementById('playerList');
+            playerListDisplay.innerHTML = "Player list: ";
+            for (const player of data.players) {
+                playerListDisplay.innerHTML += player.name + ', ';
+            }
+            playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
             this.state.players = data.players;
+            SCENE_MANAGER.updateStartScreenPlayers(data.players);
             break;
         case 'gameUpdate':
             // console.log(data);
@@ -70,6 +96,8 @@ class Player {
         // Name is taken
             this.state.error = 'Name is taken'
             this.state.connecting = false;
+            let playerListDisplay = document.getElementById('playerList');
+            playerListDisplay.innerHTML = "Please choose a different name!";
             return;
         } else {
         // Store reference to peer

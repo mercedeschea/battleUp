@@ -108,7 +108,7 @@ class Cookie extends Entity {
         super(game, destX, destY);
         this.spriteSheet = spriteSheet;
         this.scale = .3;
-        this.animation = new Animation(spriteSheet, 0, 0, 130, 134, .1, 5, true, false);
+        this.animation = new Animation(spriteSheet, 0, 0, 129, 134.5, .1, 5, true, false);
         this.radius = this.animation.frameHeight * this.scale / 2;
         let gwCoords = convertCharacterToGameWorldCoords(destX, destY);
         let cartCoords = convertToCartesianCoords(gwCoords.gameWorldX, gwCoords.gameWorldY, game.mapHeight);

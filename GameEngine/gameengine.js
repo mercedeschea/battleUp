@@ -30,6 +30,7 @@ const SCROLL_SPEED = 50;
 const SCROLL_DELAY = 100000;
 const SCROLL_POINT = 100;
 
+
 class GameEngine {
     constructor(musicManager) {
         GE_COUNT++;
@@ -67,7 +68,6 @@ class GameEngine {
         this.mouseDown = false;
         this.click = false;
         this.mouse = null;
-        this.gameEngineShim = null;
         this.myName = null;
     }
     init(ctx) {
@@ -119,18 +119,18 @@ class GameEngine {
             // console.log(that.mouse);
             that.click = true;
             this.gloopStartSize = 64;
-            this.spacing = 50;
+            this.spacing = 100;
             // 55 is the dist of the floor on start screen
             this.minMouseY = that.surfaceHeight - 55 - this.gloopStartSize; 
             this.maxMouseY = that.surfaceWidth - 55;
-            that.gloopColor = 'greenSelected';
             // mouse hover for green gloop
             if (that.scene === 'start' && 
                 that.mouse.x >= (that.surfaceWidth - (that.surfaceWidth/2) - (this.gloopStartSize * 2) - (this.spacing + this.spacing*2)) && 
                 that.mouse.x < (that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing - this.spacing*2) &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'greenSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('green')) {
+
+                    that.gloopColor = 'green';
                     console.log(that.gloopColor);
                     that.mouseStart = false;
             } // mouse hover for purple gloop
@@ -138,42 +138,39 @@ class GameEngine {
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) - this.gloopStartSize - this.spacing && 
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) - this.spacing &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'purpleSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('purple')) {
+                    that.gloopColor = 'purple';
                     that.mouseStart = false;
             } // mouse hover for orange gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'orangeSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('orange')) {
+                    that.gloopColor = 'orange';
                     that.mouseStart = false;
             } // mouse hover for blue gloop
             if (that.scene === 'start' &&
                 that.mouse.x >= that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + this.gloopStartSize + this.spacing*2 &&
                 that.mouse.x < that.surfaceWidth - (that.surfaceWidth/2) + this.spacing + 64 + this.spacing*2 + this.gloopStartSize &&
                 that.mouse.y >= this.minMouseY &&
-                that.mouse.y < this.maxMouseY) {
-                    that.gloopColor = 'blueSelected';
+                that.mouse.y < this.maxMouseY && that.checkGloopAvailable('blue')) {
+                    that.gloopColor = 'blue';
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected
-            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart) {
+            if(that.peer && that.gloopColor) {
+                that.peer.handleColorChange(that.myName, that.gloopColor);
+            }
+            //only hosts can start games
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart && !that.multiplayer) {
                 that.active = true;
-                if (that.gloopColor === 'greenSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN);
-                }
-                else if (that.gloopColor === 'purpleSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE);
-                }
-                else if (that.gloopColor === 'orangeSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE);
-                } else if (that.gloopColor === 'blueSelected') {
-                    SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE);
-                }
+                SCENE_MANAGER.gameScene({name:'me', gloopColor:that.gloopColor});
                 that.start();
             } 
-            else if (that.scene === 'gameOver' && that.over){
+            if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart
+            && that.multiplayer && that.peer instanceof Host) {
+                that.peer.tryToStartGame();
+            } else if (that.scene === 'gameOver' && that.over){
                 SCENE_MANAGER.startScene();
             }
             if (!that.started) {
@@ -250,21 +247,16 @@ class GameEngine {
         console.log('Input started');
     }
 
-    startMP(otherColor) {
+    checkGloopAvailable(color) {
+        return !this.gloops[color].name;
+    }
+    checkSinglePlayerOrHost() {
+        return !this.multiplayer || this.peer instanceof Host;
+    }
+
+    startMP(otherPlayers) {
         this.active = true;
-        // if (this.gloopColor === 'greenSelected') {
-        //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_GREEN, otherColor);
-        // }
-        // else if (this.gloopColor === 'purpleSelected') {
-        //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_PURPLE, otherColor);
-        // }
-        // else if (this.gloopColor === 'orangeSelected') {
-        //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_ORANGE, otherColor);
-        // } else if (this.gloopColor === 'blueSelected') {
-        //     SCENE_MANAGER.gameScene(GLOOP_SHEET_PATHS_BLUE, otherColor);
-        // }
-        this.gloopColor = otherColor === GLOOP_SHEET_PATHS_ORANGE ? 'purpleSelected' : 'orangeSelected';
-        let thisColor = otherColor === GLOOP_SHEET_PATHS_ORANGE ? GLOOP_SHEET_PATHS_PURPLE : GLOOP_SHEET_PATHS_ORANGE;
+        
         SCENE_MANAGER.gameScene(thisColor, otherColor);
         this.start();
     }
@@ -340,14 +332,13 @@ class GameEngine {
         this.ctx.restore();
     }
 
-    updateOthers(data) {
-        this.gameEngineShim.update(data);
-        this.gloops.other.externalUpdate(data);
+    updateOthers(playerName, data) {
+            this.gloops[playerName].externalUpdate(data);
+
     }
 
     update() {
         this.sceneObj.update();
-        // this.gameEngineShim.clockTick = this.clockTick;
 
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
@@ -515,16 +506,21 @@ class Camera {
         this.playerCharacter = playerCharacter;
         this.advanceTime = 0;
         this.advanceFactor = 15;
+        console.log(startY, playerCharacter.y);
     }
     draw() {}
     update() {
         //if the player is at the top of the canvas
         // console.log(this);
         // console.log(this.playerCharacter.y - this.totalDrawOffset);
+        // console.log('the scroll control pc', this.playerCharacter.y);
+        // console.log('the scroll control',  this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
+            console.log('should scrool');
             this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
+            console.log('should scrool');
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
             // console.log(this.game.clockTick, 'a tick with this value');
             // console.log(this.advanceTime);

@@ -8,7 +8,8 @@ class PlaceformManager {
         this.game = game;
     }
     setColor(gameGloopColor) {
-        let gloopColor = gameGloopColor.slice(0, -8);
+        // let gloopColor = gameGloopColor.slice(0, -8);
+        let gloopColor = gameGloopColor;
         this.placeformSpriteSheet = AM.getAsset(PLACEFORM_PATHS[gloopColor]);//dl all the placeforms then pass theright onelater
     }
     //should we allow placeforms to be placed partly offscreen?

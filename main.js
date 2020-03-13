@@ -88,15 +88,13 @@ function showMP() {
             console.log(data.get('mPName'));
             myPeer = new Host(data.get('mPName'));
             myPeer.runHost();
-            SCENE_MANAGER.game.gloopColor = GLOOP_SHEET_PATHS_ORANGE;
         } else {
             console.log('i am player');
             console.log(data.get('mPName'));
             code = data.get('roomCode');
-            mPReady.style.display ='block';
+            // mPReady.style.display ='block';
             myPeer = new Player(data.get('mPName'), code);
             myPeer.joinGame();
-            SCENE_MANAGER.game.gloopColor = GLOOP_SHEET_PATHS_PURPLE;
         }
         if (!code) {
             setTimeout(async function () {
@@ -111,10 +109,12 @@ function showMP() {
         } else {
             document.getElementById('roomCodeDisplay').innerHTML = 'Your code is: ' + code;
         }
-        mPReady.style.display ='block';
+        // mPReady.style.display ='block';
         SCENE_MANAGER.game.peer = myPeer;
+        SCENE_MANAGER.game.multiplayer = true;
         myPeer.game = SCENE_MANAGER.game;
         myPeer.game.myName = data.get('mPName');
+        myPeer.game.draw();
     });
     mPReady.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -139,14 +139,27 @@ function __delay__(timer) {
 
 function hideMP() {
     document.getElementById('mPDetails').style.display = 'none';
+    if (SCENE_MANAGER.game) {
+        SCENE_MANAGER.game.multiplayer = false;
+        SCENE_MANAGER.game.draw();
+    }
 }
 
 function showRoom() {
     document.getElementById('roomCode').style.display = 'block';
+    SCENE_MANAGER.playerWaitForHost();
+    SCENE_MANAGER.draw();
 }
 
 function hideRoom() {
     document.getElementById('roomCode').style.display = 'none';
+}
+
+//use this to log things that are called every update without ruining your console
+function logEverySecond(toLog) {
+    if (Date.now() % 1000 < 1) {
+        console.log(toLog);
+    }
 }
 
 

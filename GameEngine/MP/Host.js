@@ -48,7 +48,7 @@ class Host {
             host: true,
             ready: false,
             input: null,
-            gloopColor: GLOOP_SHEET_PATHS_ORANGE,
+            gloopColor: null,
             // Peer object with blank methods so I don't have to
             // filter when I iterate over players
             peer: {
@@ -71,11 +71,17 @@ class Host {
                 name: playerName,
                 input: this.state.players[playerName].input,
                 peer: this.state.players[playerName].peer,
-                ready: this.state.players[playerName].ready
+                ready: this.state.players[playerName].ready,
+                gloopColor: this.state.players[playerName].gloopColor
             });
             }
             return playersArr;
         }
+
+        this.setColor = (color) => {
+          this.state.players[this.hostName].gloopColor = color;
+        }
+
 
         this.sendReady = (ready) => {
           this.handleReady(this.hostName, ready);
@@ -106,21 +112,38 @@ class Host {
             players: this.playersToArray().map((e) => {
             return {
                 name: e.name,
-                ready: e.ready
+                ready: e.ready,
+                gloopColor: e.gloopColor
             }
             })
         })
         }
-
+        this.handleColorChange = (name, color) => {
+          console.log('sending a color change', name, color);
+          this.state.players[name].gloopColor = color;
+          this.state.players[name].ready = true;
+          this.broadcastPlayers();
+          SCENE_MANAGER.updateStartScreenPlayers(this.playersToArray().map((e) => {
+            return {
+                name: e.name,
+                ready: e.ready,
+                gloopColor: e.gloopColor
+            }
+          }));
+        }
         this.handleData = (playerName, data) => {
           // console.log(playerName, data);
         switch(data.type){
             case 'ready':
             this.handleReady(playerName, data.ready);
             break;
+            case 'colorChange':
+            console.log('got a color change', data.players);
+            this.handleColorChange(playerName, data.gloopColor);
+            break;
             case 'gameUpdate':
             // this.handleInput(playerName, data.input);
-            this.game.updateOthers(data);
+            this.game.updateOthers(playerName, data);
             break;
             case 'connected':
             this.handleConnected(playerName);
@@ -146,10 +169,41 @@ class Host {
         // });
 
         this.handleConnected = (playerName) => {
+            playerListDisplay.innerHTML += player.name + '\n';
         // Workaround for https://github.com/feross/simple-peer/issues/178
         this.broadcastPlayers();
         }
         
+        this.tryToStartGame = () => {
+          let playerCount = 0;
+            const playersReady = [];
+            for(const playerName in this.state.players){
+                playerCount++;
+                playersReady.push(this.state.players[playerName].ready);
+            }
+            if(playerCount > 0 && playersReady.every(e => e === true)){
+              // We have enough players and they are all ready
+              this.state.gameStarted = true;
+              let thisGloopDetails = {name:this.hostName, gloopColor:this.state.players[this.hostName].color};
+              let otherGloopDetails = this.playersToArray().filter((e) => e.name !== this.hostName).map((e) => {
+                return {
+                    name: e.name,
+                    gloopColor: e.gloopColor
+                }
+              });
+              this.game.active = true;
+              this.game.startMP(thisGloopDetails, otherGloopDetails);
+              this.game.start();
+              // Send start game to all peers
+              this.broadcast({type: 'startGame'});
+
+              // Delete the room
+              DATABASE.ref('/rooms/'+this.state.code).remove();
+          } else if (SCENE_MANAGER.scene === 'start'){
+            SCENE_MANAGER.startScene.hostWaitForPlayerColors()
+          }
+        }
+
         this.handleReady = (name, ready) => {
             const p = this.copyPlayers();
             p[name].ready = ready;

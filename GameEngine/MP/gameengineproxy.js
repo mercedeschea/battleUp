@@ -1,4 +1,4 @@
-class GameEngineShim {
+class GameEngineProxy {
     constructor(game) {
         this.ctx = game.ctx;
         this.entities = game.entities;
