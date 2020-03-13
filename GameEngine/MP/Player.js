@@ -129,6 +129,8 @@ class Player {
         peer.on('connect', () => {
             
             // The connection is established, so disconnect from firebase
+            if(SCENE_MANAGER.game.scene === 'start')
+                SCENE_MANAGER.startScreen.playerWaitForHost();
             database.goOffline();
             console.log('connected');
             // connect event is broken in chrome tabs or something, so this works around it for host

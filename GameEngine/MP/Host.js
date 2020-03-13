@@ -82,8 +82,8 @@ class Host {
 
         this.handleGameUpdate = (playerName, data) => {
           this.broadcast({type:'gameUpdate', name:playerName, data:data});
-          console.log(playerName, data);
-          // this.game.updateOtherGloop(playerName, data);
+          // console.log(playerName, data);
+          this.game.updateOtherGloop(playerName, data);
         }
 
         // this.sendReady = (ready) => {
@@ -214,13 +214,14 @@ class Host {
 
               // Delete the room
               DATABASE.ref('/rooms/'+this.state.code).remove();
-          } else if (SCENE_MANAGER.scene === 'start'){
+          } else if (SCENE_MANAGER.game.scene === 'start'){
             if (playerCount === 1) {
+              console.log('need more players');
               SCENE_MANAGER.startScreen.hostWaitForPlayers();
             } else {
+              console.log('someone needs to choose a color');
               SCENE_MANAGER.startScreen.hostWaitForPlayerColors();
             }
-            SCENE_MANAGER.startScreen.draw();
           }
         }
 

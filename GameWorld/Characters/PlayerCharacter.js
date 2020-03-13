@@ -106,7 +106,7 @@ class PlayerCharacter extends Entity {
         // Extras
         this.attackDelay = 0;
         this.attacking = false;
-        this.attackingSuper = 0;//can be 0(off), 1(extending), 2(spinning);
+        this.superAttacking = 0;//can be 0(off), 1(extending), 2(spinning);
         this.attackpoint = null;
 
         this.floorTimer = 0;
@@ -197,10 +197,10 @@ class PlayerCharacter extends Entity {
     
     packageToSend() {
         let placeformsCurrent = this.placeformManager.getStrippedPlaceforms();
-
         let gameState = {game:{left:this.game.left, right:this.game.right, clockTick:this.game.clockTick},
-            player:{jumping:this.jumping, 'jumpRightAnimation.elapsedTime':this.jumpRightAnimation.elapsedTime, 'jumpLeftAnimation.elapsedTime':this.jumpLeftAnimation.elapsedTime, facingLeft:this.facingLeft, attackingSuper:this.attackingSuper, facingRight:this.facingRight,
-                 jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent, dead:this.dead}};
+            player:{jumping:this.jumping, 'jumpRightAnimation.elapsedTime':this.jumpRightAnimation.elapsedTime, 'jumpLeftAnimation.elapsedTime':this.jumpLeftAnimation.elapsedTime,
+             facingLeft:this.facingLeft, superAttacking:this.superAttacking,
+              facingRight:this.facingRight, jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent, dead:this.dead}};
         return gameState;
     }
     

@@ -408,14 +408,21 @@ class StartScreen {
 
     hostWaitForPlayerColors() {
         this.message = "Wait for all players to choose a color!";
+        this.draw();
     }
 
     playerWaitForHost() {
         this.message = "Select a gloop and wait for your host!"
+        this.draw();
+    }
+
+    joinAGame() {
+        this.message = ("Join a game!");
     }
 
     hostWaitForPlayers() {
         this.message = "Wait for other players to join!"
+        this.draw();
     }
 
     draw() {

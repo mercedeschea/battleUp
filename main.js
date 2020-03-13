@@ -148,9 +148,8 @@ function hideMP() {
 
 function showRoom() {
     document.getElementById('roomCode').style.display = 'block';
-    if(SCENE_MANAGER.scene === 'start') {
-        SCENE_MANAGER.startScreen.playerWaitForHost();
-        SCENE_MANAGER.startScreen.draw();
+    if(SCENE_MANAGER.game.scene === 'start') {
+        SCENE_MANAGER.startScreen.joinAGame();
     }
 }
 
