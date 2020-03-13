@@ -38,6 +38,11 @@ const ORIG_BLOCK_SIZE = 234;
 const HOR_BLOCK_SIZE = ORIG_BLOCK_SIZE * PLATFORM_SCALE;
 const VERT_BLOCK_SIZE = ORIG_BLOCK_SIZE * PLATFORM_SCALE;
 const MAPPING = {'\\':'left', '/':'right', '-':'center', '_':'center', '|':'vert', 'l':'vert', 'c':'cookie'};
+const LEVEL_MAP_PATHS = {level0: 'ezlvl.txt',
+                         level1: 'lvl0.txt',
+                         level2: 'lvl1.txt',
+                         level3: 'lvl4.txt',
+                         level4: 'test3.txt'};
 
 // this file now controls all map assets
 class Background {
@@ -358,6 +363,10 @@ function genWalls (game, AM) {
 function MapAMDownloads(AM) {
     for (const key of Object.keys(GENFORM_PATHS)) {
         AM.queueDownload(GENFORM_PATHS[key]);
+    }
+    for (const key of Object.keys(LEVEL_MAP_PATHS)) {
+        AM.queueServerDownload(LEVEL_MAP_PATHS[key]);
+        console.log(LEVEL_MAP_PATHS[key]);
     }
     AM.queueDownload(PLACEFORM_PATHS['green']);
     AM.queueDownload(PLACEFORM_PATHS['purple']);

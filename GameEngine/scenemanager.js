@@ -160,7 +160,7 @@ class GameScene {
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
-                         LEVEL0_MAP_FILE_NAME, 'level0');
+                         LEVEL_MAP_PATHS['level0'], 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, 'orangeGloop'); 
@@ -198,7 +198,8 @@ class GameScene {
             this.playerCharacter.y + this.playerCharacter.radius * 2 + PLATFORM_HEIGHT * 2, this.game), 'genforms');
             // this.playerCharacter.y + PLATFORM_HEIGHT * 2, this.game), 'genforms');
         }
-        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
+        // buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL1_MAP_FILE_NAME, level);
+        buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL_MAP_PATHS[level], level);
         this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
     }
 
@@ -500,7 +501,7 @@ class Krimtrok extends Entity {
     }
 
     speak(message) {
-        this.speakingTime = 4;
+        this.speakingTime = 5;
         this.message = message;
 
     }
