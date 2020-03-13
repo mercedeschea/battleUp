@@ -111,7 +111,7 @@ class PlayerCharacter extends Entity {
 
         this.floorTimer = 0;
         this.dead = false;
-
+        this.deathHandled = false;
         this.cookies = 0;
         this.totalCookies = 0;
         if(name) {
@@ -319,6 +319,10 @@ class PlayerCharacter extends Entity {
 
     handleDeath() {
         if (this.dead) {
+            if (this.external && !this.deathHandled) {
+                SCENE_MANAGER.gameplayScene.kT.speak("You friend \n" + this.name + "\n has let me down");
+                this.deathHandled = true;
+            }
             // console.log(this.y);
             if (this.game.active) {
                 this.game.active = false;
@@ -326,7 +330,11 @@ class PlayerCharacter extends Entity {
                 this.deadAnimation.elapsedTime = 0;
             }
             if (this.deadAnimation.isDone()) {
+                this.removeFromWorld = true;
                 this.game.over = true;
+                if(!this.external && this.game.peer) {
+                    this.game.peer.handleColorChange(this.name, null, false);
+                }
             }
             if (this.game.floor)
                 this.calcJump(this.deadAnimation, 100);

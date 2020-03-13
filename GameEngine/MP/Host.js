@@ -81,7 +81,7 @@ class Host {
         }
 
         this.handleGameUpdate = (playerName, data) => {
-          this.broadcast({type:'gameUpdate', name:playerName, data:data});
+          this.broadcast(data);
           // console.log(playerName, data);
           this.game.updateOtherGloop(playerName, data);
         }
@@ -105,7 +105,8 @@ class Host {
         this.broadcast = (obj) => {
             for(const playerName in this.state.players){
             const peer = this.state.players[playerName].peer;
-            if(peer.connected) peer.send(JSON.stringify(obj));
+            // console.log(this.state.players[playerName].peer);
+            if(peer.connected && playerName !== obj.name) peer.send(JSON.stringify(obj));
             }
         }
 
@@ -122,10 +123,10 @@ class Host {
             })
         })
         }
-        this.handleColorChange = (name, color) => {
+        this.handleColorChange = (name, color, ready) => {
           console.log('sending a color change', name, color);
           this.state.players[name].gloopColor = color;
-          this.state.players[name].ready = true;
+          this.state.players[name].ready = ready;
           if (!this.state.players[name].number) {
             this.state.players[name].number = this.playerNumbers.findIndex(number => !number);
             console.log(this.state.players[name].number);
@@ -148,7 +149,7 @@ class Host {
             // break;
             case 'colorChange':
             console.log('got a color change', data.players);
-            this.handleColorChange(playerName, data.gloopColor);
+            this.handleColorChange(playerName, data.gloopColor, data.ready);
             break;
             case 'gameUpdate':
             this.handleGameUpdate(playerName, data);
@@ -198,6 +199,9 @@ class Host {
             if(playerCount > 1 && playersReady.every(e => e === true)){
               // We have enough players and they are all ready
               this.state.gameStarted = true;
+              for(const playerName in this.state.players){
+                this.state.players[playerName].ready = false;
+              }
               let thisGloopDetails = {name:this.hostName, gloopColor:this.state.players[this.hostName].gloopColor,
                  number:this.state.players[this.hostName].number};
               let otherGloopDetails = this.playersToArray().filter((e) => e.name !== this.hostName).map((e) => {
@@ -303,7 +307,7 @@ class Host {
                 this.playerNumbers[this.state.players[playerName].number] = false;
                 delete playersCopy[playerName];
                 this.state.players = playersCopy;
-
+                console.log('should delete player', this.state.players);
                 // Delete remote ref to player
                 playerRef.remove();
 

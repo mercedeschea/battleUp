@@ -30,16 +30,17 @@ class Player {
         });
     }
     
-    this.handleColorChange = (name, color) => {
+    this.handleColorChange = (name, color, ready) => {
         console.log('sending a color change');
         this.state.gloopColor = color;
-        this.broadcast({type:'colorChange', gloopColor:color, name:name});
+        this.broadcast({type:'colorChange', gloopColor:color, name:name, ready:ready});
     }
 
     this.handleData = (data) => {
         switch(data.type){
         case 'startGame':
             console.log('got them readies');
+            this.state.ready = false;
             this.state.gameStarted = true;
             let thisGloopDetails = {name:this.state.name, gloopColor:this.state.gloopColor, number:this.state.number};
             let otherGloopDetails = this.state.players.filter((e) => e.name !== this.state.name).map((e) => {

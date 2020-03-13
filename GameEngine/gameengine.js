@@ -159,7 +159,7 @@ class GameEngine {
                     that.mouseStart = false;
             } // gloop color null unless gloop is selected
             if(that.peer && that.gloopColor) {
-                that.peer.handleColorChange(that.myName, that.gloopColor);
+                that.peer.handleColorChange(that.myName, that.gloopColor, true);
             }
             //only hosts can start games
             if (that.scene === 'start' && !that.started && that.selectGloop && that.mouseStart && !that.multiplayer) {
@@ -345,8 +345,12 @@ class GameEngine {
         let gloopTypes = Object.keys(this.gloops);
         for (const gloop of gloopTypes) {
             var gloopEntity = this.gloops[gloop];
-            if (gloopEntity && !gloopEntity.removeFromWorld) {
-                gloopEntity.update();
+            if (gloopEntity) {
+                if (!gloopEntity.removeFromWorld) {
+                    gloopEntity.update();
+                } else {
+                    delete this.gloops[gloop]; 
+                }
             }
         }
         const entityTypes = Object.keys(this.entities);

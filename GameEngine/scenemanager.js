@@ -281,7 +281,7 @@ class GameOver {
             this.game.ctx.fillStyle = "#D4AF37";
             this.game.ctx.font = SCORE_FONT;
             if (!this.scoreSent) {
-                this.game.ctx.fillText("Enter your name below", 10, this.game.surfaceHeight - this.arrowSpriteSheet.height - 20);
+                this.game.ctx.fillText("Enter your name below! \t Click screen to play again!", 10, this.game.surfaceHeight - this.arrowSpriteSheet.height - 20);
                 this.game.ctx.drawImage(this.arrowSpriteSheet, 0, this.game.surfaceHeight - this.arrowSpriteSheet.height);
             }
             this.kT.drawGameOver(this.score, 0, this.game.surfaceHeight/16);
@@ -413,11 +413,11 @@ class StartScreen {
     }
 
     joinAGame() {
-        this.message = ("Enter a game code to join a game!");
+        this.message = ("Enter your game code to join a game!");
     }
 
     hostWaitForPlayers() {
-        this.message = "Wait for other players to join game!"
+        this.message = "Wait for other players to join the game!"
         this.draw();
     }
 
