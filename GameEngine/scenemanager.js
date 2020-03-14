@@ -2,7 +2,7 @@ const GAMEOVER_PATH = './Sprites/Scenes/black_Background.jpg';
 const GAMEOVER_ICON = './Sprites/HUD/gameOver.png';
 const START_PATH = './Sprites/Usables/lvl1/background.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
-const COOKIE_COUNT_SIZE_X = 150;
+const COOKIE_COUNT_SIZE_X = 100;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
@@ -512,9 +512,10 @@ class Score {
         this.game = game;
         this.scoreTimer = new Timer();
         this.displayScore = 0;
-        this.displayCookie = new Cookie(AM.getAsset(COOKIE_PATH), 
-        this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
+        this.displayCookie = new Cookie(AM.getAsset(COOKIE_HUD_PATH), 
+            this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
         this.displayCookie.animation = null;
+        this.displayCookie.scale = .5;
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
         this.maxY = 0;

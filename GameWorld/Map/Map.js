@@ -18,6 +18,7 @@ const FLOOR_FLASH_PATH = "./Sprites/Usables/lvl0/floorFlashing.png";
 const MUSIC_PATH = "./Music/Alien_One.wav";
 const PILLAR_PATH = "./Sprites/Usables/lvl0/pillarWithTorchSheet.png";
 const COOKIE_PATH = "./Sprites/Usables/items/cookie.png";
+const COOKIE_HUD_PATH = './Sprites/HUD/cookieHUD.png'
 const LEVEL0_MAP_FILE_NAME = "lvl0.txt";
 const LEVEL1_MAP_FILE_NAME = "test3.txt";
 const LEVEL2_MAP_FILE_NAME = "lvl1.txt";
@@ -385,6 +386,7 @@ function MapAMDownloads(AM) {
     AM.queueDownload(GAMEOVER_PATH);
     AM.queueDownload(GAMEOVER_ICON);
     AM.queueDownload(COOKIE_PATH);
+    AM.queueDownload(COOKIE_HUD_PATH);
     AM.queueDownload(START_PATH);
     AM.queueDownload(LEVEL1_PATH);
     AM.queueDownload(LEVEL1_FLOOR);
