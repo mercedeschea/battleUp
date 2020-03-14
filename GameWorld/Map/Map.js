@@ -398,9 +398,12 @@ function MapAMDownloads(AM) {
     AM.queueDownload(LEVEL4_PATH);
     AM.queueDownload(LEVEL4_GENFORM);
     AM.queueDownload(KRIMTROK_SHEET);
+    AM.queueDownload(EVIL_GLOOP_PATH);
     AM.queueDownload(BUBBLE_SHEET);
+    AM.queueDownload(BUBBLE_SHEET_FLIP);
     AM.queueDownload(LOGO_ICON);
     AM.queueDownload(ARROW_ICON);
+    AM.queueDownload(SCOREBOARD_PATH);
 }
 //misc platform helper methods below
 //checks a single coordinate against a list of coordinates

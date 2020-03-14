@@ -4,13 +4,16 @@ const START_PATH = './Sprites/Usables/lvl1/background.png';
 const MUSIC_MANAGER = new MusicManager(document.getElementById("soundTrack"));
 const COOKIE_COUNT_SIZE_X = 100;
 const KRIMTROK_SHEET = './Sprites/Usables/Misc/krimtrokHead.png';
+const EVIL_GLOOP_PATH = './Sprites/Usables/gloop(red)/gloopEvil.png';
 const BUBBLE_SHEET = './Sprites/Usables/Misc/speechBubble.png';
+const BUBBLE_SHEET_FLIP = './Sprites/Usables/Misc/speechBubble(flipped).png'
 const LOGO_ICON = './Sprites/HUD/battleUpLogo.png';
 const SCORE_FONT = "20px mainFont";
 const KT_FONT = "12px mainFont";
 const START_BUTTON = "./Sprites/HUD/startButtonPress.png";
 const ARROW_ICON = './Sprites/HUD/arrow.png';
 const FONT_COLOR = '#F1C40F';
+const SCOREBOARD_PATH = './Sprites/HUD/scoreboard.png';
 
 const ADD_SCORE_EP = 'addscore/';
 const SCOREBOARD_EP = 'scoreboard/';
@@ -147,12 +150,15 @@ class GameScene {
         this.background = background;
         this.score = null;
         this.kT = new Krimtrok(gameEngine, AM);
+        // this.evilGloop = new EvilGloop(gameEngine, AM);
+        // console.log(this.evilGloop);
     }
 
     update() {
         this.score.update();
         this.background.update();
         this.kT.update();
+        // this.evilGloop.update();
         // logEverySecond([this.game.camera.playerCharacter, this.playerCharacter]);
         if (this.game.camera.totalDrawOffset <= (this.game.surfaceHeight - 50)) {
             if(this.background.name === 'level0') {
@@ -207,6 +213,7 @@ class GameScene {
             this.game.addGloop(otherGloop, otherGloop.name);
         }
         this.game.addEntity(this.kT, 'top');
+        // this.game.addEntity(this.evilGloop, 'top');
         this.game.addEntity(this.score, 'top');
     }
 
@@ -242,8 +249,8 @@ class GameScene {
         }
         buildMapFromFile(this.game, AM, this.game.surfaceHeight * 5.5, LEVEL_MAP_PATHS[level], level);
         
-
-        this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!'); 
+        this.kT.speak('Well done Gloop,\n you\'re fattening up\n quite nicely!');
+        
     }
 
     draw() {
@@ -267,6 +274,7 @@ class GameOver {
         this.nameForm = document.getElementById("nameForm");
         let that = this;
         this.arrowSpriteSheet = AM.getAsset(ARROW_ICON);
+        this.scoreboardSheet = AM.getAsset(SCOREBOARD_PATH);
         this.nameForm.addEventListener( "submit", function ( event ) {
             event.preventDefault();
             that.sendScore();
@@ -294,6 +302,9 @@ class GameOver {
                 this.game.ctx.fillText("High Scores", drawX, drawY);
                 drawY += this.game.surfaceHeight/12;
                 this.game.ctx.font = KT_FONT;
+                console.log(this.scoreboardSheet);
+                console.log('hello', this.scoreboardSheet.width);
+                this.game.ctx.drawImage(this.scoreboardSheet, this.game.surfaceWidth - 50 - this.scoreboardSheet.width, 75);
                 for (const player of this.scores) {
                     // console.log('hello', player.username, player.mscore);
                     this.game.ctx.fillText(player.username, drawX, drawY);
@@ -434,6 +445,21 @@ class StartScreen {
     }
 
 
+}
+
+class ControlScreen {
+    constructor(gameEngine) {
+        this.game = gameEngine;
+        this.background = new Background(game, AM, LEVEL3_PATH, 'level3');
+    }
+
+    update() {
+    }
+
+    draw() {
+        this.background.draw();
+        this.game.ctx.fillText("CONTROLS");
+    }
 }
 
 // animates start button
@@ -627,3 +653,60 @@ class Krimtrok extends Entity {
     }
     
 }
+
+class EvilGloop extends Entity {
+    constructor(game, AM) {
+        super(game, 0, 0);
+        this.y = game.surfaceHeight/4 - 5;
+        this.speakingTime = 0;
+        this.speed = 100;
+        this.spriteSheet = AM.getAsset(EVIL_GLOOP_PATH);
+        this.animation = new Animation(this.rotateAndCache(AM.getAsset(EVIL_GLOOP_PATH), 
+            Math.PI/4, 0, 0, 64, 68, 1),
+            0, 0, 78, 84, 1, 1, true, false);
+        this.x = this.animation.frameWidth;
+        this.bubbleAnimation = new Animation(AM.getAsset(BUBBLE_SHEET_FLIP), 0, 0, 165, 100, 1, 1, true, false);
+    }
+
+    speak(message) {
+        this.speakingTime = 5;
+        this.message = message;
+
+    }
+
+    update() {
+        let xLimit = 0;
+        if (this.speakingTime > 0) {
+            if (this.x < xLimit)
+                this.x += this.game.clockTick * this.speed;
+            else
+                this.speakingTime -= this.game.clockTick;
+        } else if (this.x > -this.animation.frameWidth){
+            this.x -= this.game.clockTick * this.speed;
+        }
+    }
+    draw() {
+        let xLimit = 0
+        if (this.speakingTime > 0 || this.x > -this.animation.frameWidth) {
+            this.animation.drawFrame(this.game.clockTick, this.game.ctx, this.x, this.y, 1);
+        } 
+        if (this.x > xLimit) {
+            let bubX = this.x + this.bubbleAnimation.frameWidth * .45;
+            let bubY = this.y - this.bubbleAnimation.frameHeight * .65;
+            this.bubbleAnimation.drawFrame(this.game.clockTick, this.game.ctx, 
+                bubX, bubY, 1.5);
+            
+            this.game.ctx.font = KT_FONT;
+            this.game.ctx.fillStyle = FONT_COLOR;
+            let msg = this.message.split('\n');
+            this.game.ctx.fillText(msg[0], bubX+5, bubY + 25);
+            this.game.ctx.fillText(msg[1], bubX+5, bubY + 50);
+            this.game.ctx.fillText(msg[2], bubX+5, bubY+ 75);
+            
+        }
+    
+    }
+    
+}
+
+
