@@ -429,28 +429,33 @@ class PlayerCharacter extends Entity {
             this.placed = true;
             this.placeformManager.placeformPlace(true, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            new Audio("./Music/setPlaceform.wav").play();
             this.savePlaceformHistory('aLeft');
             this.setSlowdown();
         } else if (this.game.placeAngledRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, true, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            new Audio("./Music/setPlaceform.wav").play();
             this.savePlaceformHistory('aRight');
             this.setSlowdown();
         } else if (this.game.placeFlatLeft && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(true, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            new Audio("./Music/setPlaceform.wav").play();
             this.savePlaceformHistory('fLeft');
             this.setSlowdown();
         } else if (this.game.placeFlatRight && this.isSupported()) {
             this.placed = true;
             this.placeformManager.placeformPlace(false, false, this.x, this.y, 
                 this.moveLeftAnimation.frameWidth * PLAYER_SCALE, this.moveLeftAnimation.frameHeight * PLAYER_SCALE);
+            new Audio("./Music/setPlaceform.wav").play();
             this.savePlaceformHistory('fRight');
             this.setSlowdown();
         }
         if (this.game.removePlatforms) {
+            new Audio("./Music/platformDestruction.wav").play();
             this.placeformManager.clearPlaceforms();
         }
     }
@@ -517,6 +522,7 @@ class PlayerCharacter extends Entity {
                 this.currentAttackAnimation = this.attackCache.right;
             }
         } else if (this.game.attackSuper && this.cookies >= COOKIES_FOR_SUPER) {
+            new Audio("./Music/drillNoise.wav").play();
             this.cookies -= COOKIES_FOR_SUPER;
             this.superAttacking = 1;
         }
