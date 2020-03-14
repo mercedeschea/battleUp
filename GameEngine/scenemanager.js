@@ -33,7 +33,6 @@ class SceneManager {
     }
 
     updateStartScreenPlayers(listOfPlayers) {
-        console.log(listOfPlayers);
         if (this.game.scene === 'start') {
             for (const gloop of Object.values(this.game.gloops)) {
                 gloop.name = null;
@@ -43,8 +42,6 @@ class SceneManager {
                     this.game.gloops[player.gloopColor].setName(player.name);
             }
             this.game.draw();
-        } else {
-            console.error('update start screen called when not on startscreen');
         }
     }
 
@@ -544,6 +541,7 @@ class Score {
         this.scoreBoardDisplayCookie.animation = null;
         this.displayCookie.animation = null;
         this.displayCookie.scale = .5;
+        this.scoreBoardDisplayCookie.scale = .5
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
         this.maxY = 0;
@@ -564,7 +562,7 @@ class Score {
         this.game.ctx.fillStyle = FONT_COLOR;
         this.game.ctx.fillText(this.playerCharacter.name, destX + 30, destY);
         this.game.ctx.fillText(this.maxY, destX + this.game.surfaceWidth/3, destY);
-        this.scoreBoardDisplayCookie.x = destX + this.game.surfaceWidth/2   ;
+        this.scoreBoardDisplayCookie.x = destX + this.game.surfaceWidth/2;
         this.scoreBoardDisplayCookie.y = destY - 32;
         this.scoreBoardDisplayCookie.draw();
         this.game.ctx.fillText(this.playerCharacter.cookies, 

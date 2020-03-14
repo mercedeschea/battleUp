@@ -124,7 +124,6 @@ class Host {
         }
 
         this.handleColorChange = (name, color, ready) => {
-          console.log('sending a color change', name, color);
           this.state.players[name].gloopColor = color;
           this.state.players[name].ready = ready;
           if (!this.state.players[name].number) {
@@ -148,7 +147,6 @@ class Host {
             // this.handleReady(playerName, data.ready);
             // break;
             case 'colorChange':
-            console.log('got a color change', data.players);
             this.handleColorChange(playerName, data.gloopColor, data.ready);
             break;
             case 'gameUpdate':
@@ -286,7 +284,7 @@ class Host {
               let errorCount = ++this.state.players[playerName].errors
               console.log(errorCount);
               if (errorCount > 3) {
-                this.removePlayer (playerName, signalDataRef, playerRef)
+                this.removePlayer (playerName, signalDataRef, playerRef, peer)
               }
             });
 
@@ -297,10 +295,9 @@ class Host {
             let that = this;
             this.state.players[playerName].intervalID = setInterval(() => {
                 let currentTime = Date.now();
-                console.log('checking ', playerName, ' is still connected');
                 if(currentTime - that.state.players[playerName].lastCheckIn > 3000) {
                   if (playerName !== that.hostName)
-                    that.removePlayer(playerName, signalDataRef, playerRef);
+                    that.removePlayer(playerName, signalDataRef, playerRef, peer);
                 }
               }, 5000);
             });
@@ -308,7 +305,7 @@ class Host {
         });
         }
 
-        removePlayer (playerName, signalDataRef, playerRef){
+        removePlayer (playerName, signalDataRef, playerRef, peer){
             clearInterval(this.state.players[playerName].intervalID);
             // Player disconnect
               // Delete local ref to player

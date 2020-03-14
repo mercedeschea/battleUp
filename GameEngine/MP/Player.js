@@ -62,7 +62,6 @@ class Player {
                 if (player.name === this.state.name) {
                     this.state.number = player.number;
                 }
-                console.log(player);
             }
             playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
             this.state.players = data.players;
@@ -80,15 +79,6 @@ class Player {
         }
         return;
     }
-  
-    //   this.trackInputs = () => {
-    //     OnInputChange((input) => {
-    //       this.broadcast({
-    //         type: 'input',
-    //         input: input
-    //       })
-    //     });
-    //   }
     }
   
     joinGame = () => {
@@ -178,7 +168,6 @@ class Player {
           });
         let that = this;
         INTERVAL_ID = setInterval(() => {
-            console.log('sending stillHere');
             that.broadcast({type:'stillHere'});}, 1000);
         }
         })

@@ -355,10 +355,8 @@ class GameEngine {
     }
 
     updateOtherGloop(playerName, data) {
-        if (Date.now() % 100 === 0 ){
-            // console.log(this.gloops);
-        }
-        this.gloops[playerName].externalUpdate(data);
+        if (this.gloops[playerName])
+            this.gloops[playerName].externalUpdate(data);
 
     }
 
@@ -545,11 +543,9 @@ class Camera {
         // console.log('the scroll control pc', this.playerCharacter.y);
         // console.log('the scroll control',  this.totalDrawOffset);
         if (this.playerCharacter.y - this.totalDrawOffset < SCROLL_POINT) {
-            console.log('should scrool');
             this.advanceTime = .5;//set to the amount of seconds you want to scroll the camera for
         }
         if(this.advanceTime > 0) {
-            console.log('should scrool');
             this.currentDrawOffset = this.game.clockTick * this.speed * this.advanceFactor;
             // console.log(this.game.clockTick, 'a tick with this value');
             // console.log(this.advanceTime);
