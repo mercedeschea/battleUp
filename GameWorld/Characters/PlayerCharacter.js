@@ -177,6 +177,7 @@ class PlayerCharacter extends Entity {
         this.handleAttacking();
 
         this.clearOutPlaceforms();
+        this.score.update();
     }
     externalUpdate(gameState) {
         // console.log(gameState);
@@ -203,7 +204,7 @@ class PlayerCharacter extends Entity {
               facingRight:this.facingRight, jumpY:this.jumpY, x:this.x, y:this.y, placeformsCurrent:placeformsCurrent, dead:this.dead}};
         return gameState;
     }
-    
+
 
     calcJump(jumpAnimation, totalHeight) {
         var jumpDistance = jumpAnimation.elapsedTime / jumpAnimation.totalTime;

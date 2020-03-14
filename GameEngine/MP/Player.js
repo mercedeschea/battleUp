@@ -1,3 +1,5 @@
+//based on this project https://dev.to/rynobax_7/creating-a-multiplayer-game-with-webrtc
+let INTERVAL_ID;
 class Player {
     constructor(name, code) {
         this.state = {
@@ -10,10 +12,7 @@ class Player {
         gloopColor: null,
         database: DATABASE,
         host: null,
-        players: [],
-        gameState: {
-            sprites: []
-        }
+        players: []
     }
     this.game = null;
     this.peer = null;
@@ -111,7 +110,7 @@ class Player {
         // Store reference to peer
         const peer = new SimplePeer({initiator: true, config: PEER_CONFIG});
         this.peer = peer;
-
+        
         // Sending signal
         peer.on('signal', (signalData) => {
             const newSignalDataRef = nameRef.push();
@@ -129,12 +128,15 @@ class Player {
         peer.on('error', (error) =>{
             let playerListDisplay = document.getElementById('playerList');
             playerListDisplay.innerHTML = "An error occured, please refresh and try again."
+            showMP();
         });
 
         // Connecting
         peer.on('connect', () => {
             
             // The connection is established, so disconnect from firebase
+            let detailsSubmitButton = document.getElementById('detailsSubmitButton');
+            detailsSubmitButton.style.display = 'none'
             if(SCENE_MANAGER.game.scene === 'start')
                 SCENE_MANAGER.startScreen.playerWaitForHost();
             database.goOffline();
@@ -171,8 +173,13 @@ class Player {
   
             // Remove room
             database.ref('/rooms/'+code).remove();
+            showMP();
             // TODO: Allow another host to join and continue game?
           });
+        let that = this;
+        INTERVAL_ID = setInterval(() => {
+            console.log('sending stillHere');
+            that.broadcast({type:'stillHere'});}, 1000);
         }
         })
     }

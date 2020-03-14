@@ -1,6 +1,5 @@
-
+//based on this project https://dev.to/rynobax_7/creating-a-multiplayer-game-with-webrtc
 const ROOM_CODE_OPTS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
 function generateRoomCode() {
   let code = '';
   for(let i=0; i<4; i++){
@@ -42,7 +41,7 @@ function getOpenRoom(){
 }
 
 class Host {
-    constructor(name){
+    constructor(name) {
         const players = {};
         players[name] = {
             host: true,
@@ -123,6 +122,7 @@ class Host {
             })
         })
         }
+
         this.handleColorChange = (name, color, ready) => {
           console.log('sending a color change', name, color);
           this.state.players[name].gloopColor = color;
@@ -157,6 +157,9 @@ class Host {
             case 'connected':
             this.handleConnected(playerName);
             break;
+            case 'stillHere':
+            this.state.players[playerName].lastCheckIn = Date.now();
+            break;
             default:
             throw Error('Unkown input ', data.type);
         }
@@ -188,8 +191,10 @@ class Host {
         // Workaround for https://github.com/feross/simple-peer/issues/178
         this.broadcastPlayers();
         }
-        
+
+
         this.tryToStartGame = () => {
+          console.log(this.state.players);
           let playerCount = 0;
             const playersReady = [];
             for(const playerName in this.state.players){
@@ -218,7 +223,7 @@ class Host {
 
               // Delete the room
               DATABASE.ref('/rooms/'+this.state.code).remove();
-          } else if (SCENE_MANAGER.game.scene === 'start'){
+          } else if (SCENE_MANAGER.game.scene === 'start') {
             if (playerCount === 1) {
               console.log('need more players');
               SCENE_MANAGER.startScreen.hostWaitForPlayers();
@@ -228,39 +233,14 @@ class Host {
             }
           }
         }
-
-        // this.handleReady = (name, ready) => {
-        //     const p = this.copyPlayers();
-        //     p[name].ready = ready;
-        //     this.state.players = p;
-        //     // Update players of everyone's status
-        //     this.broadcastPlayers();
-
-        //     // After updating the players ready status, check if the game should start
-        //     let playerCount = 0;
-        //     const playersReady = [];
-        //     for(const playerName in this.state.players){
-        //         playerCount++;
-        //         playersReady.push(this.state.players[playerName].ready);
-        //     }
-        //     if(playerCount > 0 && playersReady.every(e => e === true)){
-        //         // We have enough players and they are all ready
-        //         this.state.gameStarted = true;
-        //         this.game.startMP(GLOOP_SHEET_PATHS_PURPLE);
-        //         // Send start game to all peers
-        //         this.broadcast({type: 'startGame'});
-
-        //         // Delete the room
-        //         DATABASE.ref('/rooms/'+this.state.code).remove();
-        //     }
-        // }
-    }
+      }        
     runHost() {
         getOpenRoom().then((code) => {
             // Display room code
             this.state.code = code;
             console.log(this);
             console.log(code);
+            DATABASE.ref('/rooms/'+code+'/players'+this.hostName).set({occupied:true});
             // Players signaling
             DATABASE.ref('/rooms/'+code+'/players').on('child_added', ({key: playerName}) => {
                 // Create Peer channel
@@ -274,7 +254,7 @@ class Host {
                     newSignalDataRef.set({
                     data: JSON.stringify(signalData)
                     });
-            });
+                });
             
 
             
@@ -285,7 +265,9 @@ class Host {
                 peer: peer,
                 //_peer: peer,
                 ready: false,
-                input: false
+                input: false,
+                errors:0,
+                lastCheckIn:Date.now()
             }
             this.state.players = playersCopy;
             
@@ -300,29 +282,54 @@ class Host {
                 this.handleData(playerName, JSON.parse(data));
             });
 
+            peer.on('error', () => {
+              let errorCount = ++this.state.players[playerName].errors
+              console.log(errorCount);
+              if (errorCount > 3) {
+                this.removePlayer (playerName, signalDataRef, playerRef)
+              }
+            });
+
             // Player disconnect
             peer.on('close', () => {
-                // Delete local ref to player
-                const playersCopy = Object.assign({}, this.state.players);
-                this.playerNumbers[this.state.players[playerName].number] = false;
-                delete playersCopy[playerName];
-                this.state.players = playersCopy;
-                console.log('should delete player', this.state.players);
-                // Delete remote ref to player
-                playerRef.remove();
-
-                // Remove callbacks
-                playerRef.off('child_added');
-
-                // Delete remote signaling to player
-                signalDataRef.remove();
-
-                // Delete peer reference
-                peer.destroy();
+              this.removePlayer (playerName, signalDataRef, playerRef);
             });
+            let that = this;
+            this.state.players[playerName].intervalID = setInterval(() => {
+                let currentTime = Date.now();
+                console.log('checking ', playerName, ' is still connected');
+                if(currentTime - that.state.players[playerName].lastCheckIn > 3000) {
+                  if (playerName !== that.hostName)
+                    that.removePlayer(playerName, signalDataRef, playerRef);
+                }
+              }, 5000);
             });
+
         });
         }
 
+        removePlayer (playerName, signalDataRef, playerRef){
+            clearInterval(this.state.players[playerName].intervalID);
+            // Player disconnect
+              // Delete local ref to player
+              if(this.game.gloops[playerName])
+                this.game.gloops[playerName].removeFromWorld = true;
+              const playersCopy = Object.assign({}, this.state.players);
+              this.playerNumbers[this.state.players[playerName].number] = false;
+              delete playersCopy[playerName];
+              this.state.players = playersCopy;
+              console.log('should delete player', this.state.players);
+              // Delete remote ref to player
+              playerRef.remove();
+
+              // Remove callbacks
+              playerRef.off('child_added');
+
+              // Delete remote signaling to player
+              signalDataRef.remove();
+
+              // Delete peer reference
+              peer.destroy();
+          }
 
 }

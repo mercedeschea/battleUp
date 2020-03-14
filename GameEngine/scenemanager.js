@@ -150,7 +150,6 @@ class GameScene {
     }
 
     update() {
-        this.score.update();
         this.background.update();
         this.kT.update();
         // logEverySecond([this.game.camera.playerCharacter, this.playerCharacter]);
@@ -195,6 +194,7 @@ class GameScene {
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
                          LEVEL_MAP_PATHS['level0'], 'level0');
         this.score = new Score(this.game, AM, this.playerCharacter);
+        this.playerCharacter.score = this.score;
         this.game.addEntity(testCookie, 'cookies');    
         this.game.addGloop(this.playerCharacter, activeGloop.name); 
         for (const otherGloop of otherGloops) {
@@ -203,6 +203,8 @@ class GameScene {
             otherGloop.y = startY - this.playerCharacter.radius * 2;
             startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
             otherGloop.x - otherGloop.radius, startY, this.game);
+            let otherGloopScore = new Score(otherGloop.game, AM, otherGloop);
+            otherGloop.score = otherGloopScore;
             this.game.addEntity(startform, 'genforms');
             this.game.addGloop(otherGloop, otherGloop.name);
         }
@@ -248,8 +250,6 @@ class GameScene {
 
     draw() {
         this.background.draw();
-        // this.score.draw();
-        // this.kT.draw();
     }
 }
 
@@ -510,10 +510,12 @@ class Score {
     constructor(game, AM, PlayerCharacter) {
         // this.spriteSheet = AM.getAsset(SCORE_TEXT);
         this.game = game;
-        this.scoreTimer = new Timer();
         this.displayScore = 0;
         this.displayCookie = new Cookie(AM.getAsset(COOKIE_PATH), 
-        this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
+            this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
+        this.scoreBoardDisplayCookie = new Cookie(AM.getAsset(COOKIE_PATH), 
+            this.game.surfaceWidth - COOKIE_COUNT_SIZE_X, 0, game);
+        this.scoreBoardDisplayCookie.animation = null;
         this.displayCookie.animation = null;
         this.playerCharacter = PlayerCharacter;
         this.currentY = 0;
@@ -529,10 +531,19 @@ class Score {
         this.displayCookie.draw();
         this.game.ctx.fillText(this.playerCharacter.cookies, this.game.surfaceWidth - this.displayCookie.radius * 2, 20);
     }
-
+    drawForScoreBoard(destX, destY) {
+        this.playerCharacter.lookForwardAnimation.drawFrame(0, this.game.ctx, destX, destY - 20, .4);
+        this.game.ctx.font = SCORE_FONT;
+        this.game.ctx.fillStyle = FONT_COLOR;
+        this.game.ctx.fillText(this.playerCharacter.name, destX + 30, destY);
+        this.game.ctx.fillText(this.maxY, destX + this.game.surfaceWidth/3, destY);
+        this.scoreBoardDisplayCookie.x = destX + this.game.surfaceWidth/2   ;
+        this.scoreBoardDisplayCookie.y = destY - 32;
+        this.scoreBoardDisplayCookie.draw();
+        this.game.ctx.fillText(this.playerCharacter.cookies, 
+            this.scoreBoardDisplayCookie.x + 50, destY);
+    }   
     update() { 
-        this.displayScore = this.scoreTimer.tick();
-        let formatTime = Math.round(this.scoreTimer.gameTime*100)/100;
         this.currentY = Math.round(((this.game.mapHeight - this.playerCharacter.y - this.startY)* 100)/100);
         if (this.currentY > this.maxY) {
             this.maxY = this.currentY;

@@ -74,6 +74,10 @@ MapAMDownloads(AM);
 
 // AM.queueDownload(SCORE_TEXT);
 function showMP() {
+    if (INTERVAL_ID) {
+        clearInterval(INTERVAL_ID);
+        INTERVAL_ID = null;
+    }
     myPeer = null;
     let mPForm = document.getElementById('mPDetails');
     let mPReady = document.getElementById('mPReady');
@@ -82,12 +86,12 @@ function showMP() {
     detailsSubmitButton.style.display = 'block';
     mPForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        detailsSubmitButton.style.display = 'none';
         let data = new FormData(mPForm);
         console.log(data.get('mPHost'));
         console.log(data);
         let code;
         if (data.get('mPHost') == 'on') {
+            detailsSubmitButton.style.display = 'none';
             console.log('i am host');
             console.log(data.get('mPName'));
             myPeer = new Host(data.get('mPName'));

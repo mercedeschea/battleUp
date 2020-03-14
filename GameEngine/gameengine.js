@@ -69,6 +69,7 @@ class GameEngine {
         this.click = false;
         this.mouse = null;
         this.myName = null;
+        this.displayScores = false;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -101,7 +102,7 @@ class GameEngine {
     startInput() {
         const keyArr = {'removePlatforms':'KeyF', 'up':'KeyW', /*'left':'KeyA',*/ 'down':'KeyS', /*'right':'KeyD',*/ 
             'altLeft':'ArrowLeft', 'altRight':'ArrowRight', 'altUp':'ArrowUp',
-            'altDown':'ArrowDown', 'placeFlatLeft':'KeyA', 'placeFlatRight':'KeyD', 'placeAngledLeft':'KeyQ', 'placeAngledRight':'KeyE', 'jump':'Space',
+            'altDown':'ArrowDown', 'displayScores':'Tab', 'placeFlatLeft':'KeyA', 'placeFlatRight':'KeyD', 'placeAngledLeft':'KeyQ', 'placeAngledRight':'KeyE', 'jump':'Space',
             /*'attackLeft':'KeyR', 'attackRight':'Tab', */'attackSuper':'KeyR', 'pause':'KeyP'};
         console.log('Starting input');
         var that = this;
@@ -230,7 +231,9 @@ class GameEngine {
             if (e.code === keyArr['attackRight'] || e.code === keyArr['attackLeft'])
                 that.attack = true;
             if (e.code === keyArr['pause'])
-                that.started ? that.started = false : that.started = true;    
+                that.started ? that.started = false : that.started = true;  
+            if (e.code === keyArr['displayScores'])
+                that.displayScores = true;  
             e.preventDefault();
         }, false);
         this.ctx.canvas.addEventListener("keyup", function (e) {
@@ -242,6 +245,8 @@ class GameEngine {
                 that.down = false;
             if (e.code === keyArr['right'] || e.code === keyArr['altRight'])
                 that.right = false;
+            if (e.code === keyArr['displayScores'])
+                that.displayScores = false;  
             e.preventDefault();
         }, false);
         console.log('Input started');
@@ -328,7 +333,25 @@ class GameEngine {
             }
             
         }
+        if(this.displayScores) {
+            this.displayScoreBoard();
+        }
         this.ctx.restore();
+    }
+
+    displayScoreBoard() {
+        let scores = [];
+        for (const gloop  in this.gloops) {
+            scores.push(this.gloops[gloop].score);
+        }   
+        scores.sort((a, b) => b.maxY - a.maxY);
+        let manualCentering = 30;
+        let destX = this.surfaceWidth/4 - manualCentering;
+        let startY = this.surfaceHeight/8;
+        console.log(scores);
+        for (let i = 0; i < scores.length; i++) {
+            scores[i].drawForScoreBoard(destX, startY * (i + 1));
+        }
     }
 
     updateOtherGloop(playerName, data) {
