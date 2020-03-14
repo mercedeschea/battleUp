@@ -81,7 +81,7 @@ class GameEngine {
 
     //initializes camera, in its own method because the background must be loaded first to determine map height
     initCamera(playerCharacter, startY) {
-        console.log(playerCharacter.external, 'cammera init');
+        // console.log(playesrCharacter.external, 'cammera init');
         if (!this.camera)
             this.camera = new Camera(this, SCROLL_SPEED, startY, playerCharacter);
         else
@@ -512,7 +512,7 @@ class Camera {
         this.playerCharacter = playerCharacter;
         this.advanceTime = 0;
         this.advanceFactor = 15;
-        console.log(startY, playerCharacter.y);
+        // console.log(startY, playerCharacter.y);
     }
     draw() {}
     update() {

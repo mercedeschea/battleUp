@@ -95,7 +95,7 @@ class SceneManager {
         this.addBackground(level4, 'level4');
         this.game.mapHeight = level0.spriteSheet.height;
         this.playerCharacter = new PlayerCharacter(this.game, AM, GLOOP_SHEET_PATHS[thisGloop.gloopColor], false, thisGloop.name);
-        console.log(thisGloop, otherGloops);
+        // console.log(thisGloop, otherGloops);
         this.playerCharacter.number = thisGloop.number;
         // console.log('right before camera init');
         this.game.initCamera(this.playerCharacter, this.game.mapHeight - this.game.surfaceHeight);
@@ -195,7 +195,7 @@ class GameScene {
         let startform = new Platform(AM.getAsset(GENFORM_PATHS.level0), 'center',
          this.playerCharacter.x - this.playerCharacter.radius, startY, this.game);
         this.game.addEntity(startform, 'genforms');
-        console.log(this.playerCharacter.number);
+        // console.log(this.playerCharacter.number);
         // this.playerCharacter.y = this.game.surfaceHeight + 400//+ 200;//spawn at the top for testing
 
         buildMapFromFile(this.game, AM, this.game.mapHeight - 4 * VERT_BLOCK_SIZE,
