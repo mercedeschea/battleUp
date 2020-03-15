@@ -140,6 +140,9 @@ class Player {
             this.state.connected = true;
             this.state.connecting = false;
             }, 1000);
+            let that = this;
+            INTERVAL_ID = setInterval(() => {
+                that.broadcast({type:'stillHere'});}, 1000);
         });
 
         // Data
@@ -166,10 +169,7 @@ class Player {
             showMP();
             // TODO: Allow another host to join and continue game?
           });
-        let that = this;
-        INTERVAL_ID = setInterval(() => {
-            that.broadcast({type:'stillHere'});}, 1000);
         }
-        })
+        });
     }
 }
