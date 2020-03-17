@@ -110,6 +110,7 @@ class Player {
         // Sending signal
         peer.on('signal', (signalData) => {
             const newSignalDataRef = nameRef.push();
+            console.log('signal sent');
             newSignalDataRef.set({
             data: JSON.stringify(signalData)
             });
@@ -118,6 +119,7 @@ class Player {
         // Recieving signal
         const hostSignalRef = database.ref('/rooms/'+code+'/host/'+name);
         hostSignalRef.on('child_added', (res) => {
+            console.log('signal received');
             peer.signal(JSON.parse(res.val().data));
         });
 

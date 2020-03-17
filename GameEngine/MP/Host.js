@@ -257,6 +257,7 @@ class Host {
                 // Upload Host signals
                 const signalDataRef = DATABASE.ref('/rooms/'+code+'/host/'+playerName);
                 peer.on('signal', (signalData) => {
+                  console.log('sending host signal');
                     const newSignalDataRef = signalDataRef.push();
                     newSignalDataRef.set({
                     data: JSON.stringify(signalData)
@@ -282,7 +283,10 @@ class Host {
 
             // Listen for player singnaling data
             const playerRef = DATABASE.ref('/rooms/'+code+'/players/'+playerName);
-            playerRef.on('child_added', (res) => peer.signal(JSON.parse(res.val().data)));
+            playerRef.on('child_added', (res) => {
+            console.log('signal received');
+            peer.signal(JSON.parse(res.val().data));
+            });
 
             // Listen to messages from player
             peer.on('data', (data) => {
