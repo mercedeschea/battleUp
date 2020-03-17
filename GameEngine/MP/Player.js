@@ -117,6 +117,7 @@ class Player {
 
         peer.on('error', (error) =>{
             let playerListDisplay = document.getElementById('playerList');
+            console.log(error);
             playerListDisplay.innerHTML = "An error occured, please refresh and try again."
             showMP();
         });
@@ -142,7 +143,7 @@ class Player {
             }, 1000);
             let that = this;
             INTERVAL_ID = setInterval(() => {
-                that.broadcast({type:'stillHere'});}, 1000);
+                that.broadcast({type:'stillHere'});}, 2000);
         });
 
         // Data
