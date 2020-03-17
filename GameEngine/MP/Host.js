@@ -186,6 +186,14 @@ class Host {
               playerListDisplay.innerHTML += playerName + ', ';
           }
           playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
+          let that = this;
+          this.state.players[playerName].intervalID = setInterval(() => {
+              let currentTime = Date.now();
+              if(currentTime - that.state.players[playerName].lastCheckIn > 3000) {
+                if (playerName !== that.hostName)
+                  that.removePlayer(playerName, signalDataRef, playerRef, peer);
+              }
+            }, 5000);
         // Workaround for https://github.com/feross/simple-peer/issues/178
         this.broadcastPlayers();
         }
@@ -292,14 +300,6 @@ class Host {
             peer.on('close', () => {
               this.removePlayer (playerName, signalDataRef, playerRef);
             });
-            let that = this;
-            this.state.players[playerName].intervalID = setInterval(() => {
-                let currentTime = Date.now();
-                if(currentTime - that.state.players[playerName].lastCheckIn > 3000) {
-                  if (playerName !== that.hostName)
-                    that.removePlayer(playerName, signalDataRef, playerRef, peer);
-                }
-              }, 5000);
             });
 
         });
