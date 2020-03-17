@@ -28,6 +28,12 @@ class Player {
             ready: ready
         });
     }
+
+    this.startStillHere = () => {
+        let that = this;
+        INTERVAL_ID = setInterval(() => {
+            that.broadcast({type:'stillHere'});}, 1000);
+    }   
     
     this.handleColorChange = (name, color, ready) => {
         console.log('sending a color change');
@@ -138,12 +144,10 @@ class Player {
             this.broadcast({
                 type: 'connected'
             });
+            this.startStillHere();
             this.state.connected = true;
             this.state.connecting = false;
             }, 1000);
-            let that = this;
-            INTERVAL_ID = setInterval(() => {
-                that.broadcast({type:'stillHere'});}, 2000);
         });
 
         // Data
