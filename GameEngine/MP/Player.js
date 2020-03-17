@@ -140,13 +140,15 @@ class Player {
             console.log('connected');
             // connect event is broken in chrome tabs or something, so this works around it for host
             // https://github.com/feross/simple-peer/issues/178
+            let that = this;
             setTimeout(() => {
-            this.broadcast({
+                console.log(this);
+            that.broadcast({
                 type: 'connected'
             });
-            this.startStillHere();
-            this.state.connected = true;
-            this.state.connecting = false;
+            that.startStillHere();
+            that.state.connected = true;
+            that.state.connecting = false;
             }, 1000);
         });
 

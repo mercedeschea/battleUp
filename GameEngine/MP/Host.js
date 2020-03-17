@@ -187,6 +187,7 @@ class Host {
           }
           playerListDisplay.innerHTML = playerListDisplay.innerHTML.slice(0, -2);
           let that = this;
+          this.state.players[playerName].lastCheckIn = Date.now();
           this.state.players[playerName].intervalID = setInterval(() => {
               let currentTime = Date.now();
               if(currentTime - that.state.players[playerName].lastCheckIn > 3000) {
@@ -277,7 +278,7 @@ class Host {
             }
             this.state.players = playersCopy;
             
-            this.broadcastPlayers();
+            // this.broadcastPlayers();
 
             // Listen for player singnaling data
             const playerRef = DATABASE.ref('/rooms/'+code+'/players/'+playerName);
